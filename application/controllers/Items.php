@@ -834,6 +834,8 @@ class Items extends Secure_Controller
 				$failCodes	= array();
 				$keys		= $line_array[0];
 
+        $duplicates = [];
+        
 				$this->db->trans_begin();
 				for($i = 1; $i < count($line_array); $i++)
 				{
@@ -841,6 +843,11 @@ class Items extends Secure_Controller
 
 					$line = array_combine($keys,$this->xss_clean($line_array[$i]));	//Build a XSS-cleaned associative array with the row to use to assign values
 
+          $line['Item Name'] = trim($line['Item Name']);
+          if(array_search($line['Item Name'], $duplicates) !== FALSE){
+            continue;
+          }
+          $duplicates[] = $line['Item Name'];
 					$item_data = array(
 						'name'					=> $line['Item Name'],
 						'description'			=> $line['Description'],
