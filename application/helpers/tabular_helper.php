@@ -145,6 +145,77 @@ function get_sale_data_last_row($sales)
 }
 
 /*
+Get the header for the receivings tabular view
+*/
+function get_receivings_manage_table_headers($CI)
+{
+	$headers = array(
+		array('receiving_id'    => $CI->lang->line('receivings_id')),
+		array('receiving_time'  => $CI->lang->line('receivings_date')),
+		array('supplier'        => $CI->lang->line('receivings_supplier')),
+		array('quantity'        => $CI->lang->line('receivings_quantity')),
+		array('amount_due'      => $CI->lang->line('receivings_total')),
+		array('payment_type'    => $CI->lang->line('receivings_payment_type')),
+		array('comments'        => $CI->lang->line('receivings_comments')),
+		array('reference'       => $CI->lang->line('receivings_reference'))
+	);
+
+	$headers[] = array('receipt' => '&nbsp', 'sortable' => FALSE);
+
+	return transform_headers($headers);
+}
+
+/*
+Get the html data row for the receivings
+*/
+function get_receiving_data_row($CI, $receiving)
+{
+	$controller_name = $CI->uri->segment(1);
+
+	$row = array (
+		'receiving_id'    => $receiving->receiving_id,
+		'receiving_time'  => to_datetime(strtotime($receiving->receiving_time)),
+		'supplier'        => $receiving->company_name,
+		'quantity'        => to_quantity_decimals($receiving->items_purchased),
+		'amount_due'      => to_currency($receiving->amount_due),
+		'payment_type'    => $receiving->payment_type,
+		'comments'        => $receiving->comment,
+		'reference'       => $receiving->reference
+	);
+
+	$row['receipt'] = anchor($controller_name."/receipt/$receiving->receiving_id", '<span class="glyphicon glyphicon-usd"></span>',
+		array('title' => $CI->lang->line('sales_show_receipt'))
+	);
+	$row['edit'] = anchor($controller_name."/edit/$receiving->receiving_id", '<span class="glyphicon glyphicon-edit"></span>',
+		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+	);
+
+	return $row;
+}
+
+/*
+Get the html data last row for the receivings
+*/
+function get_receiving_data_last_row($CI, $receivings)
+{
+	$sum_amount_due = 0;
+	$sum_qty = 0;
+
+	foreach($receivings->result() as $receiving)
+	{
+    $sum_qty += $receiving->items_purchased;
+		$sum_amount_due += $receiving->amount_due;
+	}
+
+	return array(
+		'receiving_id'    => '-',
+		'receiving_time'  => '<b>'.$CI->lang->line('sales_total').'</b>',
+		'quantity'        => '<b>'.to_quantity_decimals($sum_qty).'</b>',
+		'amount_due'      => '<b>'.to_currency($sum_amount_due).'</b>'
+	);
+}
+
+/*
 Get the sales payments summary
 */
 function get_sales_manage_payments_summary($payments, $sales)

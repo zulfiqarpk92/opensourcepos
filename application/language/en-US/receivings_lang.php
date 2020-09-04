@@ -52,3 +52,6 @@ $lang["receivings_transaction_failed"] = "Receivings transaction(s) failed.";
 $lang["receivings_unable_to_add_item"] = "Item add to Receiving failed.";
 $lang["receivings_unsuccessfully_updated"] = "Receiving update failed.";
 $lang["receivings_update"] = "Update";
+$lang['receivings_takings'] = 'Receiving List';
+$lang["receivings_no_receivings_to_display"] = 'No Receivings to display.';
+$lang['receivings_payment_type'] = 'Payment Type';

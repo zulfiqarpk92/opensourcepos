@@ -289,5 +289,123 @@ class Receiving extends CI_Model
 			)'
 		);
 	}
+  
+  /**
+	 * Get number of rows for the takings (sales/manage) view
+	 */
+	public function get_found_rows($search, $filters)
+	{
+		return $this->search($search, $filters, 0, 0, 'receivings.receiving_time', 'desc', TRUE);
+  }
+  
+  /**
+	 * Get the sales data for the takings (sales/manage) view
+	 */
+	public function search($search, $filters, $rows = 0, $limit_from = 0, $sort = 'receivings.receiving_time', $order = 'desc', $count_only = FALSE)
+	{
+		// Pick up only non-suspended records
+		$where = '';
+
+		if(empty($this->config->item('date_or_time_format')))
+		{
+			$where .= 'DATE(receivings.receiving_time) BETWEEN ' . $this->db->escape($filters['start_date']) . ' AND ' . $this->db->escape($filters['end_date']);
+		}
+		else
+		{
+			$where .= 'receivings.receiving_time BETWEEN ' . $this->db->escape(rawurldecode($filters['start_date'])) . ' AND ' . $this->db->escape(rawurldecode($filters['end_date']));
+		}
+
+		$decimals = totals_decimals();
+
+		$sale_price = 'CASE WHEN receivings_items.discount_type = ' . PERCENT . ' THEN receivings_items.item_unit_price * receivings_items.quantity_purchased * (1 - receivings_items.discount / 100) ELSE receivings_items.item_unit_price * receivings_items.quantity_purchased - receivings_items.discount END';
+		$sale_total = 'ROUND(SUM(' . $sale_price . '), ' . $decimals . ')';
+
+		// get_found_rows case
+		if($count_only == TRUE)
+		{
+			$this->db->select('COUNT(DISTINCT receivings.receiving_id) AS count');
+		}
+		else
+		{
+			$this->db->select('
+          receivings.receiving_id,
+					MAX(receivings.receiving_time) AS receiving_time,
+					SUM(receivings_items.quantity_purchased) AS items_purchased,
+					supplier.company_name,
+					' . "
+					$sale_total AS amount_due,
+          receivings.payment_type,
+          receivings.comment,
+          receivings.reference
+        ");
+		}
+
+		$this->db->from('receivings_items');
+		$this->db->join('receivings', 'receivings_items.receiving_id = receivings.receiving_id', 'inner');
+		$this->db->join('people AS supplier_p', 'receivings.supplier_id = supplier_p.person_id', 'LEFT');
+		$this->db->join('suppliers AS supplier', 'receivings.supplier_id = supplier.person_id', 'LEFT');
+
+		$this->db->where($where);
+
+		if(!empty($search))
+		{
+			if($filters['is_valid_receipt'] != FALSE)
+			{
+				$pieces = explode(' ', $search);
+				$this->db->where('receivings.sale_id', $pieces[1]);
+			}
+			else
+			{
+				$this->db->group_start();
+					// customer last name
+					$this->db->like('supplier_p.last_name', $search);
+					// customer first name
+					$this->db->or_like('supplier_p.first_name', $search);
+					// customer first and last name
+					$this->db->or_like('CONCAT(supplier_p.first_name, " ", supplier_p.last_name)', $search);
+					// customer company name
+					$this->db->or_like('supplier.company_name', $search);
+				$this->db->group_end();
+			}
+		}
+
+		if($filters['location_id'] != 'all')
+		{
+			// $this->db->where('sales_items.item_location', $filters['location_id']);
+		}
+
+		if($filters['only_cash'] != FALSE)
+		{
+			$this->db->where('receivings.payment_type', 'Cash');
+		}
+
+		if($filters['only_due'] != FALSE)
+		{
+			$this->db->where('receivings.payment_type', 'Due');
+		}
+
+		if($filters['only_check'] != FALSE)
+		{
+			$this->db->where('receivings.payment_type', 'Check');
+		}
+
+		// get_found_rows case
+		if($count_only == TRUE)
+		{
+			return $this->db->get()->row()->count;
+		}
+
+		$this->db->group_by('receivings.receiving_id');
+
+		// order by sale time by default
+		$this->db->order_by($sort, $order);
+
+		if($rows > 0)
+		{
+			$this->db->limit($rows, $limit_from);
+		}
+
+		return $this->db->get();
+	}
 }
 ?>

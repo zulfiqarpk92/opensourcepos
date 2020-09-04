@@ -56,6 +56,18 @@ if (isset($success))
 					}
 				}
 				?>
+
+				<?php
+				if(TRUE OR $this->Employee->has_grant('reports_receivings', $this->session->userdata('person_id')))
+				{
+				?>
+					<li class="pull-right">
+						<?php echo anchor($controller_name."/manage", '<span class="glyphicon glyphicon-list-alt">&nbsp</span>' . $this->lang->line('receivings_takings'),
+									array('class'=>'btn btn-primary btn-sm', 'id'=>'receiving_takings_button', 'title'=>$this->lang->line('receivings_takings'))); ?>
+					</li>
+				<?php
+				}
+				?>
 			</ul>
 		</div>
 	<?php echo form_close(); ?>
