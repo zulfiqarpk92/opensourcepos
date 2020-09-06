@@ -340,8 +340,8 @@ class Receiving extends CI_Model
         ");
 		}
 
-		$this->db->from('receivings_items');
-		$this->db->join('receivings', 'receivings_items.receiving_id = receivings.receiving_id', 'inner');
+		$this->db->from('receivings_items AS receivings_items');
+		$this->db->join('receivings AS receivings', 'receivings_items.receiving_id = receivings.receiving_id', 'inner');
 		$this->db->join('people AS supplier_p', 'receivings.supplier_id = supplier_p.person_id', 'LEFT');
 		$this->db->join('suppliers AS supplier', 'receivings.supplier_id = supplier.person_id', 'LEFT');
 

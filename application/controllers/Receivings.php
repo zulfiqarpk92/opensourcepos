@@ -74,8 +74,8 @@ class Receivings extends Secure_Controller
 
 		$receivings = $this->Receiving->search($search, $filters, $limit, $offset, $sort, $order);
     $total_rows = $this->Receiving->get_found_rows($search, $filters);
-		$payments = $this->Sale->get_payments_summary($search, $filters);
-		$payment_summary = $this->xss_clean(get_sales_manage_payments_summary($payments, $receivings));
+		// $payments = $this->Sale->get_payments_summary($search, $filters);
+		// $payment_summary = $this->xss_clean(get_sales_manage_payments_summary($payments, $receivings));
 
 		$data_rows = array();
 		foreach($receivings->result() as $receiving)
@@ -88,7 +88,7 @@ class Receivings extends Secure_Controller
 			$data_rows[] = $this->xss_clean(get_receiving_data_last_row($this, $receivings));
 		}
 
-		echo json_encode(array('total' => $total_rows, 'rows' => $data_rows, 'payment_summary' => $payment_summary));
+		echo json_encode(array('total' => $total_rows, 'rows' => $data_rows, 'payment_summary' => ''));
 	}
 
 	public function item_search()
