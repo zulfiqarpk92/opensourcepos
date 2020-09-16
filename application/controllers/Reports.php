@@ -20,7 +20,7 @@ class Reports extends Secure_Controller
 			// check access to report submodule
 			if(!$this->Employee->has_grant('reports_' . $submodule_id, $this->Employee->get_logged_in_employee_info()->person_id))
 			{
-				redirect('no_access/reports/reports_' . $submodule_id);
+				// redirect('no_access/reports/reports_' . $submodule_id);
 			}
 		}
 
@@ -39,7 +39,7 @@ class Reports extends Secure_Controller
 	public function summary_sales($start_date, $end_date, $sale_type, $location_id = 'all')
 	{
 		$inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
-
+		
 		$this->load->model('reports/Summary_sales');
 		$model = $this->Summary_sales;
 
@@ -67,7 +67,6 @@ class Reports extends Secure_Controller
 			'data' => $tabular_data,
 			'summary_data' => $summary
 		);
-
 		$this->load->view('reports/tabular', $data);
 	}
 
@@ -1621,7 +1620,7 @@ class Reports extends Secure_Controller
 				'subtotal' => to_currency($row['sub_total_value'])
 			));
 		}
-
+		
 		$data = array(
 			'title' => $this->lang->line('reports_inventory_summary_report'),
 			'subtitle' => '',
@@ -1631,6 +1630,24 @@ class Reports extends Secure_Controller
 		);
 
 		$this->load->view('reports/tabular', $data);
+	}
+	
+	public function cash_in_hand(){
+		
+		$this->load->model('reports/Cash_in_hand');
+		$model = $this->Cash_in_hand;
+
+		$report_data= $model->getTotalPayment();
+		$report_summary= $model->getSummaryData($report_data);
+		$data = array(
+				'title' => 'Cash in Hand',
+				'subtitle' => '',
+				'report_data' => $report_data,
+				'report_summary' => $report_summary
+			);
+
+		$this->load->view('reports/cash_in_hand/display',$data);
+
 	}
 
 	//	Returns subtitle for the reports
@@ -1650,4 +1667,3 @@ class Reports extends Secure_Controller
 		return $subtitle;
 	}
 }
-?>
