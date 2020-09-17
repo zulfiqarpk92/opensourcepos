@@ -15,13 +15,13 @@ class Cash_in_hand extends Report{
         $this->db->join('ospos_item_quantities itemQuantity','ospos_items.item_id = itemQuantity.item_id');
         $this->db->from('ospos_items');
         $inventory_value = $this->db->get()->result_array();
-        $data['Inventory_Value'] = $inventory_value[0]['totalInventoryValue'];
+        $data['Inventory_Value'] = $inventory_value[0]['totalInventoryValue']?:0;
 
         //fetch total expense
         $this->db->select('SUM(amount) AS totalExpense');
         $this->db->from('ospos_expenses');
         $expense_value = $this->db->get()->result_array();
-        $data['Expense_Value'] = $expense_value[0]['totalExpense'];
+        $data['Expense_Value'] = $expense_value[0]['totalExpense']?:0;
 
 
         $this->db->select('SUM(payment_amount) AS totalSale');
@@ -30,7 +30,7 @@ class Cash_in_hand extends Report{
         $this->db->or_where('payment_type =','Credit Card');
         $this->db->from('ospos_sales_payments');
         $sale_payments = $this->db->get()->result_array();
-        $data['Sale_Payments'] = $sale_payments[0]['totalSale'];
+        $data['Sale_Payments'] = $sale_payments[0]['totalSale']?:0;
    
         return $data;
     }

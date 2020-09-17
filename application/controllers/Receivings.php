@@ -312,9 +312,9 @@ class Receivings extends Secure_Controller
 				$data['supplier_location'] = '';
 			}
 		}
-
+		
 		//SAVE receiving to database
-		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $data['stock_location']);
+		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $data['stock_location'],$data['amount_tendered']);
 
 		$data = $this->xss_clean($data);
 

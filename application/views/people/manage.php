@@ -30,6 +30,7 @@ $(document).ready(function()
 
 <div id="title_bar" class="btn-toolbar">
 	<?php
+	
 	if ($controller_name == 'customers')
 	{
 	?>

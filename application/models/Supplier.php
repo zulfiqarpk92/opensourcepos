@@ -75,7 +75,6 @@ class Supplier extends Person
 			{
 				$person_obj->$field = '';
 			}
-			
 			return $person_obj;
 		}
 	}
@@ -274,7 +273,6 @@ class Supplier extends Person
 		{
 			$this->db->limit($rows, $limit_from);
 		}
-
 		return $this->db->get();
 	}
 
@@ -302,6 +300,13 @@ class Supplier extends Person
 		{
 			return $this->lang->line('suppliers_cost');
 		}
+	}
+	public function get_total_payment($supplier){
+		$this->db->select('SUM(amount_tendered) as total');
+		$this->db->where('person_id',$supplier->person_id);
+		$this->db->from('ospos_supplier_payment');
+		$res = $this->db->get()->result_array();
+		return $res[0]['total'];
 	}
 }
 ?>

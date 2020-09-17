@@ -69,3 +69,4 @@ $lang["common_welcome"] = "Welcome";
 $lang["common_welcome_message"] = "Welcome to OSPOS, click a module below to get started.";
 $lang["common_you_are_using_ospos"] = "";
 $lang["common_zip"] = "Postal Code";
+$lang["common_total_payment"] = "Total Payment";

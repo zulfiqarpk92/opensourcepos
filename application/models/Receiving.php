@@ -59,7 +59,7 @@ class Receiving extends CI_Model
 		return $this->db->update('receivings', $receiving_data);
 	}
 
-	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE)
+	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE,$amount_tendered = 0)
 	{
 		if(count($items) == 0)
 		{
@@ -131,6 +131,12 @@ class Receiving extends CI_Model
 
 			$supplier = $this->Supplier->get_info($supplier_id);
 		}
+		$supplier_payment = array(
+			'person_id' => $this->Supplier->exists($supplier_id)?$supplier_id:Null,
+			'amount_tendered' => $amount_tendered,
+			'date' => date('Y-m-d H:i:s')
+		);
+		$this->db->insert('ospos_supplier_payment',$supplier_payment);
 
 		$this->db->trans_complete();
 

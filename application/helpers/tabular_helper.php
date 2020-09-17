@@ -354,7 +354,8 @@ function get_suppliers_manage_table_headers()
 		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
 		array('email' => $CI->lang->line('common_email')),
-		array('phone_number' => $CI->lang->line('common_phone_number'))
+		array('phone_number' => $CI->lang->line('common_phone_number')),
+		array('total_payment' => $CI->lang->line('common_total_payment'))
 	);
 
 	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
@@ -373,7 +374,6 @@ function get_supplier_data_row($supplier)
 	$CI =& get_instance();
 
 	$controller_name = strtolower(get_class($CI));
-
 	return array (
 		'people.person_id' => $supplier->person_id,
 		'company_name' => $supplier->company_name,
@@ -383,6 +383,7 @@ function get_supplier_data_row($supplier)
 		'first_name' => $supplier->first_name,
 		'email' => empty($supplier->email) ? '' : mailto($supplier->email, $supplier->email),
 		'phone_number' => $supplier->phone_number,
+		'total_payment' => $supplier->total_payment,
 		'messages' => empty($supplier->phone_number) ? '' : anchor("Messages/view/$supplier->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
 		'edit' => anchor($controller_name."/view/$supplier->person_id", '<span class="glyphicon glyphicon-edit"></span>',
