@@ -131,9 +131,12 @@ class Receiving extends CI_Model
 
 			$supplier = $this->Supplier->get_info($supplier_id);
 		}
+		if($amount_tendered === null){
+			$amount_tendered = 0;
+		}
 		$supplier_payment = array(
 			'person_id' => $this->Supplier->exists($supplier_id)?$supplier_id:Null,
-			'amount_tendered' => $amount_tendered,
+			'amount_tendered' => $amount_tendered === 0?0:$amount_tendered,
 			'date' => date('Y-m-d H:i:s')
 		);
 		$this->db->insert('ospos_supplier_payment',$supplier_payment);
