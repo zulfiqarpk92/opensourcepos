@@ -12,7 +12,6 @@
 		<link rel="stylesheet" href="bower_components/jquery-ui/themes/base/jquery-ui.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap3-dialog/dist/css/bootstrap-dialog.min.css" />
 		<link rel="stylesheet" href="bower_components/jasny-bootstrap/dist/css/jasny-bootstrap.css" />
-		<link rel="stylesheet" href="bower_components/smalot-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap-select/dist/css/bootstrap-select.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap-table/src/bootstrap-table.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap-table/dist/extensions/sticky-header/bootstrap-table-sticky-header.css" />
@@ -21,6 +20,7 @@
 		<link rel="stylesheet" href="bower_components/chartist-plugin-tooltip/dist/chartist-plugin-tooltip.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css" />
+		<link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
 		<!-- endbower -->
 		<!-- start css template tags -->
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.autocomplete.css"/>
@@ -40,7 +40,6 @@
 		<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="bower_components/bootstrap3-dialog/dist/js/bootstrap-dialog.min.js"></script>
 		<script src="bower_components/jasny-bootstrap/dist/js/jasny-bootstrap.js"></script>
-		<script src="bower_components/smalot-bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 		<script src="bower_components/bootstrap-select/dist/js/bootstrap-select.js"></script>
 		<script src="bower_components/bootstrap-table/src/bootstrap-table.js"></script>
 		<script src="bower_components/bootstrap-table/dist/extensions/export/bootstrap-table-export.js"></script>
@@ -62,8 +61,10 @@
 		<script src="bower_components/js-cookie/src/js.cookie.js"></script>
 		<script src="bower_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js"></script>
 		<script src="bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+		<script src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 		<!-- endbower -->
 		<!-- start js template tags -->
+		<script type="text/javascript" src="js/clipboard.min.js"></script>
 		<script type="text/javascript" src="js/imgpreview.full.jquery.js"></script>
 		<script type="text/javascript" src="js/manage_tables.js"></script>
 		<script type="text/javascript" src="js/nominatim.autocomplete.js"></script>
@@ -74,10 +75,10 @@
 		<![endif]-->
 		<!-- start mincss template tags -->
 		<link rel="stylesheet" type="text/css" href="dist/jquery-ui/jquery-ui.min.css"/>
-		<link rel="stylesheet" type="text/css" href="dist/opensourcepos.min.css?rel=397f582d3d"/>
+		<link rel="stylesheet" type="text/css" href="dist/opensourcepos.min.css?rel=b97048451f"/>
 		<!-- end mincss template tags -->
 		<!-- start minjs template tags -->
-		<script type="text/javascript" src="dist/opensourcepos.min.js?rel=a429d1fc17"></script>
+		<script type="text/javascript" src="dist/opensourcepos.min.js?rel=8273480d4a"></script>
 		<!-- end minjs template tags -->
 	<?php endif; ?>
 

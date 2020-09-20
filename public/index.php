@@ -36,6 +36,18 @@
  * @filesource
  */
 
+$config_path = __DIR__ . '/../application/config/';
+try {
+  require_once '../vendor/vlucas/phpdotenv/src/DotEnv.php';
+  require_once '../vendor/vlucas/phpdotenv/src/Loader.php';
+  require_once '../vendor/vlucas/phpdotenv/src/Parser.php';
+  require_once '../vendor/vlucas/phpdotenv/src/Validator.php';
+  $dotenv = new Dotenv\Dotenv($config_path);
+  $dotenv->overload();
+} catch(Exception $e) {
+  // continue, .env file not present
+}
+
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT
