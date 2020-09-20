@@ -3,8 +3,8 @@
 	{
 ?>
 		$('#daterangepicker').css("width","180");
-		var start_date = "<?php echo date('Y-m-d') ?>";
-		var end_date   = "<?php echo date('Y-m-d') ?>";
+		var start_date = "<?php echo date('Y-m-d', mktime(0,0,0,date("m"),1,date("Y"))) ?>";
+    var end_date   = "<?php echo date('Y-m-d') ?>";
 
 		$('#daterangepicker').daterangepicker({
 			"ranges": {
@@ -68,7 +68,7 @@
 				"firstDay": <?php echo $this->lang->line("datepicker_weekstart"); ?>
 			},
 			"alwaysShowCalendars": true,
-			"startDate": "<?php echo date($this->config->item('dateformat'), mktime(0,0,0,date("m"),date("d")+1,date("Y"))-1);?>",
+			"startDate": "<?php echo date($this->config->item('dateformat'), mktime(0,0,0,date("m"),1,date("Y")));?>",
 			"endDate": "<?php echo date($this->config->item('dateformat'), mktime(0,0,0,date("m"),date("d")+1,date("Y"))-1);?>",
 			"minDate": "<?php echo date($this->config->item('dateformat'), mktime(0,0,0,01,01,2010));?>",
 			"maxDate": "<?php echo date($this->config->item('dateformat'), mktime(0,0,0,date("m"),date("d")+1,date("Y"))-1);?>"

@@ -83,6 +83,15 @@ if(isset($error))
 	}
 	?>
 
+  <?php	if (!empty($stock_type_options)){ ?>
+  <div class="form-group form-group-sm">
+    <?php echo form_label($this->lang->line('reports_stock_type'), 'reports_stock_type_label', array('class'=>'control-label col-xs-2')); ?>
+    <div class="col-xs-3">
+      <?php echo form_dropdown('stock_type', $stock_type_options, 'all', array('id'=>'reports_stock_type_label', 'class'=>'form-control')); ?>
+    </div>
+  </div>
+	<?php } ?>
+
 	<?php
 	echo form_button(array(
 		'name'=>'generate_report',
@@ -102,7 +111,7 @@ $(document).ready(function()
 
 	$("#generate_report").click(function()
 	{		
-		window.location = [window.location, start_date, end_date, $("#input_type").val() || 0, $("#location_id").val() || 'all', $("#discount_type_id").val() || 0 ].join("/");
+		window.location = [window.location, start_date, end_date, $("#input_type").val() || 0, $("#location_id").val() || 'all', $("#discount_type_id").val() || 0, $("#reports_stock_type_label").val() || 'all' ].join("/");
 	});
 });
 </script>

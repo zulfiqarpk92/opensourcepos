@@ -90,6 +90,11 @@ abstract class Summary_report extends Report
 			$this->db->where('sales_items.item_location', $inputs['location_id']);
 		}
 
+		if(isset($inputs['stock_type']) && $inputs['stock_type'] != 'all')
+		{
+			$this->db->where('items.stock_type', $inputs['stock_type'] == 'stock' ? '0' : '1');
+		}
+
 		if($inputs['sale_type'] == 'complete')
 		{
 			$this->db->where('sales.sale_status', COMPLETED);
@@ -167,7 +172,7 @@ abstract class Summary_report extends Report
 	{
 		$this->__common_select($inputs);
 
-		$this->__common_from();
+		$this->_from();
 
 		$this->_where($inputs);
 

@@ -71,14 +71,16 @@ class Reports extends Secure_Controller
 	}
 
 	//Summary Categories report
-	public function summary_categories($start_date, $end_date, $sale_type, $location_id = 'all')
+	public function summary_categories($start_date, $end_date, $sale_type, $location_id = 'all', $discount_type = 0, $stock_type = 'all')
 	{
 		$inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+    $inputs['stock_type'] = $stock_type;
 
 		$this->load->model('reports/Summary_categories');
 		$model = $this->Summary_categories;
 
-		$report_data = $model->getData($inputs);
+    $report_data = $model->getData($inputs);
+    // echo $this->db->last_query();exit;
 		$summary = $this->xss_clean($model->getSummaryData($inputs));
 
 		$tabular_data = array();
@@ -212,9 +214,10 @@ class Reports extends Secure_Controller
 	}
 
 	//Summary Items report
-	public function summary_items($start_date, $end_date, $sale_type, $location_id = 'all')
+	public function summary_items($start_date, $end_date, $sale_type, $location_id = 'all', $discount_type = 0, $stock_type = 'all')
 	{
 		$inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+    $inputs['stock_type'] = $stock_type;
 
 		$this->load->model('reports/Summary_items');
 		$model = $this->Summary_items;
@@ -463,6 +466,7 @@ class Reports extends Secure_Controller
 		$data['stock_locations'] = array_reverse($stock_locations, TRUE);
 		$data['mode'] = 'sale';
 		$data['sale_type_options'] = $this->get_sale_type_options();
+		$data['stock_type_options'] = ['all' => 'All', 'stock' => 'Stock', 'non_stock' => 'Non-Stock'];
 
 		$this->load->view('reports/date_input', $data);
 	}

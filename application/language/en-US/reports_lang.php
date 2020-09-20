@@ -108,6 +108,7 @@ $lang["reports_serial_number"] = "Serial Number";
 $lang["reports_sold_by"] = "Sold By";
 $lang["reports_sold_to"] = "Sold To";
 $lang["reports_stock_location"] = "Stock Location";
+$lang["reports_stock_type"] = "Item Type";
 $lang["reports_sub_total_value"] = "Subtotal";
 $lang["reports_subtotal"] = "Subtotal";
 $lang["reports_summary_reports"] = "Summary Reports";

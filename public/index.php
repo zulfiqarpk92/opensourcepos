@@ -35,14 +35,13 @@
  * @since	Version 1.0.0
  * @filesource
  */
-
-$config_path = __DIR__ . '/../application/config/';
+$root = realpath('..') . DIRECTORY_SEPARATOR;
 try {
-  require_once '../vendor/vlucas/phpdotenv/src/DotEnv.php';
-  require_once '../vendor/vlucas/phpdotenv/src/Loader.php';
-  require_once '../vendor/vlucas/phpdotenv/src/Parser.php';
-  require_once '../vendor/vlucas/phpdotenv/src/Validator.php';
-  $dotenv = new Dotenv\Dotenv($config_path);
+  require_once $root . 'vendor/vlucas/phpdotenv/src/Dotenv.php';
+  require_once $root . 'vendor/vlucas/phpdotenv/src/Loader.php';
+  require_once $root . 'vendor/vlucas/phpdotenv/src/Parser.php';
+  require_once $root . 'vendor/vlucas/phpdotenv/src/Validator.php';
+  $dotenv = new Dotenv\Dotenv($root . 'application/config/');
   $dotenv->overload();
 } catch(Exception $e) {
   // continue, .env file not present
