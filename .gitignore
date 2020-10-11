@@ -8,7 +8,6 @@ application/logs/*
 application/uploads/*
 public/license/.licenses
 public/license/bower.LICENSES
-public/dist
 generate_langauges.php
 docs/
 public/bower_components
