@@ -1024,6 +1024,21 @@ class Sale_lib
 		$this->set_quote_number($this->CI->Sale->get_quote_number($sale_id));
 		$this->set_work_order_number($this->CI->Sale->get_work_order_number($sale_id));
 		$this->set_sale_type($this->CI->Sale->get_sale_type($sale_id));
+    switch($this->get_sale_type()){
+      case 1:
+        $this->set_mode('sale_invoice');
+        break;
+      case 2:
+        $this->set_mode('sale_work_order');
+        break;
+      case 3:
+        $this->set_mode('sale_quote');
+        break;
+      case 4:
+        $this->set_mode('return');
+        break;
+    }
+		$this->set_invoice_number($this->CI->Sale->get_invoice_number($sale_id));
 		$this->set_comment($this->CI->Sale->get_comment($sale_id));
 		$this->set_dinner_table($this->CI->Sale->get_dinner_table($sale_id));
 		$this->CI->session->set_userdata('sale_id', $sale_id);

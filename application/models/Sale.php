@@ -1319,6 +1319,24 @@ class Sale extends CI_Model
 	}
 
 	/**
+	 * Gets the work order number for the selected sale
+	 */
+	public function get_invoice_number($sale_id)
+	{
+		$this->db->from('sales');
+		$this->db->where('sale_id', $sale_id);
+
+		$row = $this->db->get()->row();
+
+		if($row != NULL)
+		{
+			return $row->invoice_number;
+		}
+
+		return NULL;
+	}
+
+	/**
 	 * Gets the quote_number for the selected sale
 	 */
 	public function get_comment($sale_id)
@@ -1403,7 +1421,7 @@ class Sale extends CI_Model
 		$this->db->from('sales');
 		$this->db->where('sale_id', $sale_id);
 		$this->db->join('people', 'people.person_id = sales.customer_id', 'LEFT');
-		$this->db-where('sale_status', SUSPENDED);
+		$this->db->where('sale_status', SUSPENDED);
 
 		return $this->db->get();
 	}

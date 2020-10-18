@@ -21,7 +21,11 @@ class Sales extends Secure_Controller
 	public function index()
 	{
 		$this->session->set_userdata('allow_temp_items', 1);
-		$this->_reload();
+    $sale_id = $this->sale_lib->get_sale_id();
+    if($sale_id > 0){
+      $this->sale_lib->clear_all();
+    }
+    $this->_reload();
 	}
 
 	public function manage()
