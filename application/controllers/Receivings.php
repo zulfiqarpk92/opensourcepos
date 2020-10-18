@@ -399,6 +399,11 @@ class Receivings extends Secure_Controller
 		$this->receiving_lib->clear_all();
 	}
 
+  public function editdetail($receiving_id){
+		$this->receiving_lib->copy_entire_receiving($receiving_id);
+    $this->_reload();
+  }
+
 	private function _reload($data = array())
 	{
 		$data['cart'] = $this->receiving_lib->get_cart();
@@ -446,6 +451,69 @@ class Receivings extends Secure_Controller
 		$this->load->view("receivings/receiving", $data);
 	}
 	
+  public function index2()
+  {
+		$data['cart'] = $this->receiving_lib->get_cart();
+		$data['modes'] = array('receive' => $this->lang->line('receivings_receiving'), 'return' => $this->lang->line('receivings_return'));
+		$data['mode'] = $this->receiving_lib->get_mode();
+		$data['stock_locations'] = $this->Stock_location->get_allowed_locations('receivings');
+		$data['show_stock_locations'] = count($data['stock_locations']) > 1;
+		if($data['show_stock_locations']) 
+		{
+			$data['modes']['requisition'] = $this->lang->line('receivings_requisition');
+			$data['stock_source'] = $this->receiving_lib->get_stock_source();
+			$data['stock_destination'] = $this->receiving_lib->get_stock_destination();
+		}
+
+		$data['total'] = $this->receiving_lib->get_total();
+		$data['items_module_allowed'] = $this->Employee->has_grant('items', $this->Employee->get_logged_in_employee_info()->person_id);
+		$data['comment'] = $this->receiving_lib->get_comment();
+		$data['reference'] = $this->receiving_lib->get_reference();
+		$data['payment_options'] = $this->Receiving->get_payment_options();
+
+		$supplier_id = $this->receiving_lib->get_supplier();
+		$supplier_info = '';
+		if($supplier_id != -1)
+		{
+			$supplier_info = $this->Supplier->get_info($supplier_id);
+			$data['supplier'] = $supplier_info->company_name;
+			$data['first_name'] = $supplier_info->first_name;
+			$data['last_name'] = $supplier_info->last_name;
+			$data['supplier_email'] = $supplier_info->email;
+			$data['supplier_address'] = $supplier_info->address_1;
+			if(!empty($supplier_info->zip) or !empty($supplier_info->city))
+			{
+				$data['supplier_location'] = $supplier_info->zip . ' ' . $supplier_info->city;				
+			}
+			else
+			{
+				$data['supplier_location'] = '';
+			}
+		}
+		
+		$data['print_after_sale'] = $this->receiving_lib->is_print_after_sale();
+
+    $data = $this->xss_clean($data);
+    
+    $this->load->view('receivings/receiving_new', $data);
+  }
+
+  public function get_cart()
+  {
+    // $items = $this->receiving_lib->get_cart();
+    $data['currency_symbol'] = $this->config->item('currency_symbol');
+    $data['cart_items'] = [];
+    foreach(array_reverse($this->receiving_lib->get_cart()) as $line=>$item){
+      $item['price'] = (double) $item['price'];
+      $item['in_stock'] = to_quantity_decimals($item['in_stock']);
+      $item['quantity'] = to_quantity_decimals($item['quantity']);
+      $item['receiving_quantity'] = to_quantity_decimals($item['receiving_quantity']);
+      $item['total'] = (double) $item['total'];
+      $data['cart_items'][] = $item;
+    }
+    echo json_encode($data);
+  }
+
 	public function save($receiving_id = -1)
 	{
 		$newdate = $this->input->post('date');

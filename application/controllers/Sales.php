@@ -1489,5 +1489,12 @@ class Sales extends Secure_Controller
 
 		return NULL;
 	}
+  
+  public function editdetail($sale_id){
+    
+    $data = $this->_load_sale_data($sale_id);
+    $this->_reload();
+		// $this->sale_lib->clear_all();
+  }
 }
 ?>

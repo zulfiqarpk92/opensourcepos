@@ -76,6 +76,7 @@ function get_sales_manage_table_headers()
 	}
 
 	$headers[] = array('receipt' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('fulledit' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -112,6 +113,9 @@ function get_sale_data_row($sale)
 	);
 	$row['edit'] = anchor($controller_name."/edit/$sale->sale_id", '<span class="glyphicon glyphicon-edit"></span>',
 		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+	);
+	$row['fulledit'] = anchor($controller_name."/editdetail/$sale->sale_id", '<span class="glyphicon glyphicon-edit primary"></span>',
+		array('class' => 'print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
 	);
 
 	return $row;
