@@ -109,6 +109,13 @@ class Receiving extends CI_Model
 			{
 				$this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
 			}
+      elseif($item['price'] > $cur_item_info->cost_price){
+        $price_update = array(
+          'cost_price' => $item['price'],
+          'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
+        );
+				$this->Item->save($price_update, $item['item_id']);
+      }
 
 			//Update stock quantity
 			$item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
