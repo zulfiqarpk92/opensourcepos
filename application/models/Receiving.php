@@ -146,7 +146,7 @@ class Receiving extends CI_Model
         'supplier_id'     => $supplier_id,
         'receiving_id'    => $receiving_id,
         'amount_tendered' => $amount_tendered,
-        'date'            => date('Y-m-d H:i:s')
+        'payment_date'    => date('Y-m-d H:i:s')
       );
       $this->db->insert('suppliers_payments', $supplier_payment);
 		}
@@ -325,14 +325,17 @@ class Receiving extends CI_Model
 		// Pick up only non-suspended records
 		$where = '';
 
-		if(empty($this->config->item('date_or_time_format')))
-		{
-			$where .= 'DATE(receivings.receiving_time) BETWEEN ' . $this->db->escape($filters['start_date']) . ' AND ' . $this->db->escape($filters['end_date']);
-		}
-		else
-		{
-			$where .= 'receivings.receiving_time BETWEEN ' . $this->db->escape(rawurldecode($filters['start_date'])) . ' AND ' . $this->db->escape(rawurldecode($filters['end_date']));
-		}
+    if($filters['start_date'] && $filters['end_date'])
+    {
+      if(empty($this->config->item('date_or_time_format')))
+      {
+        $where .= 'DATE(receivings.receiving_time) BETWEEN ' . $this->db->escape($filters['start_date']) . ' AND ' . $this->db->escape($filters['end_date']);
+      }
+      else
+      {
+        $where .= 'receivings.receiving_time BETWEEN ' . $this->db->escape(rawurldecode($filters['start_date'])) . ' AND ' . $this->db->escape(rawurldecode($filters['end_date']));
+      }
+    }
 
 		$decimals = totals_decimals();
 
@@ -364,7 +367,7 @@ class Receiving extends CI_Model
 		$this->db->join('people AS supplier_p', 'receivings.supplier_id = supplier_p.person_id', 'LEFT');
 		$this->db->join('suppliers AS supplier', 'receivings.supplier_id = supplier.person_id', 'LEFT');
 
-		$this->db->where($where);
+		$where ? $this->db->where($where) : FALSE;
 
 		if(!empty($search))
 		{
@@ -408,6 +411,11 @@ class Receiving extends CI_Model
 			$this->db->where('receivings.payment_type', 'Check');
 		}
 
+    if(empty($filters['supplier_id']) == FALSE)
+		{
+			$this->db->where('receivings.supplier_id', $filters['supplier_id']);
+    }
+    
 		// get_found_rows case
 		if($count_only == TRUE)
 		{

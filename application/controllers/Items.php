@@ -862,6 +862,7 @@ class Items extends Secure_Controller
 						'pic_filename'			=> $line['item_image']
 					);
 
+          $item_data['low_sell_item_id'] = 0;
 					$item_number 				= $line['Barcode'];
 
 					if(!empty($item_number))
@@ -1101,7 +1102,7 @@ class Items extends Secure_Controller
 			else
 			{
 				$item_quantity_data['quantity'] = 0;
-				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $line[$col]);
+				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 
 				$csv_data['trans_inventory'] = 0;
 				$this->Inventory->insert($csv_data);

@@ -368,6 +368,7 @@ function get_suppliers_manage_table_headers()
 	{
 		$headers[] = array('messages' => '');
 	}
+	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -394,6 +395,8 @@ function get_supplier_data_row($supplier)
 		'total_due'       => $supplier->total_due,
 		'messages' => empty($supplier->phone_number) ? '' : anchor("Messages/view/$supplier->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
+    'add_payment' => anchor($controller_name."/add_payment/$supplier->person_id", '<span class="glyphicon glyphicon-usd"></span>',
+      array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
 		'edit' => anchor($controller_name."/view/$supplier->person_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update')))
 	);

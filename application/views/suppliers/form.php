@@ -3,64 +3,120 @@
 <ul id="error_message_box" class="error_message_box"></ul>
 
 <?php echo form_open($controller_name . '/save/' . $person_info->person_id, array('id'=>'supplier_form', 'class'=>'form-horizontal')); ?>
-	<fieldset id="supplier_basic_info">
-		<div class="form-group form-group-sm">
-			<?php echo form_label($this->lang->line('suppliers_company_name'), 'company_name', array('class'=>'required control-label col-xs-3')); ?>
-			<div class='col-xs-8'>
-				<?php echo form_input(array(
-					'name'=>'company_name',
-					'id'=>'company_name_input',
-					'class'=>'form-control input-sm',
-					'value'=>$person_info->company_name)
-					);?>
-			</div>
-		</div>
+  
+  <ul class="nav nav-tabs nav-justified" data-tabs="tabs">
+		<li class="active" role="presentation">
+			<a data-toggle="tab" href="#supplier_basic_info"><?php echo $this->lang->line("customers_basic_information"); ?></a>
+		</li>
+    <li role="presentation">
+      <a data-toggle="tab" href="#supplier_purchases">Purchases</a>
+    </li>
+    <li role="presentation">
+      <a data-toggle="tab" href="#supplier_payments">Payments</a>
+    </li>
+  </ul>
 
-		<div class="form-group form-group-sm">
-			<?php echo form_label($this->lang->line('suppliers_category'), 'category', array('class'=>'required control-label col-xs-3')); ?>
-			<div class='col-xs-6'>
-				<?php echo form_dropdown('category', $categories, $person_info->category, array('class'=>'form-control', 'id'=>'category'));?>
-			</div>
-		</div>
+  <div class="tab-content">
+		<div class="tab-pane fade in active" id="supplier_basic_info">
+      <fieldset>
+        <div class="form-group form-group-sm">
+          <?php echo form_label($this->lang->line('suppliers_company_name'), 'company_name', array('class'=>'required control-label col-xs-3')); ?>
+          <div class='col-xs-8'>
+            <?php echo form_input(array(
+              'name'=>'company_name',
+              'id'=>'company_name_input',
+              'class'=>'form-control input-sm',
+              'value'=>$person_info->company_name)
+              );?>
+          </div>
+        </div>
 
-		<div class="form-group form-group-sm">	
-			<?php echo form_label($this->lang->line('suppliers_agency_name'), 'agency_name', array('class'=>'control-label col-xs-3')); ?>
-			<div class='col-xs-8'>
-				<?php echo form_input(array(
-					'name'=>'agency_name',
-					'id'=>'agency_name_input',
-					'class'=>'form-control input-sm',
-					'value'=>$person_info->agency_name)
-					);?>
-			</div>
-		</div>
+        <div class="form-group form-group-sm">
+          <?php echo form_label($this->lang->line('suppliers_category'), 'category', array('class'=>'required control-label col-xs-3')); ?>
+          <div class='col-xs-6'>
+            <?php echo form_dropdown('category', $categories, $person_info->category, array('class'=>'form-control', 'id'=>'category'));?>
+          </div>
+        </div>
 
-		<?php $this->load->view("people/form_basic_info"); ?>
+        <div class="form-group form-group-sm">	
+          <?php echo form_label($this->lang->line('suppliers_agency_name'), 'agency_name', array('class'=>'control-label col-xs-3')); ?>
+          <div class='col-xs-8'>
+            <?php echo form_input(array(
+              'name'=>'agency_name',
+              'id'=>'agency_name_input',
+              'class'=>'form-control input-sm',
+              'value'=>$person_info->agency_name)
+              );?>
+          </div>
+        </div>
 
-		<div class="form-group form-group-sm">	
-			<?php echo form_label($this->lang->line('suppliers_account_number'), 'account_number', array('class'=>'control-label col-xs-3')); ?>
-			<div class='col-xs-8'>
-				<?php echo form_input(array(
-					'name'=>'account_number',
-					'id'=>'account_number',
-					'class'=>'form-control input-sm',
-					'value'=>$person_info->account_number)
-					);?>
-			</div>
-		</div>
+        <?php $this->load->view("people/form_basic_info"); ?>
 
-		<div class="form-group form-group-sm">
-			<?php echo form_label($this->lang->line('suppliers_tax_id'), 'tax_id', array('class'=>'control-label col-xs-3')); ?>
-			<div class='col-xs-8'>
-				<?php echo form_input(array(
-						'name'=>'tax_id',
-						'id'=>'tax_id',
-						'class'=>'form-control input-sm',
-						'value'=>$person_info->tax_id)
-				);?>
-			</div>
-		</div>
-	</fieldset>
+        <div class="form-group form-group-sm">	
+          <?php echo form_label($this->lang->line('suppliers_account_number'), 'account_number', array('class'=>'control-label col-xs-3')); ?>
+          <div class='col-xs-8'>
+            <?php echo form_input(array(
+              'name'=>'account_number',
+              'id'=>'account_number',
+              'class'=>'form-control input-sm',
+              'value'=>$person_info->account_number)
+              );?>
+          </div>
+        </div>
+
+        <div class="form-group form-group-sm">
+          <?php echo form_label($this->lang->line('suppliers_tax_id'), 'tax_id', array('class'=>'control-label col-xs-3')); ?>
+          <div class='col-xs-8'>
+            <?php echo form_input(array(
+                'name'=>'tax_id',
+                'id'=>'tax_id',
+                'class'=>'form-control input-sm',
+                'value'=>$person_info->tax_id)
+            );?>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="tab-pane" id="supplier_purchases">
+      <table class="table table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <?php foreach($purchase_headers as $header){ ?>
+            <th><?php echo $header['title']; ?></th>
+            <?php } ?>
+          </tr>
+        </thead>
+        <?php foreach($purchases as $purchase){ ?>
+        <tr>
+          <?php foreach($purchase_headers as $header){ ?>
+          <td><?php echo $purchase[$header['field']]; ?></td>
+          <?php } ?>
+        </tr>
+        <?php } ?>
+      </table>
+    </div>
+
+    <div class="tab-pane" id="supplier_payments">
+      <table class="table table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <?php foreach($payment_headers as $header){ ?>
+            <th><?php echo $header; ?></th>
+            <?php } ?>
+          </tr>
+        </thead>
+        <?php foreach($payments as $payment){ ?>
+        <tr>
+          <?php foreach(array_keys($payment_headers) as $prop){ ?>
+          <td><?php echo $payment[$prop]; ?></td>
+          <?php } ?>
+        </tr>
+        <?php } ?>
+      </table>
+    </div>
+
+  </div>
 	
 <?php echo form_close(); ?>
 

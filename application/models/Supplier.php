@@ -320,5 +320,23 @@ class Supplier extends Person
 		$amount_tendered = $this->db->get()->row('amount_tendered');
 		return $amount_tendered ?: 0;
 	}
+  
+  public function add_payment($supplier_id, $supplier_payment)
+  {
+    if(empty($supplier_id) OR empty($supplier_payment['amount_tendered'])){
+      return FALSE;
+    }
+    $supplier_payment['supplier_id']  = $supplier_id;
+    $supplier_payment['payment_date'] = date('Y-m-d H:i:s');
+    $this->db->insert('suppliers_payments', $supplier_payment);
+    return $this->db->insert_id();
+  }
+  
+  public function get_payments($supplier_id)
+  {
+		$this->db->where('supplier_id', $supplier_id);
+		$this->db->from('suppliers_payments');
+		return $this->db->get()->result();
+	}
 }
-?>
+

@@ -21,7 +21,13 @@ class Suppliers extends Persons
 	*/
 	public function get_row($row_id)
 	{
-		$data_row = $this->xss_clean(get_supplier_data_row($this->Supplier->get_info($row_id)));
+    $supplier = $this->Supplier->get_info($row_id);
+    $total_purchases = $this->Supplier->get_total_purchases($supplier->person_id);
+    $total_payments = $this->Supplier->get_total_payment($supplier->person_id);
+    $supplier->total_purchases = to_currency($total_purchases);
+    $supplier->total_payments = to_currency($total_payments);
+    $supplier->total_due = to_currency($total_purchases - $total_payments);
+		$data_row = $this->xss_clean(get_supplier_data_row($supplier));
 
 		echo json_encode($data_row);
 	}
@@ -86,7 +92,99 @@ class Suppliers extends Persons
 		$data['person_info'] = $info;
 		$data['categories'] = $this->Supplier->get_categories();
 
+    $filters = array(
+      'sale_type'         => 'all',
+      'location_id'       => 'all',
+      'start_date'        => '',
+      'end_date'          => '',
+      'only_cash'         => FALSE,
+      'only_due'          => FALSE,
+      'only_check'        => FALSE,
+      'only_invoices'     => FALSE,
+      'is_valid_receipt'  => FALSE,
+      'supplier_id'       => $supplier_id,
+    );
+    $receivings = $this->Receiving->search('', $filters);
+    $total_rows = $this->Receiving->get_found_rows('', $filters);
+
+    $data_rows = array();
+		foreach($receivings->result() as $receiving)
+		{
+			$data_rows[] = $this->xss_clean(get_receiving_data_row($this, $receiving));
+		}
+
+		if($total_rows > 0)
+		{
+			$data_rows[] = $this->xss_clean(get_receiving_data_last_row($this, $receivings));
+		}
+    $data['purchases'] = $data_rows;
+    $data['purchase_headers'] = [];
+    foreach(json_decode(get_receivings_manage_table_headers($this), TRUE) as $header)
+    {
+      if(in_array($header['field'], ['receiving_time', 'quantity', 'amount_due']))
+      {
+        $data['purchase_headers'][] = $header;
+      }
+    }
+    $data['payment_headers'] = [
+      'payment_time'     => 'Payment Time', 
+      'amount_tendered'  => 'Amount', 
+      'reference'        => 'Reference', 
+      'comments'         => 'Comments'
+    ];
+    $data['payments'] = [];
+    $payments_total = 0;
+    foreach($this->Supplier->get_payments($supplier_id) as $payment){
+      $data['payments'][] = [
+        'payment_time'     => to_datetime(strtotime($payment->payment_date)), 
+        'amount_tendered'  => to_currency($payment->amount_tendered), 
+        'reference'        => $payment->reference, 
+        'comments'         => $payment->comments
+      ];
+      $payments_total += $payment->amount_tendered;
+    }
+    $data['payments'][] = [
+      'payment_time'     => '<b>Total</b>', 
+      'amount_tendered'  => to_currency($payments_total), 
+      'reference'        => '', 
+      'comments'         => ''
+    ];
+
 		$this->load->view("suppliers/form", $data);
+	}
+	
+  public function add_payment($supplier_id = -1)
+	{
+		$info = $this->Supplier->get_info($supplier_id);
+		$data['person_info'] = $info;
+    if($this->input->post('add_payment')){
+      $amount_tendered = $this->input->post('amount_tendered');
+      $payment_id = 0;
+      if($amount_tendered){
+        $supplier_payment = [];
+        $supplier_payment['amount_tendered'] = $amount_tendered;
+        $supplier_payment['reference'] = $this->input->post('reference');
+        $supplier_payment['comments'] = $this->input->post('comments');
+        $payment_id = $this->Supplier->add_payment($supplier_id, $supplier_payment);
+      }
+      if($payment_id){
+        echo json_encode(array(
+          'success' => TRUE,
+          'message' => 'Payment record added for ' . $info->company_name,
+          'id'      => $supplier_id
+        ));
+      }
+      else{
+        echo json_encode(array(
+          'success' => FALSE,
+          'message' => 'Payment record failed for ' . $info->company_name,
+          'id'      => $supplier_id
+        ));
+      }
+      return;
+    }
+
+		$this->load->view("suppliers/add_payment", $data);
 	}
 	
 	/*
