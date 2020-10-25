@@ -11,6 +11,17 @@ class Inventory extends CI_Model
 		return $this->db->insert('inventory', $inventory_data);
 	}
 
+  public function get_sale_inventory($item_id, $sale_remarks){
+    $this->db->select_sum('trans_inventory');
+    $this->db->where('trans_comment', $sale_remarks);
+    $inventory = $this->get_inventory_data_for_item($item_id)->row('trans_inventory');
+    return abs($inventory ?: 0);
+  }
+
+  public function delete_sale_inventory($item_id, $sale_remarks){
+    return $this->db->where(['trans_items' => $item_id, 'trans_comment' => $sale_remarks])->delete('inventory');
+  }
+
 	public function get_inventory_data_for_item($item_id, $location_id = FALSE)
 	{
 		$this->db->from('inventory');

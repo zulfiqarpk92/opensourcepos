@@ -76,7 +76,7 @@ function get_sales_manage_table_headers()
 	}
 
 	$headers[] = array('receipt' => '&nbsp', 'sortable' => FALSE);
-	// $headers[] = array('fulledit' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('fulledit' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -114,9 +114,9 @@ function get_sale_data_row($sale)
 	$row['edit'] = anchor($controller_name."/edit/$sale->sale_id", '<span class="glyphicon glyphicon-edit"></span>',
 		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
 	);
-	// $row['fulledit'] = anchor($controller_name."/editdetail/$sale->sale_id", '<span class="glyphicon glyphicon-edit text-danger"></span>',
-	// 	array('class' => 'print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
-	// );
+	$row['fulledit'] = anchor($controller_name."/editdetail/$sale->sale_id", '<span class="glyphicon glyphicon-edit text-danger"></span>',
+		array('class' => 'print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+	);
 
 	return $row;
 }
@@ -258,8 +258,8 @@ function get_people_manage_table_headers()
 
 	$headers = array(
 		array('people.person_id' => $CI->lang->line('common_id')),
-		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
+		array('last_name' => $CI->lang->line('common_last_name')),
 		array('email' => $CI->lang->line('common_email')),
 		array('phone_number' => $CI->lang->line('common_phone_number'))
 	);
@@ -282,8 +282,8 @@ function get_person_data_row($person)
 
 	return array (
 		'people.person_id' => $person->person_id,
-		'last_name' => $person->last_name,
 		'first_name' => $person->first_name,
+		'last_name' => $person->last_name,
 		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
 		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',
@@ -304,8 +304,8 @@ function get_customer_manage_table_headers()
 
 	$headers = array(
 		array('people.person_id' => $CI->lang->line('common_id')),
-		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
+		array('last_name' => $CI->lang->line('common_last_name')),
 		array('email' => $CI->lang->line('common_email')),
 		array('phone_number' => $CI->lang->line('common_phone_number')),
 		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => FALSE)
@@ -330,8 +330,8 @@ function get_customer_data_row($person, $stats)
 
 	return array (
 		'people.person_id' => $person->person_id,
-		'last_name' => $person->last_name,
 		'first_name' => $person->first_name,
+		'last_name' => $person->last_name,
 		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
 		'total' => to_currency($stats->total),
@@ -355,11 +355,13 @@ function get_suppliers_manage_table_headers()
 		array('company_name' => $CI->lang->line('suppliers_company_name')),
 		array('agency_name' => $CI->lang->line('suppliers_agency_name')),
 		array('category' => $CI->lang->line('suppliers_category')),
-		array('last_name' => $CI->lang->line('common_last_name')),
 		array('first_name' => $CI->lang->line('common_first_name')),
+		array('last_name' => $CI->lang->line('common_last_name')),
 		array('email' => $CI->lang->line('common_email')),
 		array('phone_number' => $CI->lang->line('common_phone_number')),
-		array('total_payment' => $CI->lang->line('common_total_payment'))
+		array('total_purchases' => 'Total Amount'),
+    array('total_payments'  => $CI->lang->line('common_total_payment')),
+    array('total_due'       => 'Total Due'),    
 	);
 
 	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
@@ -383,11 +385,13 @@ function get_supplier_data_row($supplier)
 		'company_name' => $supplier->company_name,
 		'agency_name' => $supplier->agency_name,
 		'category' => $supplier->category,
-		'last_name' => $supplier->last_name,
 		'first_name' => $supplier->first_name,
+		'last_name' => $supplier->last_name,
 		'email' => empty($supplier->email) ? '' : mailto($supplier->email, $supplier->email),
 		'phone_number' => $supplier->phone_number,
-		'total_payment' => $supplier->total_payment,
+		'total_purchases' => $supplier->total_purchases,
+		'total_payments'  => $supplier->total_payments,
+		'total_due'       => $supplier->total_due,
 		'messages' => empty($supplier->phone_number) ? '' : anchor("Messages/view/$supplier->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
 		'edit' => anchor($controller_name."/view/$supplier->person_id", '<span class="glyphicon glyphicon-edit"></span>',

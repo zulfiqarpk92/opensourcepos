@@ -156,6 +156,7 @@ class Sales extends Secure_Controller
 
 	public function change_mode()
 	{
+    $this->sale_lib->clear_all();
 		$mode = $this->input->post('mode');
 		$this->sale_lib->set_mode($mode);
 

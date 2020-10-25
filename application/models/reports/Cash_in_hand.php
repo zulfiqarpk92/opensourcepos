@@ -1,48 +1,48 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once("Report.php");
 
-class Cash_in_hand extends Report{
-    public function getTotalPayment(){
-        //fetch total amount paid to suppliers
-        $this->db->select('SUM(amount_tendered) AS totalPayment');
-        $this->db->from('ospos_supplier_payment');
-        $totalPayment = $this->db->get()->result_array();
-        $data['Supplier_Payment'] = $totalPayment[0]['totalPayment']?:0;
-    
-        //fetch total inventory value
-        $this->db->select('SUM(ospos_items.cost_price * itemQuantity.quantity ) as totalInventoryValue');
-        $this->db->join('ospos_item_quantities itemQuantity','ospos_items.item_id = itemQuantity.item_id');
-        $this->db->from('ospos_items');
-        $inventory_value = $this->db->get()->result_array();
-        $data['Inventory_Value'] = $inventory_value[0]['totalInventoryValue']?:0;
+class Cash_in_hand extends Report
+{
+  public function getTotalPayment()
+  {
 
-        //fetch total expense
-        $this->db->select('SUM(amount) AS totalExpense');
-        $this->db->from('ospos_expenses');
-        $expense_value = $this->db->get()->result_array();
-        $data['Expense_Value'] = $expense_value[0]['totalExpense']?:0;
+    $this->db->select_sum('payment_amount');
+    $this->db->from('sales_payments sp');
+    $this->db->join('sales s', 's.sale_id = sp.sale_id');
+    $this->db->where('s.sale_status', COMPLETED);
+    $this->db->where_in('sp.payment_type', ['Cash', 'Debit Card', 'Credit Card']);
+    $data['Sale_Payments'] = $this->db->get()->row('payment_amount') ?: 0;
 
+    //fetch total inventory value
+    $this->db->select('SUM(i.cost_price * iq.quantity) AS totalInventoryValue');
+    $this->db->from('items i');
+    $this->db->join('item_quantities iq', 'i.item_id = iq.item_id');
+    $data['Inventory_Value'] = $this->db->get()->row('totalInventoryValue') ?: 0;
 
-        $this->db->select('SUM(payment_amount) AS totalSale');
-        $this->db->where('payment_type =','Cash');
-        $this->db->or_where('payment_type =','Debit Card');
-        $this->db->or_where('payment_type =','Credit Card');
-        $this->db->from('ospos_sales_payments');
-        $sale_payments = $this->db->get()->result_array();
-        $data['Sale_Payments'] = $sale_payments[0]['totalSale']?:0;
-   
-        return $data;
-    }
-    public function getDataColumns(){
+    //fetch total amount paid to suppliers
+    $this->db->select_sum('amount_tendered');
+    $this->db->from('suppliers_payments');
+    $data['Supplier_Payment'] = $this->db->get()->row('amount_tendered') ?: 0;
 
-    }
-    public function getData(array $input){
+    //fetch total expense
+    $this->db->select_sum('amount');
+    $this->db->from('expenses');
+    $data['Expense_Value'] = $this->db->get()->row('amount') ?: 0;
 
-    }
-    public function getSummaryData(array $input){
-        return $input['Sale_Payments']+$input['Inventory_Value']-$input['Expense_Value']-$input['Supplier_Payment'];
-    }
-    
+    return $data;
+  }
+
+  public function getDataColumns()
+  {
+  }
+
+  public function getData(array $input)
+  {
+  }
+
+  public function getSummaryData(array $input)
+  {
+    return $input['Sale_Payments'] - $input['Expense_Value'] - $input['Supplier_Payment'];
+  }
 }
-?>

@@ -300,13 +300,25 @@ class Supplier extends Person
 		{
 			return $this->lang->line('suppliers_cost');
 		}
+  }
+  
+  public function get_total_purchases($supplier_id)
+  {
+		$this->db->select('SUM(ri.quantity_purchased * ri.receiving_quantity * ri.item_cost_price) AS total_purchases');
+		$this->db->where('r.supplier_id', $supplier_id);
+    $this->db->from('receivings r');
+    $this->db->join('receivings_items ri', 'ri.receiving_id = r.receiving_id');
+    $total_purchases = $this->db->get()->row('total_purchases');
+		return $total_purchases ?: 0;
 	}
-	public function get_total_payment($supplier){
-		$this->db->select('SUM(amount_tendered) as total');
-		$this->db->where('person_id',$supplier->person_id);
-		$this->db->from('ospos_supplier_payment');
-		$res = $this->db->get()->result_array();
-		return $res[0]['total'];
+  
+  public function get_total_payment($supplier_id)
+  {
+		$this->db->select_sum('amount_tendered');
+		$this->db->where('supplier_id', $supplier_id);
+		$this->db->from('suppliers_payments');
+		$amount_tendered = $this->db->get()->row('amount_tendered');
+		return $amount_tendered ?: 0;
 	}
 }
 ?>

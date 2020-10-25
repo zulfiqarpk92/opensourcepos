@@ -42,7 +42,12 @@ class Suppliers extends Persons
 
 		$data_rows = array();
 		foreach($suppliers->result() as $supplier)
-		{	$supplier->total_payment = to_currency($this->Supplier->get_total_payment($supplier));
+		{	
+      $total_purchases = $this->Supplier->get_total_purchases($supplier->person_id);
+      $total_payments = $this->Supplier->get_total_payment($supplier->person_id);
+      $supplier->total_purchases = to_currency($total_purchases);
+      $supplier->total_payments = to_currency($total_payments);
+      $supplier->total_due = to_currency($total_purchases - $total_payments);
 			$row = $this->xss_clean(get_supplier_data_row($supplier));
 			$row['category'] = $this->Supplier->get_category_name($row['category']);
 			$data_rows[] = $row;

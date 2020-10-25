@@ -692,30 +692,36 @@ class Sale extends CI_Model
 
 			if($cur_item_info->stock_type == HAS_STOCK && $sale_status == COMPLETED)
 			{
-				// Update stock quantity if item type is a standard stock item and the sale is a standard sale
-				$item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
-				$this->Item_quantity->save(array('quantity'	=> $item_quantity->quantity - $item['quantity'],
-					'item_id'		=> $item['item_id'],
-					'location_id'	=> $item['item_location']), $item['item_id'], $item['item_location']);
-
-				// if an items was deleted but later returned it's restored with this rule
-
-				if($item['quantity'] < 0)
-				{
-					$this->Item->undelete($item['item_id']);
-				}
-
-				// Inventory Count Details
 				$sale_remarks = 'POS '.$sale_id;
-				$inv_data = array(
-					'trans_date'		=> date('Y-m-d H:i:s'),
-					'trans_items'		=> $item['item_id'],
-					'trans_user'		=> $employee_id,
-					'trans_location'	=> $item['item_location'],
-					'trans_comment'		=> $sale_remarks,
-					'trans_inventory'	=> -$item['quantity']
-				);
-				$this->Inventory->insert($inv_data);
+        $sale_inventory = $this->Inventory->get_sale_inventory($item['item_id'], $sale_remarks);
+        $qty_diff = $item['quantity'] - $sale_inventory;
+        if($qty_diff != 0){
+        
+          // Update stock quantity if item type is a standard stock item and the sale is a standard sale
+          $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
+          $this->Item_quantity->save(array('quantity'	=> $item_quantity->quantity - $qty_diff,
+            'item_id'		=> $item['item_id'],
+            'location_id'	=> $item['item_location']), $item['item_id'], $item['item_location']);
+
+          // if an items was deleted but later returned it's restored with this rule
+
+          if($item['quantity'] < 0)
+          {
+            $this->Item->undelete($item['item_id']);
+          }
+
+          // Inventory Count Details
+          $inv_data = array(
+            'trans_date'		=> date('Y-m-d H:i:s'),
+            'trans_items'		=> $item['item_id'],
+            'trans_user'		=> $employee_id,
+            'trans_location'	=> $item['item_location'],
+            'trans_comment'		=> $sale_remarks,
+            'trans_inventory'	=> -$qty_diff
+          );
+          $this->Inventory->insert($inv_data);
+        
+        }
 			}
 
 			$this->Attribute->copy_attribute_links($item['item_id'], 'sale_id', $sale_id);
@@ -1405,6 +1411,28 @@ class Sale extends CI_Model
 
 		$this->db->delete('sales_payments', array('sale_id' => $sale_id));
 		$this->db->delete('sales_items_taxes', array('sale_id' => $sale_id));
+    
+    $sale_items = $this->db->get_where('sales_items', array('sale_id' => $sale_id))->result_array();
+
+    $sale_remarks = 'POS ' . $sale_id;
+    foreach($sale_items as $item){
+      if($this->Inventory->get_sale_inventory($item['item_id'], $sale_remarks) != 0){
+
+        // Update stock quantity if item type is a standard stock item and the sale is a standard sale
+        $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
+        $this->Item_quantity->save(array(
+            'quantity'	  => $item_quantity->quantity + $item['quantity_purchased'],
+            'item_id'		  => $item['item_id'],
+            'location_id'	=> $item['item_location']
+          ), 
+          $item['item_id'], 
+          $item['item_location']
+        );
+        $this->Inventory->delete_sale_inventory($item['item_id'], $sale_remarks);
+
+      }
+    }
+
 		$this->db->delete('sales_items', array('sale_id' => $sale_id));
 		$this->db->delete('sales_taxes', array('sale_id' => $sale_id));
 

@@ -66,13 +66,16 @@ class Receiving extends CI_Model
 			return -1;
 		}
 
+    if($this->Supplier->exists($supplier_id) == FALSE){
+      $supplier_id = 0;
+    }
 		$receivings_data = array(
-			'receiving_time' => date('Y-m-d H:i:s'),
-			'supplier_id' => $this->Supplier->exists($supplier_id) ? $supplier_id : NULL,
-			'employee_id' => $employee_id,
-			'payment_type' => $payment_type,
-			'comment' => $comment,
-			'reference' => $reference
+			'receiving_time'  => date('Y-m-d H:i:s'),
+			'supplier_id'     => $supplier_id,
+			'employee_id'     => $employee_id,
+			'payment_type'    => $payment_type,
+			'comment'         => $comment,
+			'reference'       => $reference
 		);
 
 		//Run these queries as a transaction, we want to make sure we do all or nothing
@@ -136,17 +139,17 @@ class Receiving extends CI_Model
 
 			$this->Attribute->copy_attribute_links($item['item_id'], 'receiving_id', $receiving_id);
 
-			$supplier = $this->Supplier->get_info($supplier_id);
+			// $supplier = $this->Supplier->get_info($supplier_id);
 		}
-		if($amount_tendered === null){
-			$amount_tendered = 0;
+		if($amount_tendered != null && $payment_type == 'Cash'){
+      $supplier_payment = array(
+        'supplier_id'     => $supplier_id,
+        'receiving_id'    => $receiving_id,
+        'amount_tendered' => $amount_tendered,
+        'date'            => date('Y-m-d H:i:s')
+      );
+      $this->db->insert('suppliers_payments', $supplier_payment);
 		}
-		$supplier_payment = array(
-			'person_id' => $this->Supplier->exists($supplier_id)?$supplier_id:Null,
-			'amount_tendered' => $amount_tendered === 0?0:$amount_tendered,
-			'date' => date('Y-m-d H:i:s')
-		);
-		$this->db->insert('ospos_supplier_payment',$supplier_payment);
 
 		$this->db->trans_complete();
 

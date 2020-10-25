@@ -47,6 +47,13 @@ try {
   // continue, .env file not present
 }
 
+function dump($data, $halt_execution = FALSE){
+  echo '<pre>' . print_r($data, TRUE) . '</pre>';
+  if($halt_execution){
+    exit();
+  }
+}
+
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT

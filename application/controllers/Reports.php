@@ -1641,17 +1641,16 @@ class Reports extends Secure_Controller
 		$this->load->model('reports/Cash_in_hand');
 		$model = $this->Cash_in_hand;
 
-		$report_data= $model->getTotalPayment();
-		$report_summary= $model->getSummaryData($report_data);
-		$data = array(
-				'title' => 'Cash in Hand',
-				'subtitle' => '',
-				'report_data' => $report_data,
-				'report_summary' => $report_summary
-			);
+		$report_data = $model->getTotalPayment();
+		$report_summary = $model->getSummaryData($report_data);
+    $data = array(
+      'title'           => 'Cash in Hand',
+      'subtitle'        => '',
+      'report_data'     => $report_data,
+      'report_summary'  => $report_summary
+    );
 
-		$this->load->view('reports/cash_in_hand/display',$data);
-
+		$this->load->view('reports/cash_in_hand/display', $data);
 	}
 
 	//	Returns subtitle for the reports
