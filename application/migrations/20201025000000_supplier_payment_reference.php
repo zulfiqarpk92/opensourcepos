@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Migration_supplier_payment extends CI_Migration
+class Migration_supplier_payment_reference extends CI_Migration
 {
 	public function __construct()
 	{
