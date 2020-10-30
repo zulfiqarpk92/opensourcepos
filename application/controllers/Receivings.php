@@ -250,6 +250,10 @@ class Receivings extends Secure_Controller
 	{
 		$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
 		$receiving_ids = $receiving_id == -1 ? $this->input->post('ids') : array($receiving_id);
+    if(empty($receiving_ids)){
+      echo json_encode(array('success' => FALSE, 'message' => 'No receiving ids provided'));
+      exit();
+    }
 	
 		if($this->Receiving->delete_list($receiving_ids, $employee_id, $update_inventory))
 		{
