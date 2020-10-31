@@ -49,6 +49,6 @@
 <div id="report_summary">
   <div class="summary_row"><?php echo 'Cash in Hand: ' . to_currency($report_summary); ?></div>
   <div class="summary_row"><?php echo 'Inventory Value: ' . to_currency($report_data['Inventory_Value']); ?></div>
-  <div class="summary_row"><?php echo 'Total Worth: ' . to_currency($report_summary+$report_data['Investment']); ?></div>
+  <div class="summary_row"><?php echo 'Total Worth: ' . to_currency($report_summary+$report_data['Inventory_Value']); ?></div>
 </div>
 <?php $this->load->view("partial/footer"); ?>
