@@ -9,7 +9,7 @@ class Cash_in_hand extends Report
     $this->db->select_sum('amount');
     $this->db->from('expenses');
     $this->db->where('amount < 0');
-    $data['Initial_Investment'] = ($this->db->get()->row('amount') ?: 0) * -1;
+    $data['Investment'] = ($this->db->get()->row('amount') ?: 0) * -1;
 
     $this->db->select('SUM(payment_amount-cash_refund) AS payment_amount');
     $this->db->from('sales_payments sp');
@@ -48,6 +48,6 @@ class Cash_in_hand extends Report
 
   public function getSummaryData(array $input)
   {
-    return $input['Initial_Investment'] + $input['Sale_Payments'] - $input['Expense_Value'] - $input['Supplier_Payment'];
+    return $input['Investment'] + $input['Sale_Payments'] - $input['Expense_Value'] - $input['Supplier_Payment'];
   }
 }
