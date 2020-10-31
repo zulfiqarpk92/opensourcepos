@@ -578,6 +578,7 @@ class Sales extends Secure_Controller
 		$data['cash_rounding'] = $this->session->userdata('cash_rounding');
 		$data['prediscount_subtotal'] = $totals['prediscount_subtotal'];
 		$data['cash_total'] = $totals['cash_total'];
+		$data['cash_refunds'] = $totals['refunds_total'];
 		$data['non_cash_total'] = $totals['total'];
 		$data['cash_amount_due'] = $totals['cash_amount_due'];
 		$data['non_cash_amount_due'] = $totals['amount_due'];
@@ -933,6 +934,7 @@ class Sales extends Secure_Controller
 		$data['cash_rounding'] = $this->session->userdata('cash_rounding');
 		$data['prediscount_subtotal'] = $totals['prediscount_subtotal'];
 		$data['cash_total'] = $totals['cash_total'];
+		$data['cash_refunds'] = $totals['refunds_total'];
 		$data['non_cash_total'] = $totals['total'];
 		$data['cash_amount_due'] = $totals['cash_amount_due'];
 		$data['non_cash_amount_due'] = $totals['amount_due'];

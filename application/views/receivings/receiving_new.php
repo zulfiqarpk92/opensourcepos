@@ -93,17 +93,158 @@
 
   <div id="overall_sale" class="panel panel-default">
     <div class="panel-body">
+      <?php
+      if(isset($supplier))
+      {
+      ?>
+        <table class="sales_table_100">
+          <tr>
+            <th style='width: 55%;'><?php echo $this->lang->line("receivings_supplier"); ?></th>
+            <th style="width: 45%; text-align: right;"><?php echo $supplier; ?></th>
+          </tr>
+          <?php
+          if(!empty($supplier_email))
+          {
+          ?>
+            <tr>
+              <th style='width: 55%;'><?php echo $this->lang->line("receivings_supplier_email"); ?></th>
+              <th style="width: 45%; text-align: right;"><?php echo $supplier_email; ?></th>
+            </tr>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($supplier_address))
+          {
+          ?>
+            <tr>
+              <th style='width: 55%;'><?php echo $this->lang->line("receivings_supplier_address"); ?></th>
+              <th style="width: 45%; text-align: right;"><?php echo $supplier_address; ?></th>
+            </tr>
+          <?php
+          }
+          ?>
+          <?php
+          if(!empty($supplier_location))
+          {
+          ?>
+            <tr>
+              <th style='width: 55%;'><?php echo $this->lang->line("receivings_supplier_location"); ?></th>
+              <th style="width: 45%; text-align: right;"><?php echo $supplier_location; ?></th>
+            </tr>
+          <?php
+          }
+          ?>
+        </table>
+        
+        <?php echo anchor($controller_name."/remove_supplier", '<span class="glyphicon glyphicon-remove">&nbsp</span>' . $this->lang->line('common_remove').' '.$this->lang->line('suppliers_supplier'),
+                  array('class'=>'btn btn-danger btn-sm', 'id'=>'remove_supplier_button', 'title'=>$this->lang->line('common_remove').' '.$this->lang->line('suppliers_supplier'))); ?>
+      <?php
+      }
+      else
+      {
+      ?>
+        <?php echo form_open($controller_name."/select_supplier", array('id'=>'select_supplier_form', 'class'=>'form-horizontal')); ?>
+          <div class="form-group" id="select_customer">
+            <label id="supplier_label" for="supplier" class="control-label" style="margin-bottom: 1em; margin-top: -1em;"><?php echo $this->lang->line('receivings_select_supplier'); ?></label>
+            <?php echo form_input(array('name'=>'supplier', 'id'=>'supplier', 'class'=>'form-control input-sm', 'value'=>$this->lang->line('receivings_start_typing_supplier_name'))); ?>
+
+            <button id='new_supplier_button' class='btn btn-info btn-sm modal-dlg' data-btn-submit='<?php echo $this->lang->line('common_submit') ?>' data-href='<?php echo site_url("suppliers/view"); ?>'
+                title='<?php echo $this->lang->line('receivings_new_supplier'); ?>'>
+              <span class="glyphicon glyphicon-user">&nbsp</span><?php echo $this->lang->line('receivings_new_supplier'); ?>
+            </button>
+
+          </div>
+        <?php echo form_close(); ?>
+      <?php
+      }
+      ?>
+			
       <table class="sales_table_100" id="sale_totals">
         <tr>
           <th style="width: 55%;"><?php echo $this->lang->line('sales_total'); ?></th>
           <th style="width: 45%; text-align: right;">{{currency_symbol}}{{cart_d.total.toFixed(2)}}</th>
         </tr>
       </table>
+
+      <?php
+		if(count($cart) > 0)
+		{
+		?>
+			<div id="finish_sale">
+				<?php
+				if($mode == 'requisition')
+				{
+				?>
+					<?php echo form_open($controller_name."/requisition_complete", array('id'=>'finish_receiving_form', 'class'=>'form-horizontal')); ?>
+						<div class="form-group form-group-sm">
+							<label id="comment_label" for="comment"><?php echo $this->lang->line('common_comments'); ?></label>
+							<?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'4')); ?>
+
+							<div class="btn btn-sm btn-danger pull-left" id='cancel_receiving_button'><span class="glyphicon glyphicon-remove">&nbsp</span><?php echo $this->lang->line('receivings_cancel_receiving'); ?></div>
+							
+							<div class="btn btn-sm btn-success pull-right" id='finish_receiving_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('receivings_complete_receiving'); ?></div>
+						</div>
+					<?php echo form_close(); ?>
+				<?php } else{ ?>
+					<?php echo form_open($controller_name."/complete", array('id'=>'finish_receiving_form', 'class'=>'form-horizontal')); ?>
+						<div class="form-group form-group-sm">
+							<label id="comment_label" for="comment"><?php echo $this->lang->line('common_comments'); ?></label>
+							<?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'4'));?>
+							<div id="payment_details" >
+								<table class="sales_table_100" >
+									<tr>
+										<td><?php echo $this->lang->line('receivings_print_after_sale'); ?></td>
+										<td>
+											<?php echo form_checkbox(array('name'=>'recv_print_after_sale', 'id'=>'recv_print_after_sale', 'class'=>'checkbox', 'value'=>1, 'checked'=>$print_after_sale)); ?>
+										</td>
+									</tr>
+									<?php
+									if ($mode == "receive")
+									{
+									?>
+										<tr>
+											<td><?php echo $this->lang->line('receivings_reference');?></td>
+											<td>
+												<?php echo form_input(array('name'=>'recv_reference', 'id'=>'recv_reference', 'class'=>'form-control input-sm', 'value'=>$reference, 'size'=>5));?>
+											</td>
+										</tr>
+									<?php
+									}
+									?>
+									<tr>
+										<td><?php echo $this->lang->line('sales_payment'); ?></td>
+										<td>
+											<?php echo form_dropdown('payment_type', $payment_options, array(), array('id'=>'payment_types', 'class'=>'selectpicker show-menu-arrow', 'data-style'=>'btn-default btn-sm', 'data-width'=>'auto')); ?>
+										</td>
+									</tr>
+									<tr>
+										<td><?php echo $this->lang->line('sales_amount_tendered'); ?></td>
+										<td>
+											<?php echo form_input(array('name'=>'amount_tendered', 'value'=>'', 'class'=>'form-control input-sm', 'size'=>'5')); ?>
+										</td>
+									</tr>
+								</table>
+							</div>
+
+							<div class='btn btn-sm btn-danger pull-left' id='cancel_receiving_button'><span class="glyphicon glyphicon-remove">&nbsp</span><?php echo $this->lang->line('receivings_cancel_receiving') ?></div>
+							
+							<div class='btn btn-sm btn-success pull-right' id='finish_receiving_button'><span class="glyphicon glyphicon-ok">&nbsp</span><?php echo $this->lang->line('receivings_complete_receiving') ?></div>
+						</div>
+					<?php echo form_close(); ?>
+				<?php
+				}
+				?>
+			</div>
+		<?php
+		}
+		?>
     </div>
   </div>
 
-  <div>Counter: {{ counter }}</div>
+  <div style="clear:both">Counter: {{ counter }}</div>
   <button v-on:click="getItems">Load</button>
+  <pre>{{supplier}}</pre>
   <pre>{{cart_items}}</pre>
   <pre>{{cart_d}}</pre>
 </div>
@@ -126,12 +267,46 @@ $(document).ready(function()
 			return false;
 		}
   });
+
+  $('#item').focus();
+
+  $('#item').keypress(function (e) {
+    if (e.which == 13) {
+      $('#add_item_form').submit();
+      return false;
+    }
+  });
+
+  $('#item').blur(function(){
+    $(this).val("<?php echo $this->lang->line('sales_start_typing_item_name'); ?>");
+  });
+
+  $('#item, #supplier').click(function(){
+		$(this).val('');
+  });
+  
+	$("#supplier").autocomplete({
+		source: '<?php echo site_url("suppliers/suggest"); ?>',
+		minChars:0,
+		delay:10,
+		select: function (a, ui) {
+			$(this).val(ui.item.value);
+			$("#select_supplier_form").submit();
+		}
+	});
+
+  dialog_support.init("a.modal-dlg, button.modal-dlg");
+
+  $('#supplier').blur(function(){
+		$(this).val("<?php echo $this->lang->line('receivings_start_typing_supplier_name'); ?>");
+	});
 });
 const Counter = {
   data() {
     return {
       counter: 5,
       currency_symbol: 'USD',
+      supplier: null,
       cart_items: [],
       cart_total: 0
     }
@@ -153,6 +328,7 @@ const Counter = {
       let response = await fetch('/receivings/get_cart');
       let data = await response.json();
       console.log(data);
+      // this.supplier = data.supplier;
       this.cart_items = data.cart_items;
       this.currency_symbol = data.currency_symbol;
       setTimeout(function(){$('[name="discount_toggle"]').bootstrapToggle();}, 300);

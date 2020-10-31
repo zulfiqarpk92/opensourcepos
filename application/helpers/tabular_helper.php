@@ -228,10 +228,12 @@ function get_sales_manage_payments_summary($payments, $sales)
 
 	$table = '<div id="report_summary">';
 
+  $adjustments = 0;
 	foreach($payments as $key=>$payment)
 	{
-		$amount = $payment['payment_amount'];
+		$amount = $payment['payment_amount'] - $payment['cash_refund'];
 
+    $adjustments += $payment['cash_refund'];
 		// WARNING: the strong assumption here is that if a change is due it was a cash transaction always
 		// therefore we remove from the total cash amount any change due
 		if($payment['payment_type'] == $CI->lang->line('sales_cash'))
@@ -243,6 +245,7 @@ function get_sales_manage_payments_summary($payments, $sales)
 		}
 		$table .= '<div class="summary_row">' . $payment['payment_type'] . ': ' . to_currency($amount) . '</div>';
 	}
+  $table .= '<div class="summary_row">Cash Adjustments: ' . to_currency($adjustments) . '</div>';
 	$table .= '</div>';
 
 	return $table;

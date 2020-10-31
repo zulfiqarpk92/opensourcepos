@@ -7,7 +7,7 @@
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="<?php echo 'dist/bootswatch/' . (empty($this->config->item('theme')) ? 'flatly' : $this->config->item('theme')) . '/bootstrap.min.css' ?>"/>
 
-	<?php if ($this->input->cookie('debug') == 'true' || $this->input->get('debug') == 'true') : ?>
+	<?php if (TRUE || $this->input->cookie('debug') == 'true' || $this->input->get('debug') == 'true') : ?>
 		<!-- bower:css -->
 		<link rel="stylesheet" href="bower_components/jquery-ui/themes/base/jquery-ui.css" />
 		<link rel="stylesheet" href="bower_components/bootstrap3-dialog/dist/css/bootstrap-dialog.min.css" />
@@ -128,11 +128,28 @@
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
 						<?php foreach($allowed_modules as $module): ?>
-							<li class="<?php echo $module->module_id == $this->uri->segment(1) ? 'active' : ''; ?>">
+              <li class="<?php echo $module->module_id == $this->uri->segment(1) ? 'active' : ''; ?>">
+                <?php if(empty($module->sub_menu) == FALSE){ ?>
+								<a href="<?php echo site_url("$module->module_id"); ?>" title="<?php echo $this->lang->line("module_" . $module->module_id); ?>" class="menu-icon dropdown-toggle"  data-toggle="dropdown" role="button">
+									<img src="<?php echo base_url() . 'images/menubar/' . $module->module_id . '.png'; ?>" border="0" alt="Module Icon"/><br/>
+                  <?php echo $this->lang->line("module_" . $module->module_id) ?>
+                  <?php if(empty($module->sub_menu) == FALSE){ ?>
+                    <span class="caret"></span>
+                  <?php } ?>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo site_url("$module->module_id/manage"); ?>"><?php echo $this->lang->line("module_" . $module->module_id) . ' List'; ?></a></li>
+                  <li><a href="<?php echo site_url("$module->module_id"); ?>"><?php echo 'Create New'; ?></a></li>
+                </ul>
+                <?php } else{ ?>
 								<a href="<?php echo site_url("$module->module_id"); ?>" title="<?php echo $this->lang->line("module_" . $module->module_id); ?>" class="menu-icon">
 									<img src="<?php echo base_url() . 'images/menubar/' . $module->module_id . '.png'; ?>" border="0" alt="Module Icon"/><br/>
-									<?php echo $this->lang->line("module_" . $module->module_id) ?>
-								</a>
+                  <?php echo $this->lang->line("module_" . $module->module_id) ?>
+                  <?php if(empty($module->sub_menu) == FALSE){ ?>
+                    <span class="caret"></span>
+                  <?php } ?>
+                </a>
+                <?php } ?>
 							</li>
 						<?php endforeach; ?>
 					</ul>

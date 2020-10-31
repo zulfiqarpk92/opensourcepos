@@ -193,11 +193,16 @@
 		?>
 			<tr>
 				<td colspan="3" style="text-align:right;"><?php echo $splitpayment[0]; ?> </td>
-				<td class="total-value"><?php echo to_currency( $payment['payment_amount'] * -1 ); ?></td>
+				<td class="total-value"><?php echo to_currency( ($payment['payment_amount'] - $payment['cash_refund']) * -1 ); ?></td>
 			</tr>
 		<?php
 		}
 		?>
+
+    <tr>
+      <td colspan="3" style="text-align:right;">Cash Adjustments</td>
+      <td style="text-align:right;"><?php echo to_currency($cash_refunds * -1); ?></td>
+    </tr>
 
 		<tr>
 			<td colspan="4">&nbsp;</td>

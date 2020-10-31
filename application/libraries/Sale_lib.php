@@ -367,18 +367,19 @@ class Sale_lib
 	}
 
 	// Multiple Payments
-	public function add_payment($payment_id, $payment_amount)
+	public function add_payment($payment_id, $payment_amount, $cash_refund = 0)
 	{
 		$payments = $this->get_payments();
 		if(isset($payments[$payment_id]))
 		{
 			//payment_method already exists, add to payment_amount
 			$payments[$payment_id]['payment_amount'] = bcadd($payments[$payment_id]['payment_amount'], $payment_amount);
+			$payments[$payment_id]['cash_refund'] = bcadd($payments[$payment_id]['cash_refund'], $cash_refund);
 		}
 		else
 		{
 			//add to existing array
-			$payment = array($payment_id => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => 0));
+			$payment = array($payment_id => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => $cash_refund));
 
 			$payments += $payment;
 		}
@@ -428,6 +429,18 @@ class Sale_lib
 			{
 				$this->CI->session->set_userdata('cash_rounding', 0);
 			}
+		}
+
+		return $subtotal;
+	}
+
+  public function get_refunds_total()
+	{
+		$subtotal = 0.0;
+		$this->reset_cash_flags();
+		foreach($this->get_payments() as $payment)
+		{
+			$subtotal = bcadd($payment['cash_refund'], $subtotal);
 		}
 
 		return $subtotal;
@@ -502,6 +515,9 @@ class Sale_lib
 
 		$payment_total = $this->get_payments_total();
 		$totals['payment_total'] = $payment_total;
+
+    $refunds_total = $this->get_refunds_total(); 
+		$totals['refunds_total'] = $refunds_total;
 
 		$amount_due = bcsub($total, $payment_total);
 		$totals['amount_due'] = $amount_due;
@@ -1016,7 +1032,7 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_payments($sale_id)->result() as $row)
 		{
-			$this->add_payment($row->payment_type, $row->payment_amount);
+			$this->add_payment($row->payment_type, $row->payment_amount, $row->cash_refund);
 		}
 
 		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);

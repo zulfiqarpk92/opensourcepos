@@ -410,6 +410,9 @@ class Receivings extends Secure_Controller
 
 	private function _reload($data = array())
 	{
+    if(stripos($this->input->server('HTTP_REFERER'), 'index2') !== FALSE){
+      redirect('/receivings/index2');
+    }
 		$data['cart'] = $this->receiving_lib->get_cart();
 		$data['modes'] = array('receive' => $this->lang->line('receivings_receiving'), 'return' => $this->lang->line('receivings_return'));
 		$data['mode'] = $this->receiving_lib->get_mode();
@@ -502,6 +505,35 @@ class Receivings extends Secure_Controller
     $this->load->view('receivings/receiving_new', $data);
   }
 
+  public function update_cart($item_id)
+	{
+		$data = array();
+
+		$this->form_validation->set_rules('price', 'lang:items_price', 'required|callback_numeric');
+		$this->form_validation->set_rules('quantity', 'lang:items_quantity', 'required|callback_numeric');
+		$this->form_validation->set_rules('discount', 'lang:items_discount', 'required|callback_numeric');
+
+		$description = $this->input->post('description');
+		$serialnumber = $this->input->post('serialnumber');
+		$price = parse_decimals($this->input->post('price'));
+		$quantity = parse_quantity($this->input->post('quantity'));
+		$discount = parse_decimals($this->input->post('discount'));
+		$discount_type = $this->input->post('discount_type');
+		$item_location = $this->input->post('location');
+		$receiving_quantity = $this->input->post('receiving_quantity');
+
+		if($this->form_validation->run() != FALSE)
+		{
+			$this->receiving_lib->edit_item($item_id, $description, $serialnumber, $quantity, $discount, $discount_type, $price, $receiving_quantity);
+		}
+		else
+		{
+			$data['error']=$this->lang->line('receivings_error_editing_item');
+		}
+
+		$this->_reload($data);
+	}
+
   public function get_cart()
   {
     // $items = $this->receiving_lib->get_cart();
@@ -514,6 +546,23 @@ class Receivings extends Secure_Controller
       $item['receiving_quantity'] = to_quantity_decimals($item['receiving_quantity']);
       $item['total'] = (double) $item['total'];
       $data['cart_items'][] = $item;
+    }
+    $data['supplier'] = null;
+		$supplier_id = $this->receiving_lib->get_supplier();
+		if($supplier_id != -1)
+		{
+      $supplier_info = $this->Supplier->get_info($supplier_id);
+      $data['supplier'] = [];
+			$data['supplier']['company_name'] = $supplier_info->company_name;
+			$data['supplier']['first_name'] = $supplier_info->first_name;
+			$data['supplier']['last_name'] = $supplier_info->last_name;
+			$data['supplier']['email'] = $supplier_info->email;
+			$data['supplier']['address'] = $supplier_info->address_1;
+      $data['supplier']['location'] = '';
+			if(!empty($supplier_info->zip) or !empty($supplier_info->city))
+			{
+				$data['supplier']['location'] = $supplier_info->zip . ' ' . $supplier_info->city;				
+			}
     }
     echo json_encode($data);
   }

@@ -48,8 +48,12 @@ class Secure_Controller extends CI_Controller
 
 		foreach($allowed_modules->result() as $module)
 		{
+      $module->sub_menu = [];
+      if($module->module_id == 'receivings' || $module->module_id == 'sales'){
+        $module->sub_menu = ['List', 'New'];
+      }
 			$data['allowed_modules'][] = $module;
-		}
+    }
 
 		$data['user_info'] = $logged_in_employee_info;
 		$data['controller_name'] = $module_id;
