@@ -46,9 +46,11 @@
     </tbody>
   </table>
 </div>
+<?php $net = $report_summary+$report_data['Inventory_Value']-$report_data['Investment']; ?>
 <div id="report_summary">
   <div class="summary_row"><?php echo 'Cash in Hand: ' . to_currency($report_summary); ?></div>
   <div class="summary_row"><?php echo 'Inventory Value: ' . to_currency($report_data['Inventory_Value']); ?></div>
   <div class="summary_row"><?php echo 'Total Worth: ' . to_currency($report_summary+$report_data['Inventory_Value']); ?></div>
+  <div class="summary_row"><?php echo 'Net Worth: ' . ($net > 0 ? '<span class="text-success">' . to_currency($net) . '</span>' : '<span class="text-danger">' . to_currency($net) . '</span>'); ?></div>
 </div>
 <?php $this->load->view("partial/footer"); ?>
