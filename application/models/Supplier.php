@@ -304,7 +304,7 @@ class Supplier extends Person
   
   public function get_total_purchases($supplier_id)
   {
-		$this->db->select('SUM(ri.quantity_purchased * ri.receiving_quantity * ri.item_cost_price) AS total_purchases');
+		$this->db->select('SUM(ri.quantity_purchased * ri.receiving_quantity * ri.item_unit_price) AS total_purchases');
 		$this->db->where('r.supplier_id', $supplier_id);
     $this->db->from('receivings r');
     $this->db->join('receivings_items ri', 'ri.receiving_id = r.receiving_id');
