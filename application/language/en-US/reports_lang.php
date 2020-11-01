@@ -140,5 +140,5 @@ $lang["reports_unit_price"] = "Retail Price";
 $lang["reports_used"] = "Points Used";
 $lang["reports_work_orders"] = "Work Orders";
 $lang["reports_zero_and_less"] = "Zero and less";
-$lang["reports_cash_in_hand"] = "Cash in hand";
+$lang["reports_balance_sheet"] = "Balance Sheet";
  

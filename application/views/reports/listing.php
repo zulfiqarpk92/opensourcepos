@@ -80,7 +80,7 @@ if(isset($error))
 				<?php 
 				show_report('', 'reports_inventory_low');
 				show_report('', 'reports_inventory_summary');
-				show_report('', 'reports_cash_in_hand');
+				show_report('', 'reports_balance_sheet');
 				?>
 				
 				</div>
