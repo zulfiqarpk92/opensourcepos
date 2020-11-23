@@ -104,15 +104,25 @@
             <?php foreach($payment_headers as $header){ ?>
             <th><?php echo $header; ?></th>
             <?php } ?>
+            <th></th>
           </tr>
         </thead>
-        <?php foreach($payments as $payment){ ?>
-        <tr>
-          <?php foreach(array_keys($payment_headers) as $prop){ ?>
-          <td><?php echo $payment[$prop]; ?></td>
+        <tbody>
+          <?php foreach($payments as $payment){ ?>
+          <tr>
+            <?php foreach(array_keys($payment_headers) as $prop){ ?>
+            <td><?php echo $payment[$prop]; ?></td>
+            <?php } ?>
+            <td>
+              <?php if($payment['id']){ ?>
+              <a href="#" onclick="removePayment(<?php echo $payment['id']; ?>)">
+                <i class="glyphicon glyphicon-trash text-danger"></i>
+              </a>
+              <?php } ?>
+            </td>
+          </tr>
           <?php } ?>
-        </tr>
-        <?php } ?>
+        </tbody>
       </table>
     </div>
 
@@ -121,6 +131,30 @@
 <?php echo form_close(); ?>
 
 <script type="text/javascript">
+function removePayment(payment_id){
+  if(confirm('You are about to delete supplier payment. Continue?')){
+    $.get('<?php echo site_url($controller_name . '/removepayment/'); ?>' + payment_id, function(response){
+      var pbody = '';
+      for(var x in response.payments){
+        p = response.payments[x];
+        pbody += '<tr>';
+        <?php foreach(array_keys($payment_headers) as $prop){ ?>
+        var key = '<?php echo $prop; ?>';
+        pbody += '<td>'+(p[key] ? p[key] : '')+'</td>';
+        <?php } ?>
+        if(p['id']){
+          pbody += '<td><a href="#" onclick="removePayment('+p['id']+')"><i class="glyphicon glyphicon-trash text-danger"></i></a></td>';
+        } else {
+          pbody += '<td></td>';
+        }
+        pbody += '</tr>';
+        console.log(pbody);
+      }
+      $('#supplier_payments tbody').html(pbody);
+    }, "json");
+  }
+  return;
+}
 //validation and submit handling
 $(document).ready(function()
 {

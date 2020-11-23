@@ -45,6 +45,21 @@ class Receiving_lib
 		return $this->CI->session->userdata('recv_supplier');
 	}
 
+	public function get_receiving_id()
+	{
+		if(!$this->CI->session->userdata('recv_id'))
+		{
+			$this->set_receiving_id(-1);
+		}
+
+		return $this->CI->session->userdata('recv_id');
+	}
+
+	public function set_receiving_id($receiving_id)
+	{
+		$this->CI->session->set_userdata('recv_id', $receiving_id);
+	}
+
 	public function set_supplier($supplier_id)
 	{
 		$this->CI->session->set_userdata('recv_supplier', $supplier_id);
@@ -346,13 +361,15 @@ class Receiving_lib
 		$this->empty_cart();
 		$this->remove_supplier();
 
+    $this->set_receiving_id($receiving_id);
 		foreach($this->CI->Receiving->get_receiving_items($receiving_id)->result() as $row)
 		{
 			$this->add_item($row->item_id, $row->quantity_purchased, $row->item_location, $row->discount, $row->discount_type, $row->item_unit_price, $row->description, $row->serialnumber, $row->receiving_quantity, $receiving_id, TRUE);
 		}
 
 		$this->set_supplier($this->CI->Receiving->get_supplier($receiving_id)->person_id);
-		//$this->set_reference($this->CI->Receiving->get_info($receiving_id)->row()->reference);
+		$this->set_reference($this->CI->Receiving->get_info($receiving_id)->row()->reference);
+		$this->set_comment($this->CI->Receiving->get_info($receiving_id)->row()->comment);
 	}
 
 	public function clear_all()

@@ -59,12 +59,16 @@ class Receiving extends CI_Model
 		return $this->db->update('receivings', $receiving_data);
 	}
 
-	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE,$amount_tendered = 0)
+	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE, $amount_tendered = 0)
 	{
 		if(count($items) == 0)
 		{
 			return -1;
 		}
+    if($receiving_id != -1){      
+      $this->delete($receiving_id, $employee_id, TRUE, FALSE);
+      sleep(2);
+    }
 
     if($this->Supplier->exists($supplier_id) == FALSE){
       $supplier_id = 0;
@@ -81,8 +85,17 @@ class Receiving extends CI_Model
 		//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
 
-		$this->db->insert('receivings', $receivings_data);
-		$receiving_id = $this->db->insert_id();
+
+		if($receiving_id == -1)
+		{
+      $this->db->insert('receivings', $receivings_data);
+      $receiving_id = $this->db->insert_id();
+		}
+		else
+		{
+			$this->db->where('receiving_id', $receiving_id);
+      $this->db->update('receivings', $receivings_data);
+		}
 
 		foreach($items as $line=>$item)
 		{
@@ -181,7 +194,7 @@ class Receiving extends CI_Model
 		return $success;
 	}
 
-	public function delete($receiving_id, $employee_id, $update_inventory = TRUE)
+	public function delete($receiving_id, $employee_id, $update_inventory = TRUE, $delete_self = TRUE)
 	{
 		// start a transaction to assure data integrity
 		$this->db->trans_start();
@@ -212,8 +225,10 @@ class Receiving extends CI_Model
 
 		// delete all items
 		$this->db->delete('receivings_items', array('receiving_id' => $receiving_id));
-		// delete sale itself
-		$this->db->delete('receivings', array('receiving_id' => $receiving_id));
+    if($delete_self){
+      // delete sale itself
+      $this->db->delete('receivings', array('receiving_id' => $receiving_id));
+    }
 
 		// execute transaction
 		$this->db->trans_complete();

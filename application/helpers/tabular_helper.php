@@ -165,6 +165,7 @@ function get_receivings_manage_table_headers($CI)
 	);
 
 	$headers[] = array('receipt' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('fulledit' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers($headers);
 }
@@ -192,6 +193,9 @@ function get_receiving_data_row($CI, $receiving)
 	);
 	$row['edit'] = anchor($controller_name."/edit/$receiving->receiving_id", '<span class="glyphicon glyphicon-edit"></span>',
 		array('class' => 'modal-dlg print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
+	);
+	$row['fulledit'] = anchor($controller_name."/editdetail/$receiving->receiving_id", '<span class="glyphicon glyphicon-edit text-danger"></span>',
+		array('class' => 'print_hide', 'data-btn-delete' => $CI->lang->line('common_delete'), 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name.'_update'))
 	);
 
 	return $row;

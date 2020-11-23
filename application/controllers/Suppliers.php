@@ -136,6 +136,7 @@ class Suppliers extends Persons
     $payments_total = 0;
     foreach($this->Supplier->get_payments($supplier_id) as $payment){
       $data['payments'][] = [
+        'id'               => $payment->supplier_payment_id,
         'payment_time'     => to_datetime(strtotime($payment->payment_date)), 
         'amount_tendered'  => to_currency($payment->amount_tendered), 
         'reference'        => $payment->reference, 
@@ -144,6 +145,7 @@ class Suppliers extends Persons
       $payments_total += $payment->amount_tendered;
     }
     $data['payments'][] = [
+      'id'               => '',
       'payment_time'     => '<b>Total</b>', 
       'amount_tendered'  => to_currency($payments_total), 
       'reference'        => '', 
@@ -165,6 +167,8 @@ class Suppliers extends Persons
         $supplier_payment['amount_tendered'] = $amount_tendered;
         $supplier_payment['reference'] = $this->input->post('reference');
         $supplier_payment['comments'] = $this->input->post('comments');
+        $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $this->input->post('payment_date'));
+        $supplier_payment['payment_date'] = $date_formatter->format('Y-m-d H:i:s');
         $payment_id = $this->Supplier->add_payment($supplier_id, $supplier_payment);
       }
       if($payment_id){
@@ -186,6 +190,42 @@ class Suppliers extends Persons
 
 		$this->load->view("suppliers/add_payment", $data);
 	}
+	
+  public function removepayment($payment_id = 0){
+    if($payment_id){
+      $deleted_payment = $this->Supplier->remove_payment($payment_id);
+      $payments_total = 0;
+      $payments = [];
+      foreach($this->Supplier->get_payments($deleted_payment->supplier_id) as $payment){
+        $payments[] = [
+          'id'               => $payment->supplier_payment_id,
+          'payment_time'     => to_datetime(strtotime($payment->payment_date)), 
+          'amount_tendered'  => to_currency($payment->amount_tendered), 
+          'reference'        => $payment->reference, 
+          'comments'         => $payment->comments
+        ];
+        $payments_total += $payment->amount_tendered;
+      }
+      $payments[] = [
+        'id'               => '',
+        'payment_time'     => '<b>Total</b>', 
+        'amount_tendered'  => to_currency($payments_total), 
+        'reference'        => '', 
+        'comments'         => ''
+      ];
+      echo json_encode(array(
+        'success' => TRUE,
+        'message' => 'Payment record deleted',
+        'payments'=> $payments
+      ));
+      return;
+    }
+    echo json_encode(array(
+      'success' => FALSE,
+      'message' => 'Payment record deletion failed',
+      'payments'=> []
+    ));
+  }
 	
 	/*
 	Inserts/updates a supplier

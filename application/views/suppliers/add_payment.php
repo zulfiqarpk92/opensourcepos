@@ -17,6 +17,17 @@
         )); ?>
 			</div>
 		</div>
+    <div class="form-group form-group-sm">
+			<?php echo form_label('Date', 'payment_date', array('class' => 'required control-label col-xs-3')); ?>
+			<div class='col-xs-8'>
+				<?php echo form_input(array(
+					'name'  => 'payment_date',
+					'id'    => 'payment_date',
+					'class' => 'datetime form-control input-sm',
+          'value' => ''
+        )); ?>
+			</div>
+    </div>
 
 		<div class="form-group form-group-sm">	
 			<?php echo form_label('Reference', 'reference', array('class'=>'control-label col-xs-3')); ?>
@@ -50,6 +61,7 @@
 //validation and submit handling
 $(document).ready(function()
 {
+	<?php $this->load->view('partial/datepicker_locale'); ?>
 	$('#payment_form').validate($.extend({
 		submitHandler: function(form) {
 			$(form).ajaxSubmit({

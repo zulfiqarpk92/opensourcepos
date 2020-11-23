@@ -277,7 +277,8 @@ class Receivings extends Secure_Controller
 	public function complete()
 	{
 		$data = array();
-		
+    
+    $receiving_id = $this->receiving_lib->get_receiving_id();
 		$data['cart'] = $this->receiving_lib->get_cart();
 		$data['total'] = $this->receiving_lib->get_total();
 		$data['transaction_time'] = to_datetime(time());
@@ -287,6 +288,7 @@ class Receivings extends Secure_Controller
 		$data['payment_type'] = $this->input->post('payment_type');
 		$data['show_stock_locations'] = $this->Stock_location->show_locations('receivings');
 		$data['stock_location'] = $this->receiving_lib->get_stock_source();
+    $data['amount_tendered'] = 0;
 		if($this->input->post('amount_tendered') != NULL)
 		{
 			$data['amount_tendered'] = $this->input->post('amount_tendered');
@@ -318,7 +320,7 @@ class Receivings extends Secure_Controller
 		}
 		
 		//SAVE receiving to database
-		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $data['stock_location'],$data['amount_tendered']);
+		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $receiving_id, $data['amount_tendered']);
 
 		$data = $this->xss_clean($data);
 

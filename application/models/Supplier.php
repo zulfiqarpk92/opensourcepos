@@ -327,7 +327,6 @@ class Supplier extends Person
       return FALSE;
     }
     $supplier_payment['supplier_id']  = $supplier_id;
-    $supplier_payment['payment_date'] = date('Y-m-d H:i:s');
     $this->db->insert('suppliers_payments', $supplier_payment);
     return $this->db->insert_id();
   }
@@ -337,6 +336,17 @@ class Supplier extends Person
 		$this->db->where('supplier_id', $supplier_id);
 		$this->db->from('suppliers_payments');
 		return $this->db->get()->result();
+	}
+  
+  public function remove_payment($payment_id)
+  {
+    $payment = $this->db->where('supplier_payment_id', $payment_id)->get('suppliers_payments')->row();
+    if($payment){
+      $this->db->where('supplier_payment_id', $payment_id);
+      $this->db->from('suppliers_payments');
+      $this->db->delete();
+    }
+    return $payment;
 	}
 }
 
