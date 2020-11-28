@@ -35,16 +35,6 @@ class Receiving_lib
 		$this->CI->session->unset_userdata('recv_cart');
 	}
 
-	public function get_supplier()
-	{
-		if(!$this->CI->session->userdata('recv_supplier'))
-		{
-			$this->set_supplier(-1);
-		}
-
-		return $this->CI->session->userdata('recv_supplier');
-	}
-
 	public function get_receiving_id()
 	{
 		if(!$this->CI->session->userdata('recv_id'))
@@ -58,6 +48,21 @@ class Receiving_lib
 	public function set_receiving_id($receiving_id)
 	{
 		$this->CI->session->set_userdata('recv_id', $receiving_id);
+	}
+
+	public function remove_receiving_id()
+	{
+		$this->CI->session->unset_userdata('recv_id');
+	}
+
+	public function get_supplier()
+	{
+		if(!$this->CI->session->userdata('recv_supplier'))
+		{
+			$this->set_supplier(-1);
+		}
+
+		return $this->CI->session->userdata('recv_supplier');
 	}
 
 	public function set_supplier($supplier_id)
@@ -374,6 +379,7 @@ class Receiving_lib
 
 	public function clear_all()
 	{
+    $this->remove_receiving_id();
 		$this->clear_mode();
 		$this->empty_cart();
 		$this->remove_supplier();

@@ -85,7 +85,6 @@ class Receiving extends CI_Model
 		//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
 
-
 		if($receiving_id == -1)
 		{
       $this->db->insert('receivings', $receivings_data);

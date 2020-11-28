@@ -121,9 +121,17 @@ class Sales extends Secure_Controller
 		$suggestions = array_merge($suggestions, $this->Item->get_search_suggestions($search, array('search_custom' => FALSE, 'is_deleted' => FALSE), TRUE));
 		$suggestions = array_merge($suggestions, $this->Item_kit->get_search_suggestions($search));
 
-		$suggestions = $this->xss_clean($suggestions);
+    $suggestions = $this->xss_clean($suggestions);
+    
+    $item_suggestions = [];
+    foreach($suggestions as $s){
+      $item_suggestions[] = $s;
+      $s['label'] = $s['label'] . ' Wholesale';
+      $s['value'] = $s['value'] . 'w';
+      $item_suggestions[] = $s;
+    }
 
-		echo json_encode($suggestions);
+		echo json_encode($item_suggestions);
 	}
 
 	public function suggest_search()
@@ -396,8 +404,15 @@ class Sales extends Secure_Controller
 				$discount_type = $customer_discount_type;
 			}
 		}
+    $price = NULL;
+    $quantity = 1;
 
 		$item_id_or_number_or_item_kit_or_receipt = $this->input->post('item');
+    if(substr($item_id_or_number_or_item_kit_or_receipt, -1) == 'w'){
+      $item_id_or_number_or_item_kit_or_receipt = rtrim($item_id_or_number_or_item_kit_or_receipt, 'w');
+      $item_info = $this->Item->get_info_by_id_or_number($item_id_or_number_or_item_kit_or_receipt, FALSE);
+      $price = $item_info ? $item_info->wsale_price : NULL;
+    }
 		$this->token_lib->parse_barcode($quantity, $price, $item_id_or_number_or_item_kit_or_receipt);
 		$mode = $this->sale_lib->get_mode();
 		$quantity = ($mode == 'return') ? -$quantity : $quantity;

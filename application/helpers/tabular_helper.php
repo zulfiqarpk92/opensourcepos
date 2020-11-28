@@ -426,6 +426,7 @@ function get_items_manage_table_headers()
 		array('category' => $CI->lang->line('items_category')),
 		array('company_name' => $CI->lang->line('suppliers_company_name')),
 		array('cost_price' => $CI->lang->line('items_cost_price')),
+		array('wsale_price' => $CI->lang->line('items_wholesale_price')),
 		array('unit_price' => $CI->lang->line('items_unit_price')),
 		array('quantity' => $CI->lang->line('items_quantity'))
 	);
@@ -522,6 +523,7 @@ function get_item_data_row($item)
 		'category' => $item->category,
 		'company_name' => $item->company_name,
 		'cost_price' => to_currency($item->cost_price),
+		'wsale_price' => to_currency($item->wsale_price),
 		'unit_price' => to_currency($item->unit_price),
 		'quantity' => to_quantity_decimals($item->quantity),
 		'tax_percents' => !$tax_percents ? '-' : $tax_percents,

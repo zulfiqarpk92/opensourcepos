@@ -95,6 +95,7 @@ class Item extends CI_Model
 			$this->db->select('MAX(items.item_number) AS item_number');
 			$this->db->select('MAX(items.description) AS description');
 			$this->db->select('MAX(items.cost_price) AS cost_price');
+			$this->db->select('MAX(items.wsale_price) AS wsale_price');
 			$this->db->select('MAX(items.unit_price) AS unit_price');
 			$this->db->select('MAX(items.reorder_level) AS reorder_level');
 			$this->db->select('MAX(items.receiving_quantity) AS receiving_quantity');

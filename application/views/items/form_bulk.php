@@ -55,6 +55,25 @@
 			</div>
 		</div>
 
+    <div class="form-group form-group-sm">
+      <?php echo form_label($this->lang->line('items_wholesale_price'), 'wsale_price', array('class'=>'control-label col-xs-3')); ?>
+      <div class='col-xs-4'>
+        <div class="input-group input-group-sm">
+          <?php if (!currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+          <?php echo form_input(array(
+              'name'=>'wsale_price',
+              'id'=>'wsale_price',
+              'class'=>'form-control input-sm')
+              );?>
+          <?php if (currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
 		<div class="form-group form-group">
 			<?php echo form_label($this->lang->line('items_unit_price'), 'unit_price', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-4'>

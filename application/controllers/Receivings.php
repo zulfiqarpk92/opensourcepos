@@ -15,6 +15,10 @@ class Receivings extends Secure_Controller
 
 	public function index()
 	{
+    $receiving_id = $this->receiving_lib->get_receiving_id();
+    if($receiving_id > 0){
+      $this->receiving_lib->remove_receiving_id();
+    }
 		$this->_reload();
 	}
 
