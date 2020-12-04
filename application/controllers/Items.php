@@ -749,6 +749,9 @@ class Items extends Secure_Controller
 			{
 				$item_data["$key"] = $value;
 			}
+      elseif($key == 'undelete'){
+        $item_data['deleted'] = '0';
+      }
 			elseif($value != '' && !(in_array($key, array('item_ids', 'tax_names', 'tax_percents'))))
 			{
 				$item_data["$key"] = $value;

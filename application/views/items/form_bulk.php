@@ -174,6 +174,18 @@
 				<?php echo form_dropdown('is_serialized', $serialization_choices, '', array('class'=>'form-control'));?>
 			</div>
 		</div>
+    
+    <div class="form-group form-group-sm">
+      <?php echo form_label('Undelete', 'undelete', array('class'=>'control-label col-xs-3')); ?>
+      <div class='col-xs-1'>
+      <?php echo form_checkbox(array(
+          'name'    => 'undelete',
+          'id'      => 'undelete',
+          'value'   => '1',
+          'checked' => 0
+        )); ?>
+      </div>
+    </div>
 	</fieldset>
 <?php echo form_close(); ?>
 
