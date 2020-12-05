@@ -181,6 +181,7 @@ function get_timezones()
 		'Asia/Baku' => '(GMT+04:00) Baku',
 		'Asia/Yekaterinburg' => '(GMT+05:00) Ekaterinburg',
 		'Asia/Tashkent' => '(GMT+05:00) Tashkent',
+		'Asia/Karachi' => '(GMT+05:00) Karachi',
 		'Asia/Kolkata' => '(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi',
 		'Asia/Katmandu' => '(GMT+05:45) Kathmandu',
 		'Asia/Dhaka' => '(GMT+06:00) Astana, Dhaka',
@@ -246,8 +247,11 @@ function get_payment_options()
 
 	$payments = array();
 
-
-	if($config->item('payment_options_order') == 'debitcreditcash')
+  if($config->item('payment_options_order') == 'cash')
+	{
+		$payments[$lang->line('sales_cash')] = $lang->line('sales_cash');
+	}
+	elseif($config->item('payment_options_order') == 'debitcreditcash')
 	{
 		$payments[$lang->line('sales_debit')] = $lang->line('sales_debit');
 		$payments[$lang->line('sales_credit')] = $lang->line('sales_credit');

@@ -20,13 +20,17 @@ class Items extends Secure_Controller
 		$data['stock_locations'] = $this->xss_clean($this->Stock_location->get_allowed_locations());
 
 	//Filters that will be loaded in the multiselect dropdown
-		$data['filters'] = array('empty_upc' => $this->lang->line('items_empty_upc_items'),
-			'low_inventory' => $this->lang->line('items_low_inventory_items'),
-			'is_serialized' => $this->lang->line('items_serialized_items'),
-			'no_description' => $this->lang->line('items_no_description_items'),
-			'search_custom' => $this->lang->line('items_search_attributes'),
-			'is_deleted' => $this->lang->line('items_is_deleted'),
-			'temporary' => $this->lang->line('items_temp'));
+		$data['filters'] = array(
+      'has_stock'       => $this->lang->line('items_has_stock'),
+      'non_stock'       => $this->lang->line('items_non_stock'),
+      'empty_upc'       => $this->lang->line('items_empty_upc_items'),
+			'low_inventory'   => $this->lang->line('items_low_inventory_items'),
+			'is_serialized'   => $this->lang->line('items_serialized_items'),
+			'no_description'  => $this->lang->line('items_no_description_items'),
+			'search_custom'   => $this->lang->line('items_search_attributes'),
+			'is_deleted'      => $this->lang->line('items_is_deleted'),
+      'temporary'       => $this->lang->line('items_temp')
+    );
 
 		$this->load->view('items/manage', $data);
 	}
@@ -46,9 +50,12 @@ class Items extends Secure_Controller
 
 		$definition_names = $this->Attribute->get_definitions_by_flags(Attribute::SHOW_IN_ITEMS);
 
-		$filters = array('start_date' => $this->input->get('start_date'),
+		$filters = array(
+      'start_date' => $this->input->get('start_date'),
 			'end_date' => $this->input->get('end_date'),
 			'stock_location_id' => $this->item_lib->get_item_location(),
+			'has_stock' => FALSE,
+			'non_stock' => FALSE,
 			'empty_upc' => FALSE,
 			'low_inventory' => FALSE,
 			'is_serialized' => FALSE,
@@ -56,7 +63,8 @@ class Items extends Secure_Controller
 			'search_custom' => FALSE,
 			'is_deleted' => FALSE,
 			'temporary' => FALSE,
-			'definition_ids' => array_keys($definition_names));
+      'definition_ids' => array_keys($definition_names)
+    );
 
 	//Check if any filter is set in the multiselect dropdown
 		$filledup = array_fill_keys($this->input->get('filters'), TRUE);

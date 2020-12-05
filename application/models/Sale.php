@@ -976,7 +976,7 @@ class Sale extends CI_Model
 
 		if($giftcard == TRUE)
 		{
-			$payments[$this->lang->line('sales_giftcard')] = $this->lang->line('sales_giftcard');
+			// $payments[$this->lang->line('sales_giftcard')] = $this->lang->line('sales_giftcard');
 		}
 
 		if($reward_points == TRUE)

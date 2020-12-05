@@ -182,6 +182,14 @@ class Item extends CI_Model
 
 		$this->db->where('items.deleted', $filters['is_deleted']);
 
+    if($filters['has_stock'] != FALSE)
+		{
+			$this->db->where('stock_type', '0');
+    }
+    if($filters['non_stock'] != FALSE)
+		{
+			$this->db->where('stock_type', '1');
+		}
 		if($filters['empty_upc'] != FALSE)
 		{
 			$this->db->where('item_number', NULL);
