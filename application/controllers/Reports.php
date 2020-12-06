@@ -35,6 +35,62 @@ class Reports extends Secure_Controller
 		$this->load->view('reports/listing', $data);
 	}
 
+  public function summary_daily($start_date, $end_date, $sale_type = 'complete', $location_id = 'all', $discount_type = '', $stock_type = '')
+  {
+    $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+
+    $this->load->model('reports/Summary_daily');
+    $model = $this->Summary_daily;
+
+    $report_data = $model->getData($inputs);
+    $expenses = $model->getExpenses($inputs);
+    $indexed_report = [];
+    foreach($report_data as $r){
+      $key = $r['sale_date'];
+      if(isset($indexed_report[$key]) == FALSE){
+        $indexed_report[$key] = ['date' => $key, 'sales' => 0, 'expenses' => 0, 'profit' => 0];
+      }
+      $indexed_report[$key]['sales'] += $r['total'];
+      $indexed_report[$key]['profit'] = $indexed_report[$key]['sales'] - $indexed_report[$key]['expenses'];
+    }
+    $monthly_expenses = 0;
+    foreach($expenses as $r){
+      $key = $r['expense_date'];
+      if(isset($indexed_report[$key]) == FALSE){
+        $indexed_report[$key] = ['date' => $key, 'sales' => 0, 'expenses' => 0, 'profit' => 0];
+      }
+      $indexed_report[$key]['expenses'] += $r['total_amount'];
+      $indexed_report[$key]['profit'] = $indexed_report[$key]['sales'] - $indexed_report[$key]['expenses'];
+      $monthly_expenses += $r['monthly_exp'];
+    }
+    ksort($indexed_report);
+    
+    $summary = ['revenue' => 0, 'expenses' => 0, 'monthly' => 0, 'profit' => 0];
+    $tabular_data = array();
+    foreach ($indexed_report as $row) {
+      $tabular_data[] = array(
+        'date'      => to_date(strtotime($row['date'])),
+        'sales'     => to_currency($row['sales']),
+        'expenses'  => to_currency($row['expenses']),
+        'profit'    => to_currency($row['profit'])
+      );
+      $summary['revenue'] += $row['sales'];
+      $summary['expenses'] += $row['expenses'];
+      $summary['profit'] += $row['profit'];
+    }
+    $summary['monthly'] = $monthly_expenses;
+    $summary['profit'] -= $monthly_expenses;
+
+    $data = array(
+      'title'         => $this->lang->line('reports_sales_summary_report'),
+      'subtitle'      => $this->_get_subtitle_report(array('start_date' => $start_date, 'end_date' => $end_date)),
+      'headers'       => $this->xss_clean($model->getDataColumns()),
+      'data'          => $tabular_data,
+      'summary_data'  => $summary
+    );
+    $this->load->view('reports/tabular', $data);
+  }
+
 	//Summary sales report
 	public function summary_sales($start_date, $end_date, $sale_type, $location_id = 'all')
 	{

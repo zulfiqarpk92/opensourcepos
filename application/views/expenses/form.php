@@ -97,6 +97,18 @@
 			</div>
 		</div>
 
+    <div class="form-group form-group-sm">
+      <?php echo form_label('Monthly Expense', 'is_monthly', array('class'=>'control-label col-xs-3')); ?>
+      <div class='col-xs-6'>
+        <?php echo form_checkbox(array(
+          'name'    => 'is_monthly',
+          'id'      => 'is_monthly',
+          'value'   => '1',
+          'checked' => $expenses_info->is_monthly ? '1' : '0'
+        )); ?>
+      </div>
+    </div>
+
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_payment'), 'payment_type', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>

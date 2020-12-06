@@ -927,29 +927,28 @@ class Config extends Secure_Controller
 		return TRUE;
 	}
 
-  public function cleanup_db(){
-		// $employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
-    // $q = $this->db->select('receiving_id')->get('ospos_receivings');
-    // $rids = [];
-    // foreach($q->result() as $r){
-    //   $rids[] = $r->receiving_id;
-    // }
-    // $this->Receiving->delete_list($rids, $employee_id);
-    // $q = $this->db->select('sale_id')->get('ospos_sales');
-    // $rids = [];
-    // foreach($q->result() as $r){
-    //   $rids[] = $r->sale_id;
-    // }
-    // $this->Sale->delete_list($rids, $employee_id);
+  public function cleanup_db($remove_users = FALSE){
     if(ENVIRONMENT != 'development'){
       exit('operation not allowed');
     }
     $this->db->trans_start();
     $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
+    if($remove_users){
+      $this->db->truncate('customers');
+      $this->db->truncate('suppliers');
+      $admin = $this->db->where('person_id', '1')->get('employees')->row_array();
+      $this->db->truncate('employees');
+      $this->db->insert('employees', $admin);
+      $admin = $this->db->where('person_id', '1')->get('people')->row_array();
+      $this->db->truncate('people');
+      $this->db->insert('people', $admin);
+    }
     $this->db->truncate('items');
     $this->db->truncate('attribute_links');
     $this->db->truncate('item_quantities');
     $this->db->truncate('inventory');
+    $this->db->truncate('item_kits');
+    $this->db->truncate('item_kit_items');
     $this->db->truncate('receivings');
     $this->db->truncate('receivings_items');
     $this->db->truncate('sales');
@@ -959,6 +958,7 @@ class Config extends Secure_Controller
     $this->db->truncate('sales_reward_points');
     $this->db->truncate('sales_taxes');
     $this->db->truncate('suppliers_payments');
+    $this->db->truncate('expenses');
     $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
     $this->db->trans_complete();
     echo $this->db->trans_status() ? 'Done' : 'Error';

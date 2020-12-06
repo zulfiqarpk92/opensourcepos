@@ -17,8 +17,8 @@ class Expenses extends Secure_Controller
 		$data['filters'] = array('only_cash' => $this->lang->line('expenses_cash_filter'),
 			'only_due' => $this->lang->line('expenses_due_filter'),
 			'only_check' => $this->lang->line('expenses_check_filter'),
-			'only_credit' => $this->lang->line('expenses_credit_filter'),
-			'only_debit' => $this->lang->line('expenses_debit_filter'),
+			// 'only_credit' => $this->lang->line('expenses_credit_filter'),
+			// 'only_debit' => $this->lang->line('expenses_debit_filter'),
 			'is_deleted' => $this->lang->line('expenses_is_deleted'));
 
 		$this->load->view('expenses/manage', $data);
@@ -136,6 +136,7 @@ class Expenses extends Secure_Controller
 			'expense_category_id' => $this->input->post('expense_category_id'),
 			'description' => $this->input->post('description'),
 			'employee_id' => $this->input->post('employee_id'),
+			'is_monthly' => $this->input->post('is_monthly') ? '1' : '0',
 			'deleted' => $this->input->post('deleted') != NULL
 		);
 

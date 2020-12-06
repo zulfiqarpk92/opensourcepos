@@ -141,4 +141,6 @@ $lang["reports_used"] = "Points Used";
 $lang["reports_work_orders"] = "Work Orders";
 $lang["reports_zero_and_less"] = "Zero and less";
 $lang["reports_balance_sheet"] = "Balance Sheet";
+$lang["reports_summary_daily"] = "Summary: Daily";
+$lang["reports_monthly"] = "Monthly Expenses";
  

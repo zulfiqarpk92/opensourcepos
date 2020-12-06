@@ -1,0 +1,1 @@
+ALTER TABLE `ospos_expenses` ADD COLUMN `is_monthly` TINYINT UNSIGNED NOT NULL DEFAULT '0';

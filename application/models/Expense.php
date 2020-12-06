@@ -171,6 +171,7 @@ class Expense extends CI_Model
 			expenses.payment_type AS payment_type,
 			expenses.description AS description,
 			expenses.employee_id AS employee_id,
+			expenses.is_monthly,
 			expenses.deleted AS deleted,
 			employees.first_name AS first_name,
 			employees.last_name AS last_name,
