@@ -53,6 +53,10 @@
 			paginationVAlign: 'bottom',
 			escape: false
 		});
+    var tblHeader = document.getElementsByClassName('fixed-table-toolbar');
+    if(tblHeader && tblHeader.length > 0){
+      tblHeader[0].classList.add('print_hide');
+    }
 
 	});
 </script>

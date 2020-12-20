@@ -119,13 +119,14 @@ class Customer extends Person
 
 		$this->db->select('
 						SUM(sales_payments.payment_amount - sales_payments.cash_refund) AS total,
+						SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS cash_payment,
 						MIN(sales_payments.payment_amount - sales_payments.cash_refund) AS min,
 						MAX(sales_payments.payment_amount - sales_payments.cash_refund) AS max,
 						AVG(sales_payments.payment_amount - sales_payments.cash_refund) AS average,
 						' . "
 						ROUND(AVG(sales_items_temp.avg_discount), $totals_decimals) AS avg_discount,
 						ROUND(SUM(sales_items_temp.quantity), $quantity_decimals) AS quantity
-						");
+						", FALSE);
 		$this->db->from('sales');
 		$this->db->join('sales_payments AS sales_payments', 'sales.sale_id = sales_payments.sale_id');
 		$this->db->join('sales_items_temp AS sales_items_temp', 'sales.sale_id = sales_items_temp.sale_id');

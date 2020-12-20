@@ -104,6 +104,18 @@
 					</div>
 				</div>
 
+        <div class="form-group form-group-sm">
+          <?php echo form_label($this->lang->line('common_init_balance'), 'init_balance', array('class' => 'control-label col-xs-3')); ?>
+          <div class='col-xs-4'>
+            <?php echo form_input(array(
+                'name'=>'init_balance',
+                'id'=>'init_balance',
+                'class'=>'form-control input-sm',
+                'value'=>$person_info->init_balance
+              )); ?>
+          </div>
+        </div>
+
 				<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_tax_id'), 'tax_id', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-4'>

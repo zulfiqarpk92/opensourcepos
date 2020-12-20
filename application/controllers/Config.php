@@ -282,6 +282,9 @@ class Config extends Secure_Controller
 	public function save_general()
 	{
 		$batch_save_data = array(
+			'medical_pricing' => $this->input->post('medical_pricing') ? '1' : '0',
+			'lab_category'    => $this->input->post('lab_category'),
+			'xray_category'   => $this->input->post('xray_category'),
 			'theme' => $this->input->post('theme'),
 			'default_sales_discount_type' => $this->input->post('default_sales_discount_type') != NULL,
 			'default_sales_discount' => $this->input->post('default_sales_discount'),
@@ -980,13 +983,18 @@ class Config extends Secure_Controller
 
 			$file_name = 'ospos-' . date("Y-m-d-H-i-s") .'.zip';
 			$save = 'uploads/' . $file_name;
-			$this->load->helper('download');
-			while(ob_get_level())
-			{
-				ob_end_clean();
-			}
-
-			force_download($file_name, $backup);
+      if($this->input->get('save')){
+        file_put_contents($save, $backup);
+      }
+      else{
+        $this->load->helper('download');
+        while(ob_get_level())
+        {
+          ob_end_clean();
+        }
+  
+        force_download($file_name, $backup);
+      }
 		}
 		else
 		{

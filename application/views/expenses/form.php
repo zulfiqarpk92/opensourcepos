@@ -23,7 +23,7 @@
 			</div>
 		</div>
 
-		<div class="form-group form-group-sm">
+		<!-- <div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_supplier_name'), 'supplier_name', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>
 				<?php echo form_input(array(
@@ -43,9 +43,9 @@
 					<span class="glyphicon glyphicon-remove"></span>
 				</a>
 			</div>
-		</div>
+		</div> -->
 
-		<div class="form-group form-group-sm">
+		<!-- <div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_supplier_tax_code'), 'supplier_tax_code', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>
 				<?php echo form_input(array(
@@ -55,7 +55,7 @@
 						'value'=>$expenses_info->supplier_tax_code)
 						);?>
 			</div>
-		</div>
+		</div> -->
 
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_amount'), 'amount', array('class'=>'required control-label col-xs-3')); ?>
@@ -77,7 +77,7 @@
 			</div>
 		</div>
 
-		<div class="form-group form-group-sm">
+		<!-- <div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('expenses_tax_amount'), 'tax_amount', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-6'>
 				<div class="input-group input-group-sm">
@@ -95,7 +95,7 @@
 					<?php endif; ?>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
     <div class="form-group form-group-sm">
       <?php echo form_label('Monthly Expense', 'is_monthly', array('class'=>'control-label col-xs-3')); ?>

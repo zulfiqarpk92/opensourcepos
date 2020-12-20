@@ -1,6 +1,10 @@
 <script type="text/javascript">
 function printdoc()
 {
+  var tblHeader = document.getElementsByClassName('fixed-table-toolbar');
+  if(tblHeader && tblHeader.length > 0){
+    tblHeader[0].classList.add('print_hide');
+  }
 	// install firefox addon in order to use this plugin
 	if (window.jsPrintSetup)
 	{

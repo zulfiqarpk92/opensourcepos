@@ -1518,5 +1518,71 @@ class Sales extends Secure_Controller
     $this->_reload();
 		// $this->sale_lib->clear_all();
   }
+
+	public function addpayment($sale_id)
+	{
+    $info = $this->Sale->get_info($sale_id)->row();
+    $payments = $this->Sale->get_sale_payments($sale_id)->result();
+    $cash_total = 0;
+    foreach($payments as $p){
+      if($p->payment_type == 'Cash'){
+        $cash_total += $p->payment_amount;
+      }
+    }
+		$data['sale_info'] = $info;
+		$data['balance'] = $info->amount_due - $cash_total;
+    if($this->input->post('add_payment')){
+      $payment_amount = $this->input->post('payment_amount');
+      $payment_id = 0;
+      if($payment_amount){
+        if($payment_amount > $data['balance']){
+          echo json_encode(array(
+            'success' => FALSE,
+            'message' => 'Payment amount must be less or equal to ' . $data['balance'],
+            'id'      => $sale_id
+          ));
+          return;
+        }
+        $sale_payment = [];
+        $sale_payment['payment_amount'] = $payment_amount;
+        $sale_payment['reference_code'] = $this->input->post('reference');
+        $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $this->input->post('payment_date'));
+        $sale_payment['payment_time'] = $date_formatter->format('Y-m-d H:i:s');
+        $payment_id = $this->Sale->add_payment($sale_id, $sale_payment);
+      }
+      if($payment_id){
+        $due = NULL;
+        foreach($payments as $p){
+          if($p->payment_type == 'Due'){
+            $due = $p;
+            break;
+          }
+        }
+        if($due){
+          $remaining = $due->payment_amount - $payment_amount;
+          if($remaining > 0){
+            $this->Sale->update_payment($due->payment_id, $remaining);
+          }
+          else{
+            $this->Sale->remove_payment($due->payment_id);
+          }
+        }
+        echo json_encode(array(
+          'success' => TRUE,
+          'message' => 'Payment record added for POS # ' . $sale_id,
+          'id'      => $sale_id
+        ));
+      }
+      else{
+        echo json_encode(array(
+          'success' => FALSE,
+          'message' => 'Payment record failed for POS # ' . $sale_id,
+          'id'      => $sale_id
+        ));
+      }
+      return;
+    }
+		$this->load->view("sales/add_payment", $data);
+	}
 }
 ?>

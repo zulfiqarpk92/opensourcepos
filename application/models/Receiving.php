@@ -251,6 +251,29 @@ class Receiving extends CI_Model
 		return $this->Supplier->get_info($this->db->get()->row()->supplier_id);
 	}
 
+  public function get_info_payments($receiving_id){
+		$price = 'CASE WHEN ri.discount_type = ' . PERCENT . ' THEN ri.item_unit_price * ri.quantity_purchased * (1 - ri.discount / 100) ELSE ri.item_unit_price * ri.quantity_purchased - ri.discount END';
+    $total = 'ROUND(SUM(' . $price . '), ' . totals_decimals() . ')';
+    $this->db->select('r.*, ' . $total . ' AS total_amount', FALSE);
+		$this->db->from('receivings r');
+    $this->db->join('receivings_items ri', 'ri.receiving_id = r.receiving_id');
+    $this->db->where('r.receiving_id', $receiving_id);
+    $receiving = $this->db->get()->row();
+    if($receiving){
+      $receiving->cash_payment_total = 0;
+      $receiving->payments = $this->get_payments($receiving_id);
+      foreach($receiving->payments as $p){
+        $receiving->cash_payment_total += $p->amount_tendered;
+      }
+      $receiving->balance = $receiving->total_amount - $receiving->cash_payment_total;
+    }
+    return $receiving;
+  }
+
+  public function get_payments($receiving_id){
+    return $this->db->where('receiving_id', $receiving_id)->get('suppliers_payments')->result();
+  }
+
 	public function get_payment_options()
 	{
 		return array(
@@ -363,13 +386,15 @@ class Receiving extends CI_Model
 		}
 		else
 		{
+      $payment_tbl = $this->db->dbprefix('suppliers_payments');
 			$this->db->select('
           receivings.receiving_id,
 					MAX(receivings.receiving_time) AS receiving_time,
 					SUM(receivings_items.quantity_purchased) AS items_purchased,
 					supplier.company_name,
 					' . "
-					$sale_total AS amount_due,
+          $sale_total AS amount_due,
+          (SELECT SUM(sp.amount_tendered) FROM $payment_tbl sp WHERE sp.receiving_id = receivings.receiving_id) AS total_payment,  
           receivings.payment_type,
           receivings.comment,
           receivings.reference
@@ -405,6 +430,11 @@ class Receiving extends CI_Model
 			}
 		}
 
+    if(empty($filters['receiving_id']) == FALSE)
+		{
+			$this->db->where('receivings.receiving_id', $filters['receiving_id']);
+    }
+    
 		if($filters['location_id'] != 'all')
 		{
 			// $this->db->where('sales_items.item_location', $filters['location_id']);

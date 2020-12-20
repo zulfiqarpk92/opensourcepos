@@ -35,55 +35,97 @@ class Reports extends Secure_Controller
 		$this->load->view('reports/listing', $data);
 	}
 
-  public function summary_daily($start_date, $end_date, $sale_type = 'complete', $location_id = 'all', $discount_type = '', $stock_type = '')
-  {
+  public function summary_daily_store($start_date, $end_date, $sale_type = 'complete', $location_id = 'all', $discount_type = '', $stock_type = ''){
     $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+    $inputs['report_for'] = 'store';
+    $this->summary_daily($inputs);
+  }
 
+  public function summary_daily_lab($start_date, $end_date, $sale_type = 'complete', $location_id = 'all', $discount_type = '', $stock_type = ''){
+    $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+    $inputs['report_for'] = 'lab';
+    $this->summary_daily($inputs);
+  }
+
+  public function summary_daily_xray($start_date, $end_date, $sale_type = 'complete', $location_id = 'all', $discount_type = '', $stock_type = ''){
+    $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'sale_type' => $sale_type, 'location_id' => $location_id);
+    $inputs['report_for'] = 'xray';
+    $this->summary_daily($inputs);
+  }
+
+  public function summary_daily($inputs)
+  {
     $this->load->model('reports/Summary_daily');
     $model = $this->Summary_daily;
+    $model->summary_for = $inputs['report_for'];
 
     $report_data = $model->getData($inputs);
     $expenses = $model->getExpenses($inputs);
     $indexed_report = [];
+    $tpl = ['date' => '', 'sales' => 0, 'expenses' => 0];
+    if($inputs['report_for'] == 'store'){
+      $tpl['spayments'] = 0;
+    }
     foreach($report_data as $r){
       $key = $r['sale_date'];
       if(isset($indexed_report[$key]) == FALSE){
-        $indexed_report[$key] = ['date' => $key, 'sales' => 0, 'expenses' => 0, 'profit' => 0];
+        $indexed_report[$key] = $tpl;
+        $indexed_report[$key]['date'] = $key;
       }
       $indexed_report[$key]['sales'] += $r['total'];
-      $indexed_report[$key]['profit'] = $indexed_report[$key]['sales'] - $indexed_report[$key]['expenses'];
     }
     $monthly_expenses = 0;
     foreach($expenses as $r){
       $key = $r['expense_date'];
       if(isset($indexed_report[$key]) == FALSE){
-        $indexed_report[$key] = ['date' => $key, 'sales' => 0, 'expenses' => 0, 'profit' => 0];
+        $indexed_report[$key] = $tpl;
+        $indexed_report[$key]['date'] = $key;
       }
       $indexed_report[$key]['expenses'] += $r['total_amount'];
-      $indexed_report[$key]['profit'] = $indexed_report[$key]['sales'] - $indexed_report[$key]['expenses'];
       $monthly_expenses += $r['monthly_exp'];
+    }
+    if($inputs['report_for'] == 'store'){
+      $supplier_payments = $model->get_supplier_payments($inputs);
+      foreach($supplier_payments as $r){
+        $key = $r['payment_date'];
+        if(isset($indexed_report[$key]) == FALSE){
+          $indexed_report[$key] = $tpl;
+          $indexed_report[$key]['date'] = $key;
+        }
+        $indexed_report[$key]['spayments'] += $r['total_amount'];
+      }
     }
     ksort($indexed_report);
     
-    $summary = ['revenue' => 0, 'expenses' => 0, 'monthly' => 0, 'profit' => 0];
+    $summary = ['revenue' => 0, 'expenses' => 0, 'spayments' => 0, 'monthly' => 0, 'profit' => 0];
     $tabular_data = array();
-    foreach ($indexed_report as $row) {
-      $tabular_data[] = array(
+    $k = 0;
+    foreach($indexed_report as $i => $row){      
+      $profit = $row['sales'] - $row['expenses'];      
+      if($inputs['report_for'] == 'store'){
+        $profit -= $row['spayments'];
+      }
+      $tabular_data[$k] = array(
         'date'      => to_date(strtotime($row['date'])),
         'sales'     => to_currency($row['sales']),
         'expenses'  => to_currency($row['expenses']),
-        'profit'    => to_currency($row['profit'])
+        'profit'    => to_currency($profit)
       );
       $summary['revenue'] += $row['sales'];
       $summary['expenses'] += $row['expenses'];
-      $summary['profit'] += $row['profit'];
+      $summary['profit'] += $profit;
+      if($inputs['report_for'] == 'store'){        
+        $tabular_data[$k]['spayments'] = to_currency($row['spayments']);
+        $summary['spayments'] += $row['spayments'];
+      }
+      $k++;
     }
     $summary['monthly'] = $monthly_expenses;
     $summary['profit'] -= $monthly_expenses;
 
     $data = array(
-      'title'         => $this->lang->line('reports_sales_summary_report'),
-      'subtitle'      => $this->_get_subtitle_report(array('start_date' => $start_date, 'end_date' => $end_date)),
+      'title'         => ucwords($inputs['report_for']) . ' Daily Summary',
+      'subtitle'      => $this->_get_subtitle_report($inputs),
       'headers'       => $this->xss_clean($model->getDataColumns()),
       'data'          => $tabular_data,
       'summary_data'  => $summary

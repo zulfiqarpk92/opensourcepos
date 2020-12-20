@@ -159,6 +159,95 @@
 			</div>
 		</div>
 
+    <?php if($this->config->item('medical_pricing')){ ?>
+
+    <div class="form-group form-group-sm">
+      <?php echo form_label($this->lang->line('items_unit_price'), 'unit_price', array('class'=>'required control-label col-xs-3')); ?>
+      <div class='col-xs-4'>
+        <div class="input-group input-group-sm">
+          <?php if (!currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+          <?php echo form_input(array(
+              'name'=>'unit_price',
+              'id'=>'unit_price',
+              'class'=>'form-control input-sm',
+              'onClick'=>'this.select();',
+              'value'=>to_currency_no_money($item_info->unit_price))
+              );?>
+          <?php if (currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group form-group-sm">
+      <?php echo form_label('Percentage', 'percentage', array('class' => 'control-label col-xs-3')); ?>
+      <div class='col-xs-4'>
+        <div class="input-group input-group-sm">
+          <?php echo form_input(array(
+            'name'  => 'percentage',
+            'id'    => 'percentage',
+            'class' => 'form-control input-sm',
+            'value' => '0'
+          )); ?>
+          <span class="input-group-addon input-sm"><b>%</b></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group form-group-sm">
+      <?php echo form_label('Extra Percentage', 'extra_percentage', array('class' => 'control-label col-xs-3')); ?>
+      <div class='col-xs-4'>
+        <div class="input-group input-group-sm">
+          <?php echo form_input(array(
+            'name'  => 'extra_percentage',
+            'id'    => 'extra_percentage',
+            'class' => 'form-control input-sm',
+            'value' => '0'
+          )); ?>
+          <span class="input-group-addon input-sm"><b>%</b></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group form-group-sm">
+      <?php echo form_label('Bonus', 'bonus', array('class' => 'control-label col-xs-3')); ?>
+      <div class='col-xs-3'>
+        <?php echo form_input(array(
+          'name'  => 'bonus',
+          'id'    => 'bonus',
+          'class' => 'form-control input-sm',
+          'value' => '1-0'
+        )); ?>        
+      </div>
+      <div class="col-xs-6">Examples: 1-1, 10-2</div>
+    </div>
+
+    <div class="form-group form-group-sm">
+      <?php echo form_label($this->lang->line('items_cost_price'), 'cost_price', array('class'=>'required control-label col-xs-3')); ?>
+      <div class="col-xs-4">
+        <div class="input-group input-group-sm">
+          <?php if (!currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+          <?php echo form_input(array(
+              'name'=>'cost_price',
+              'id'=>'cost_price',
+              'class'=>'form-control input-sm',
+              'onClick'=>'this.select();',
+              'value'=>to_currency_no_money($item_info->cost_price))
+              );?>
+          <?php if (currency_side()): ?>
+            <span class="input-group-addon input-sm"><b><?php echo $this->config->item('currency_symbol'); ?></b></span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
+    <?php } else{ ?>
+
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_cost_price'), 'cost_price', array('class'=>'required control-label col-xs-3')); ?>
 			<div class="col-xs-4">
@@ -221,6 +310,8 @@
 				</div>
 			</div>
 		</div>
+
+    <?php } ?>
 
 		<?php
 		if(!$use_destination_based_tax)
@@ -476,6 +567,28 @@
 //validation and submit handling
 $(document).ready(function()
 {
+  
+  $('#unit_price,#percentage,#extra_percentage,#bonus,#bonus1').keyup(function(){
+		var unit_price   = parseFloat($('#unit_price').val()) || 0;
+    var percentage   = parseFloat($('#percentage').val()) || 0;
+    var e_percentage = parseFloat($('#extra_percentage').val()) || 0;
+    var bonus        = ($('#bonus').val() || '1-0').split('-');
+    var cost_price = 0;
+    var total_percentage = percentage + e_percentage;
+    if(total_percentage > 0){
+      cost_price = unit_price - (unit_price * total_percentage / 100); 
+    }
+    if(bonus[0] && bonus[1]){
+      var qty = parseInt(bonus[0]) || 1;
+      var bonus_qty = parseInt(bonus[1]) || 0;
+      if(cost_price == 0){
+        cost_price = unit_price;
+      }
+      cost_price = (cost_price * qty) / (qty + bonus_qty);
+    }
+    $('#cost_price').val(Math.round(cost_price, 2));
+	});
+
 	$('#new').click(function() {
 		stay_open = true;
 		$('#item_form').submit();

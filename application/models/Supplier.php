@@ -335,6 +335,7 @@ class Supplier extends Person
   {
 		$this->db->where('supplier_id', $supplier_id);
 		$this->db->from('suppliers_payments');
+    $this->db->order_by('payment_date');
 		return $this->db->get()->result();
 	}
   

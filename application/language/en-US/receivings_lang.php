@@ -55,3 +55,5 @@ $lang["receivings_update"] = "Update";
 $lang['receivings_takings'] = 'Receiving List';
 $lang["receivings_no_receivings_to_display"] = 'No Receivings to display.';
 $lang['receivings_payment_type'] = 'Payment Type';
+$lang['receivings_add_payment'] = 'Add Payment';
+$lang['receivings_balance'] = 'Balance';

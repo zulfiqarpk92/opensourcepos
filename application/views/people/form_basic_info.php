@@ -10,7 +10,7 @@
 	</div>
 </div>
 
-<div class="form-group form-group-sm">	
+<!-- <div class="form-group form-group-sm">	
 	<?php echo form_label($this->lang->line('common_last_name'), 'last_name', array('class'=>'required control-label col-xs-3')); ?>
 	<div class='col-xs-8'>
 		<?php echo form_input(array(
@@ -20,7 +20,7 @@
 				'value'=>$person_info->last_name)
 				);?>
 	</div>
-</div>
+</div> -->
 
 <div class="form-group form-group-sm">	
 	<?php echo form_label($this->lang->line('common_gender'), 'gender', !empty($basic_version) ? array('class'=>'required control-label col-xs-3') : array('class'=>'control-label col-xs-3')); ?>

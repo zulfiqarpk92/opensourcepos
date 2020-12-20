@@ -298,3 +298,7 @@ $lang["config_user_timezone"] = "Local Timezone:";
 $lang["config_website"] = "Website";
 $lang["config_work_order_enable"] = "Work Order Support";
 $lang["config_work_order_format"] = "Work Order Format";
+$lang["config_lab_category"] = "Lab Category";
+$lang["config_xray_category"] = "X-Ray Category";
+$lang["config_medical_pricing"] = "Medical Pricing";
+$lang["config_medical_pricing_tooltip"] = "Item cost price will be calculated from retail price.";

@@ -43,6 +43,7 @@ class Inventory extends CI_Model
 			if($inventory_sum['sum'] > 0)
 			{
 				return $this->Inventory->insert(array(
+          'trans_date'      => date('Y-m-d H:i:s'),
 					'trans_inventory' => -1 * $inventory_sum['sum'],
 					'trans_items' => $item_id,
 					'trans_location' => $inventory_sum['location_id'],

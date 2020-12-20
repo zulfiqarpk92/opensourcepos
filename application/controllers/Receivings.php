@@ -46,8 +46,20 @@ class Receivings extends Secure_Controller
 
 	public function get_row($row_id)
 	{
-		$sale_info = $this->Sale->get_info($row_id)->row();
-		$data_row = $this->xss_clean(get_sale_data_row($sale_info));
+    $filters = array(
+      'sale_type'         => 'all',
+      'location_id'       => 'all',
+      'start_date'        => '',
+      'end_date'          => '',
+      'only_cash'         => FALSE,
+      'only_due'          => FALSE,
+      'only_check'        => FALSE,
+      'only_invoices'     => $this->config->item('invoice_enable') && $this->input->get('only_invoices'),
+      'is_valid_receipt'  => '',
+      'receiving_id'      => $row_id
+    );
+		$receiving_info = $this->Receiving->search('', $filters)->row();
+		$data_row = $this->xss_clean(get_receiving_data_row($this, $receiving_info));
 
 		echo json_encode($data_row);
 	}
@@ -602,6 +614,54 @@ class Receivings extends Secure_Controller
 		$this->receiving_lib->clear_all();
 
 		$this->_reload();
+	}
+  
+  public function addpayment($receiving_id)
+	{
+    $receiving = $this->Receiving->get_info_payments($receiving_id);
+		$data['receiving'] = $receiving;
+    if($this->input->post('add_payment')){
+      $payment_amount = $this->input->post('payment_amount');
+      $payment_id = 0;
+      if($payment_amount){
+        if($payment_amount > $receiving->balance){
+          echo json_encode(array(
+            'success' => FALSE,
+            'message' => 'Payment amount must be less or equal to ' . $receiving->balance,
+            'id'      => $receiving_id
+          ));
+          return;
+        }
+        $receiving_payment = [];
+        $receiving_payment['receiving_id'] = $receiving_id;
+        $receiving_payment['amount_tendered'] = $payment_amount;
+        $receiving_payment['reference'] = $this->input->post('reference');
+        $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $this->input->post('payment_date'));
+        $receiving_payment['payment_date'] = $date_formatter->format('Y-m-d H:i:s');
+        $payment_id = $this->Supplier->add_payment($receiving->supplier_id, $receiving_payment);
+      }
+      if($payment_id){
+        if($receiving->payment_type == 'Due'){
+          if(($receiving->balance - $payment_amount) <= 0){
+            $this->Receiving->update(['payment_type' => 'Cash'], $receiving_id);
+          }
+        }
+        echo json_encode(array(
+          'success' => TRUE,
+          'message' => 'Payment record added for RECV # ' . $receiving_id,
+          'id'      => $receiving_id
+        ));
+      }
+      else{
+        echo json_encode(array(
+          'success' => FALSE,
+          'message' => 'Payment record failed for RECV # ' . $receiving_id,
+          'id'      => $receiving_id
+        ));
+      }
+      return;
+    }
+		$this->load->view("receivings/add_payment", $data);
 	}
 }
 ?>

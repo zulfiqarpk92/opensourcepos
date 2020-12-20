@@ -519,6 +519,25 @@ class Sale extends CI_Model
 		return ($this->db->get()->num_rows()==1);
 	}
 
+  public function add_payment($sale_id, $payment){
+    $payment['sale_id'] = $sale_id;
+    $payment['payment_type'] = 'Cash';
+    $payment['cash_refund'] = 0;
+    $payment['employee_id'] = $this->session->userdata('person_id') ?: 0;
+    if($this->db->insert('sales_payments', $payment)){
+      return $this->db->insert_id();
+    }
+    return 0;
+  }
+
+  public function update_payment($payment_id, $amount){
+    return $this->db->where('payment_id', $payment_id)->update('sales_payments', ['payment_amount' => $amount]);
+  }
+
+  public function remove_payment($payment_id){
+    return $this->db->where('payment_id', $payment_id)->delete('sales_payments');
+  }
+
 	/**
 	 * Update sale
 	 */

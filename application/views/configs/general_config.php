@@ -5,6 +5,34 @@
 			<ul id="general_error_message_box" class="error_message_box"></ul>
 
 			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_lab_category'), 'lab_category', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-2'>
+					<?php echo form_input('lab_category', $this->config->item('lab_category'), array('class' => 'form-control input-sm')); ?>
+				</div>
+			</div>			
+      <div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_xray_category'), 'xray_category', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-2'>
+					<?php echo form_input('xray_category', $this->config->item('xray_category'), array('class' => 'form-control input-sm')); ?>
+				</div>
+			</div>
+      <div class="form-group form-group-sm">
+        <?php echo form_label($this->lang->line('config_medical_pricing'), 'medical_pricing', array('class' => 'control-label col-xs-2')); ?>
+        <div class='col-xs-1'>
+          <?php echo form_checkbox(array(
+            'name'    => 'medical_pricing',
+            'id'      => 'medical_pricing',
+            'value'   => 'medical_pricing',
+            'checked' => $this->config->item('medical_pricing')
+          )); ?>
+          &nbsp
+          <label class="control-label">
+            <span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="right" title="<?php echo $this->lang->line('config_medical_pricing_tooltip'); ?>"></span>
+          </label>
+        </div>
+      </div>
+
+			<div class="form-group form-group-sm">
 				<?php echo form_label($this->lang->line('config_theme'), 'theme', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
 					<?php echo form_dropdown('theme', $themes, $this->config->item('theme'), array('class' => 'form-control input-sm')); ?>

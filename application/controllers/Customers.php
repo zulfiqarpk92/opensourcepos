@@ -38,6 +38,7 @@ class Customers extends Persons
 			//create object with empty properties.
 			$stats = new stdClass;
 			$stats->total = 0;
+      $stats->cash_payment = 0;
 			$stats->min = 0;
 			$stats->max = 0;
 			$stats->average = 0;
@@ -74,6 +75,7 @@ class Customers extends Persons
 				//create object with empty properties.
 				$stats = new stdClass;
 				$stats->total = 0;
+				$stats->cash_payment = 0;
 				$stats->min = 0;
 				$stats->max = 0;
 				$stats->average = 0;
@@ -110,6 +112,7 @@ class Customers extends Persons
 	public function view($customer_id = -1)
 	{
 		$info = $this->Customer->get_info($customer_id);
+    // dump($info);
 		foreach(get_object_vars($info) as $property => $value)
 		{
 			$info->$property = $this->xss_clean($value);
@@ -120,6 +123,7 @@ class Customers extends Persons
 		{
 			$data['person_info']->date = date('Y-m-d H:i:s');
 			$data['person_info']->employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+      $data['person_info']->gender = '1';
 		}
 
 		$employee_info = $this->Employee->get_info($info->employee_id);
@@ -256,6 +260,7 @@ class Customers extends Persons
 		$customer_data = array(
 			'consent' => $this->input->post('consent') != NULL,
 			'account_number' => $this->input->post('account_number') == '' ? NULL : $this->input->post('account_number'),
+			'init_balance' => $this->input->post('init_balance') ?: 0,
 			'tax_id' => $this->input->post('tax_id'),
 			'company_name' => $this->input->post('company_name') == '' ? NULL : $this->input->post('company_name'),
 			'discount' => $this->input->post('discount') == '' ? 0.00 : $this->input->post('discount'),

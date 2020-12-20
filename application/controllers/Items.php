@@ -519,7 +519,7 @@ class Items extends Secure_Controller
 			'supplier_id' => $this->input->post('supplier_id') == '' ? NULL : $this->input->post('supplier_id'),
 			'item_number' => $this->input->post('item_number') == '' ? NULL : $this->input->post('item_number'),
 			'cost_price' => parse_decimals($this->input->post('cost_price')),
-			'wsale_price' => parse_decimals($this->input->post('wsale_price')),
+			'wsale_price' => parse_decimals($this->input->post('wsale_price')) ?: 0,
 			'unit_price' => parse_decimals($this->input->post('unit_price')),
 			'reorder_level' => parse_quantity($this->input->post('reorder_level')),
 			'receiving_quantity' => $receiving_quantity,
@@ -531,6 +531,12 @@ class Items extends Secure_Controller
 			'deleted' => $this->input->post('is_deleted') != NULL,
 			'hsn_code' => $this->input->post('hsn_code') == NULL ? '' : $this->input->post('hsn_code')
 		);
+
+    if($this->config->item('medical_pricing')){
+      $item_data['percentage'] = $this->input->post('percentage') ?: 0; 
+      $item_data['extra_percentage'] = $this->input->post('extra_percentage') ?: 0; 
+      $item_data['bonus'] = $this->input->post('bonus') ?: '1-0'; 
+    }
 
 		if($item_data['item_type'] == ITEM_TEMP)
 		{
@@ -639,6 +645,10 @@ class Items extends Secure_Controller
 				$this->Attribute->save_link($item_id, $definition_id, $attribute_id);
 			}
 
+      if($item_data['deleted']){
+        $this->Item_quantity->reset_quantity($item_id);
+        $this->Inventory->reset_quantity($item_id);
+      }
 			if($success && $upload_success)
 			{
 				$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);

@@ -43,6 +43,7 @@ class Cash_in_hand extends Report
     $this->db->select('SUM(i.cost_price * iq.quantity) AS inventory_value');
     $this->db->from('items i');
     $this->db->join('item_quantities iq', 'i.item_id = iq.item_id');
+    $this->db->where('i.deleted', '0');
 
     $data['inventory'] = new stdClass();
     $data['inventory']->label = 'Inventory';

@@ -8,12 +8,14 @@
 		<li class="active" role="presentation">
 			<a data-toggle="tab" href="#supplier_basic_info"><?php echo $this->lang->line("customers_basic_information"); ?></a>
 		</li>
+    <?php if($person_info->person_id > 0){ ?>
     <li role="presentation">
       <a data-toggle="tab" href="#supplier_purchases">Purchases</a>
     </li>
     <li role="presentation">
       <a data-toggle="tab" href="#supplier_payments">Payments</a>
     </li>
+    <?php } ?>
   </ul>
 
   <div class="tab-content">
@@ -38,7 +40,7 @@
           </div>
         </div>
 
-        <div class="form-group form-group-sm">	
+        <!-- <div class="form-group form-group-sm">	
           <?php echo form_label($this->lang->line('suppliers_agency_name'), 'agency_name', array('class'=>'control-label col-xs-3')); ?>
           <div class='col-xs-8'>
             <?php echo form_input(array(
@@ -48,7 +50,7 @@
               'value'=>$person_info->agency_name)
               );?>
           </div>
-        </div>
+        </div> -->
 
         <?php $this->load->view("people/form_basic_info"); ?>
 
@@ -61,6 +63,18 @@
               'class'=>'form-control input-sm',
               'value'=>$person_info->account_number)
               );?>
+          </div>
+        </div>
+
+        <div class="form-group form-group-sm">
+          <?php echo form_label($this->lang->line('common_init_balance'), 'init_balance', array('class' => 'control-label col-xs-3')); ?>
+          <div class='col-xs-4'>
+            <?php echo form_input(array(
+                'name'=>'init_balance',
+                'id'=>'init_balance',
+                'class'=>'form-control input-sm',
+                'value'=>$person_info->init_balance
+              )); ?>
           </div>
         </div>
 
@@ -115,7 +129,7 @@
             <?php } ?>
             <td>
               <?php if($payment['id']){ ?>
-              <a href="#" onclick="removePayment(<?php echo $payment['id']; ?>)">
+              <a href="javascript:void(0)" onclick="removePayment(<?php echo $payment['id']; ?>)">
                 <i class="glyphicon glyphicon-trash text-danger"></i>
               </a>
               <?php } ?>
@@ -135,6 +149,7 @@ function removePayment(payment_id){
   if(confirm('You are about to delete supplier payment. Continue?')){
     $.get('<?php echo site_url($controller_name . '/removepayment/'); ?>' + payment_id, function(response){
       var pbody = '';
+      console.log(response);
       for(var x in response.payments){
         p = response.payments[x];
         pbody += '<tr>';
@@ -143,7 +158,7 @@ function removePayment(payment_id){
         pbody += '<td>'+(p[key] ? p[key] : '')+'</td>';
         <?php } ?>
         if(p['id']){
-          pbody += '<td><a href="#" onclick="removePayment('+p['id']+')"><i class="glyphicon glyphicon-trash text-danger"></i></a></td>';
+          pbody += '<td><a href="javascript:void(0)" onclick="removePayment('+p['id']+')"><i class="glyphicon glyphicon-trash text-danger"></i></a></td>';
         } else {
           pbody += '<td></td>';
         }
@@ -160,6 +175,7 @@ $(document).ready(function()
 {
 	$('#supplier_form').validate($.extend({
 		submitHandler: function(form) {
+      console.log('hi');
 			$(form).ajaxSubmit({
 				success: function(response)
 				{

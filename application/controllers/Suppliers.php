@@ -24,9 +24,9 @@ class Suppliers extends Persons
     $supplier = $this->Supplier->get_info($row_id);
     $total_purchases = $this->Supplier->get_total_purchases($supplier->person_id);
     $total_payments = $this->Supplier->get_total_payment($supplier->person_id);
-    $supplier->total_purchases = to_currency($total_purchases);
-    $supplier->total_payments = to_currency($total_payments);
-    $supplier->total_due = to_currency($total_purchases - $total_payments);
+    $supplier->total_purchases = $supplier->init_balance + $total_purchases;
+    $supplier->total_payments = $total_payments;
+    $supplier->total_due = $supplier->total_purchases - $total_payments;
 		$data_row = $this->xss_clean(get_supplier_data_row($supplier));
 
 		echo json_encode($data_row);
@@ -51,9 +51,9 @@ class Suppliers extends Persons
 		{	
       $total_purchases = $this->Supplier->get_total_purchases($supplier->person_id);
       $total_payments = $this->Supplier->get_total_payment($supplier->person_id);
-      $supplier->total_purchases = to_currency($total_purchases);
-      $supplier->total_payments = to_currency($total_payments);
-      $supplier->total_due = to_currency($total_purchases - $total_payments);
+      $supplier->total_purchases = $supplier->init_balance + $total_purchases;
+      $supplier->total_payments = $total_payments;
+      $supplier->total_due = $supplier->total_purchases - $total_payments;
 			$row = $this->xss_clean(get_supplier_data_row($supplier));
 			$row['category'] = $this->Supplier->get_category_name($row['category']);
 			$data_rows[] = $row;
@@ -104,7 +104,7 @@ class Suppliers extends Persons
       'is_valid_receipt'  => FALSE,
       'supplier_id'       => $supplier_id,
     );
-    $receivings = $this->Receiving->search('', $filters);
+    $receivings = $this->Receiving->search('', $filters, 0, 0, 'receivings.receiving_time', 'asc');
     $total_rows = $this->Receiving->get_found_rows('', $filters);
 
     $data_rows = array();
@@ -257,9 +257,10 @@ class Suppliers extends Persons
 
 		$supplier_data = array(
 			'company_name' => $this->input->post('company_name'),
-			'agency_name' => $this->input->post('agency_name'),
+			'agency_name' => $this->input->post('agency_name') ?: '',
 			'category' => $this->input->post('category'),
 			'account_number' => $this->input->post('account_number') == '' ? NULL : $this->input->post('account_number'),
+			'init_balance' => $this->input->post('init_balance') ?: 0,
 			'tax_id' => $this->input->post('tax_id')
 		);
 
