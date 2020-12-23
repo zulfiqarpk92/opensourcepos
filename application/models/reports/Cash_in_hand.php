@@ -13,7 +13,7 @@ class Cash_in_hand extends Report
     
     $data['investment'] = new stdClass();
     $data['investment']->label = 'Investments';
-    $data['investment']->value = ($this->db->get()->row('amount') ?: 0) * -1;
+    $data['investment']->value = ($this->db->where('deleted', '0')->get()->row('amount') ?: 0) * -1;
 
     $this->db->select('sp.payment_type, SUM(payment_amount-cash_refund) AS payment_amount');
     $this->db->from('sales_payments sp');
@@ -72,7 +72,7 @@ class Cash_in_hand extends Report
 
     $data['expense'] = new stdClass();
     $data['expense']->label = 'Expenses';
-    $data['expense']->value = $this->db->get()->row('amount') ?: 0;
+    $data['expense']->value = $this->db->where('deleted', '0')->get()->row('amount') ?: 0;
 
     $data['cash_in_hand'] = new stdClass();
     $data['cash_in_hand']->label = 'Cash in Hand';
