@@ -14,6 +14,7 @@
 <div class="print_hide" id="control_buttons" style="text-align:right">
 	<a href="javascript:printdoc();"><div class="btn btn-info btn-sm", id="show_print_button"><?php echo '<span class="glyphicon glyphicon-print">&nbsp</span>' . $this->lang->line('common_print'); ?></div></a>
 	<?php echo anchor("receivings", '<span class="glyphicon glyphicon-save">&nbsp</span>' . $this->lang->line('receivings_register'), array('class'=>'btn btn-info btn-sm', 'id'=>'show_sales_button')); ?>
+	<?php echo anchor("receivings/manage", '<span class="glyphicon glyphicon-list-alt">&nbsp</span>' . $this->lang->line('module_receivings'), array('class'=>'btn btn-info btn-sm', 'id'=>'show_sales_button')); ?>
 </div>
 
 <div id="receipt_wrapper">

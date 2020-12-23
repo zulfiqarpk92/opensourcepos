@@ -666,7 +666,7 @@ $(document).ready(function()
 		var item_number = $(this).val();
 		$.ajax({
 			url: "<?php echo site_url('sales/change_item_number');?>",
-			method: 'post',
+			type: 'post',
 			data: {
 				"item_id" : item_id,
 				"item_number" : item_number,
@@ -680,7 +680,7 @@ $(document).ready(function()
 		var item_name = $(this).val();
 		$.ajax({
 			url: "<?php echo site_url('sales/change_item_name');?>",
-			method: 'post',
+			type: 'post',
 			data: {
 				"item_id" : item_id,
 				"item_name" : item_name,
@@ -694,7 +694,7 @@ $(document).ready(function()
 		var item_description = $(this).val();
 		$.ajax({
 			url: "<?php echo site_url('sales/change_item_description');?>",
-			method: 'post',
+			type: 'post',
 			data: {
 				"item_id" : item_id,
 				"item_description" : item_description,

@@ -264,7 +264,7 @@ class Receiving_lib
 				'serialnumber' => $serialnumber != NULL ? $serialnumber: '',
 				'attribute_values' => $attribute_links->attribute_values,
 				'attribute_dtvalues' => $attribute_links->attribute_dtvalues,
-				'allow_alt_description' => $item_info->allow_alt_description,
+				'allow_alt_description' => $item_info->allow_alt_description || $item_info->item_type == ITEM_TEMP,
 				'is_serialized' => $item_info->is_serialized,
 				'quantity' => $quantity,
 				'discount' => $discount,

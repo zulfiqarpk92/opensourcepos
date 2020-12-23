@@ -15,6 +15,7 @@ class Receivings extends Secure_Controller
 
 	public function index()
 	{
+		$this->session->set_userdata('allow_temp_items', 1);
     $receiving_id = $this->receiving_lib->get_receiving_id();
     if($receiving_id > 0){
       $this->receiving_lib->remove_receiving_id();

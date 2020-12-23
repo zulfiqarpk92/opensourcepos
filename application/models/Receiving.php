@@ -119,35 +119,37 @@ class Receiving extends CI_Model
 
 			$items_received = $item['receiving_quantity'] != 0 ? $item['quantity'] * $item['receiving_quantity'] : $item['quantity'];
 
-			// update cost price, if changed AND is set in config as wanted
-			if($cur_item_info->cost_price != $item['price'] && $this->config->item('receiving_calculate_average_price') != FALSE)
-			{
-				$this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
-			}
-      elseif($item['price'] > $cur_item_info->cost_price){
-        $price_update = array(
-          'cost_price' => $item['price'],
-          'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
+      if($cur_item_info->stock_type == HAS_STOCK){
+        // update cost price, if changed AND is set in config as wanted
+        if($cur_item_info->cost_price != $item['price'] && $this->config->item('receiving_calculate_average_price') != FALSE)
+        {
+          $this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
+        }
+        elseif($item['price'] > $cur_item_info->cost_price){
+          $price_update = array(
+            'cost_price' => $item['price'],
+            'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
+          );
+          $this->Item->save($price_update, $item['item_id']);
+        }
+
+        //Update stock quantity
+        $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
+        $this->Item_quantity->save(array('quantity' => $item_quantity->quantity + $items_received, 'item_id' => $item['item_id'],
+                          'location_id' => $item['item_location']), $item['item_id'], $item['item_location']);
+  
+        $recv_remarks = 'RECV ' . $receiving_id;
+        $inv_data = array(
+          'trans_date' => date('Y-m-d H:i:s'),
+          'trans_items' => $item['item_id'],
+          'trans_user' => $employee_id,
+          'trans_location' => $item['item_location'],
+          'trans_comment' => $recv_remarks,
+          'trans_inventory' => $items_received
         );
-				$this->Item->save($price_update, $item['item_id']);
+  
+        $this->Inventory->insert($inv_data);
       }
-
-			//Update stock quantity
-			$item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
-			$this->Item_quantity->save(array('quantity' => $item_quantity->quantity + $items_received, 'item_id' => $item['item_id'],
-											  'location_id' => $item['item_location']), $item['item_id'], $item['item_location']);
-
-			$recv_remarks = 'RECV ' . $receiving_id;
-			$inv_data = array(
-				'trans_date' => date('Y-m-d H:i:s'),
-				'trans_items' => $item['item_id'],
-				'trans_user' => $employee_id,
-				'trans_location' => $item['item_location'],
-				'trans_comment' => $recv_remarks,
-				'trans_inventory' => $items_received
-			);
-
-			$this->Inventory->insert($inv_data);
 
 			$this->Attribute->copy_attribute_links($item['item_id'], 'receiving_id', $receiving_id);
 
@@ -205,20 +207,22 @@ class Receiving extends CI_Model
 			$items = $this->get_receiving_items($receiving_id)->result_array();
 			foreach($items as $item)
 			{
-				// create query to update inventory tracking
-				$inv_data = array(
-					'trans_date' => date('Y-m-d H:i:s'),
-					'trans_items' => $item['item_id'],
-					'trans_user' => $employee_id,
-					'trans_comment' => 'Deleting receiving ' . $receiving_id,
-					'trans_location' => $item['item_location'],
-					'trans_inventory' => $item['quantity_purchased'] * -1
-				);
-				// update inventory
-				$this->Inventory->insert($inv_data);
-
-				// update quantities
-				$this->Item_quantity->change_quantity($item['item_id'], $item['item_location'], $item['quantity_purchased'] * -1);
+        if($item['stock_type'] == HAS_STOCK){
+          // create query to update inventory tracking
+          $inv_data = array(
+            'trans_date' => date('Y-m-d H:i:s'),
+            'trans_items' => $item['item_id'],
+            'trans_user' => $employee_id,
+            'trans_comment' => 'Deleting receiving ' . $receiving_id,
+            'trans_location' => $item['item_location'],
+            'trans_inventory' => $item['quantity_purchased'] * -1
+          );
+          // update inventory
+          $this->Inventory->insert($inv_data);
+  
+          // update quantities
+          $this->Item_quantity->change_quantity($item['item_id'], $item['item_location'], $item['quantity_purchased'] * -1);
+        }
 			}
 		}
 
@@ -237,8 +241,10 @@ class Receiving extends CI_Model
 
 	public function get_receiving_items($receiving_id)
 	{
-		$this->db->from('receivings_items');
-		$this->db->where('receiving_id', $receiving_id);
+    $this->db->select('ri.*, i.stock_type');
+    $this->db->from('receivings_items ri');
+    $this->db->join('items i', 'i.item_id = ri.item_id');
+		$this->db->where('ri.receiving_id', $receiving_id);
 
 		return $this->db->get();
 	}
