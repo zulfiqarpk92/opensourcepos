@@ -84,6 +84,7 @@ a.none
 	min-width: 7em;
 	display: inline-block;
 	text-align: center;
+  padding: 0.625rem;
 }
 
 .module_item a
@@ -188,4 +189,12 @@ label.required
 {
 	padding-right:0;
 	padding-left: 0;
+}
+
+@media(max-width: 768px){
+  #toolbar .btn,
+  #toolbar .btn-group,
+  #toolbar .form-control{
+    margin-bottom: 10px;
+  }
 }

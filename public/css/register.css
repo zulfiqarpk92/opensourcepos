@@ -1,8 +1,7 @@
+
 #register_wrapper
 {
-	float: left;
-	width: 70%;
-	font-size: 13px;
+  font-size: 13px;
 }
 
 #mode_form, #add_item_form
@@ -71,8 +70,6 @@
 
 #overall_sale
 {
-	width: 29%;
-	float: left;
 	margin-left: 0.1em;
 	padding-bottom: 1em;
 	padding-top: 1em;
@@ -132,4 +129,23 @@ input#amount_tendered:disabled
 .alert
 {
 	margin-bottom: 5px;
+}
+
+.register_items_wrapper{
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media(min-width: 768px){
+  #register_wrapper
+  {
+    float: left;
+    width: 70%;
+  }
+
+  #overall_sale
+  {
+    width: 29%;
+    float: left;
+  }
 }

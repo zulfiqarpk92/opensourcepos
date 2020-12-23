@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<base href="<?php echo base_url();?>" />
 	<title><?php echo $this->config->item('company') . ' | ' . $this->lang->line('common_powered_by') . ' OSPOS ' . $this->config->item('application_version') ?></title>
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
@@ -75,10 +76,10 @@
 		<![endif]-->
 		<!-- start mincss template tags -->
 		<link rel="stylesheet" type="text/css" href="dist/jquery-ui/jquery-ui.min.css"/>
-		<link rel="stylesheet" type="text/css" href="dist/opensourcepos.min.css?rel=b97048451f"/>
+		<link rel="stylesheet" type="text/css" href="dist/opensourcepos.min.css?rel=dc2b1927da"/>
 		<!-- end mincss template tags -->
 		<!-- start minjs template tags -->
-		<script type="text/javascript" src="dist/opensourcepos.min.js?rel=8273480d4a"></script>
+		<script type="text/javascript" src="dist/opensourcepos.min.js?rel=fc9e2cd5e7"></script>
 		<!-- end minjs template tags -->
 	<?php endif; ?>
 
@@ -97,10 +98,15 @@
 		<div class="topbar">
 			<div class="container">
 				<div class="navbar-left">
-					<div id="liveclock"><?php echo date($this->config->item('dateformat') . ' ' . $this->config->item('timeformat')) ?></div>
+          <span id="liveclock"><?php echo date($this->config->item('dateformat') . ' ' . $this->config->item('timeformat')) ?></span>
+          <span class="pull-right visible-xs">
+            <?php echo anchor('home/change_password/'.$user_info->person_id, $user_info->first_name . ' ' . $user_info->last_name, array('class' => 'modal-dlg', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => $this->lang->line('employees_change_password'))); ?>
+            <?php echo '  |  ' . ($this->input->get('debug') == 'true' ? $this->session->userdata('session_sha1') . '  |  ' : ''); ?>
+            <?php echo anchor('home/logout', $this->lang->line('common_logout')); ?>
+          </span>
 				</div>
 
-				<div class="navbar-right" style="margin:0">
+				<div class="navbar-right hidden-xs" style="margin:0">
 					<?php echo anchor('home/change_password/'.$user_info->person_id, $user_info->first_name . ' ' . $user_info->last_name, array('class' => 'modal-dlg', 'data-btn-submit' => $this->lang->line('common_submit'), 'title' => $this->lang->line('employees_change_password'))); ?>
 					<?php echo '  |  ' . ($this->input->get('debug') == 'true' ? $this->session->userdata('session_sha1') . '  |  ' : ''); ?>
 					<?php echo anchor('home/logout', $this->lang->line('common_logout')); ?>
@@ -159,4 +165,5 @@
 
 		<div class="container">
 			<div class="row">
+        <div class="col-xs-12">
 

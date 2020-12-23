@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<base href="<?php echo base_url();?>" />
 	<title><?php echo $this->config->item('company') . ' | OSPOS ' . $this->config->item('application_version')  . ' | ' .  $this->lang->line('login_login'); ?></title>
 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico">
@@ -11,7 +12,7 @@
 	<!-- end css template tags -->
 </head>
 
-<body>
+<body class="container">
 	<div id="logo" align="center"><img src="<?php echo base_url();?>/images/logo.png"></div>
 
 	<div id="login">
