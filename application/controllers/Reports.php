@@ -63,9 +63,7 @@ class Reports extends Secure_Controller
     $expenses = $model->getExpenses($inputs);
     $indexed_report = [];
     $tpl = ['date' => '', 'sales' => 0, 'expenses' => 0];
-    if($inputs['report_for'] == 'store'){
-      $tpl['spayments'] = 0;
-    }
+    $tpl['spayments'] = 0;
     foreach($report_data as $r){
       $key = $r['sale_date'];
       if(isset($indexed_report[$key]) == FALSE){
@@ -84,16 +82,14 @@ class Reports extends Secure_Controller
       $indexed_report[$key]['expenses'] += $r['total_amount'];
       $monthly_expenses += $r['monthly_exp'];
     }
-    if($inputs['report_for'] == 'store'){
-      $supplier_payments = $model->get_supplier_payments($inputs);
-      foreach($supplier_payments as $r){
-        $key = $r['payment_date'];
-        if(isset($indexed_report[$key]) == FALSE){
-          $indexed_report[$key] = $tpl;
-          $indexed_report[$key]['date'] = $key;
-        }
-        $indexed_report[$key]['spayments'] += $r['total_amount'];
+    $supplier_payments = $model->get_supplier_payments($inputs);
+    foreach($supplier_payments as $r){
+      $key = $r['payment_date'];
+      if(isset($indexed_report[$key]) == FALSE){
+        $indexed_report[$key] = $tpl;
+        $indexed_report[$key]['date'] = $key;
       }
+      $indexed_report[$key]['spayments'] += $r['total_amount'];
     }
     ksort($indexed_report);
     
@@ -101,23 +97,18 @@ class Reports extends Secure_Controller
     $tabular_data = array();
     $k = 0;
     foreach($indexed_report as $i => $row){      
-      $profit = $row['sales'] - $row['expenses'];      
-      if($inputs['report_for'] == 'store'){
-        $profit -= $row['spayments'];
-      }
+      $profit = $row['sales'] - $row['expenses'] - $row['spayments'];
       $tabular_data[$k] = array(
         'date'      => to_date(strtotime($row['date'])),
         'sales'     => to_currency($row['sales']),
         'expenses'  => to_currency($row['expenses']),
+        'spayments' => to_currency($row['spayments']),
         'profit'    => to_currency($profit)
       );
       $summary['revenue'] += $row['sales'];
       $summary['expenses'] += $row['expenses'];
+      $summary['spayments'] += $row['spayments'];
       $summary['profit'] += $profit;
-      if($inputs['report_for'] == 'store'){        
-        $tabular_data[$k]['spayments'] = to_currency($row['spayments']);
-        $summary['spayments'] += $row['spayments'];
-      }
       $k++;
     }
     $summary['monthly'] = $monthly_expenses;

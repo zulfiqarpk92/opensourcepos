@@ -8,23 +8,13 @@ class Summary_daily extends Summary_report
 
   protected function _get_data_columns()
   {
-    if($this->summary_for == 'store'){
-      return array(
-        array('date'      => $this->lang->line('reports_date'), 'sortable' => FALSE),
-        array('sales'     => $this->lang->line('reports_revenue'), 'sorter' => 'number_sorter'),
-        array('expenses'  => $this->lang->line('reports_expenses'), 'sorter' => 'number_sorter'),
-        array('spayments' => $this->lang->line('reports_spayments'), 'sorter' => 'number_sorter'),
-        array('profit'    => $this->lang->line('reports_profit'), 'sorter' => 'number_sorter')
-      );
-    }
-    else{
-      return array(
-        array('date'      => $this->lang->line('reports_date'), 'sortable' => FALSE),
-        array('sales'     => $this->lang->line('reports_revenue'), 'sorter' => 'number_sorter'),
-        array('expenses'  => $this->lang->line('reports_expenses'), 'sorter' => 'number_sorter'),
-        array('profit'    => $this->lang->line('reports_profit'), 'sorter' => 'number_sorter')
-      );
-    }
+    return array(
+      array('date'      => $this->lang->line('reports_date'), 'sortable' => FALSE),
+      array('sales'     => $this->lang->line('reports_revenue'), 'sorter' => 'number_sorter'),
+      array('expenses'  => $this->lang->line('reports_expenses'), 'sorter' => 'number_sorter'),
+      array('spayments' => $this->lang->line('reports_spayments'), 'sorter' => 'number_sorter'),
+      array('profit'    => $this->lang->line('reports_profit'), 'sorter' => 'number_sorter')
+    );
   }
 
   protected function _select(array $inputs)
@@ -101,6 +91,17 @@ class Summary_daily extends Summary_report
       $this->db->where('DATE(sp.payment_date) BETWEEN ' . $this->db->escape($inputs['start_date']) . ' AND ' . $this->db->escape($inputs['end_date']));
     } else {
       $this->db->where('sp.payment_date BETWEEN ' . $this->db->escape(rawurldecode($inputs['start_date'])) . ' AND ' . $this->db->escape(rawurldecode($inputs['end_date'])));
+    }
+
+    $this->db->join('suppliers s', 's.person_id = sp.supplier_id');
+    if($inputs['report_for'] == 'store'){
+      $this->db->where_not_in('s.category', [$this->config->item('lab_category'), $this->config->item('xray_category')]);
+    }
+    elseif($inputs['report_for'] == 'lab'){
+      $this->db->where('s.category', $this->config->item('lab_category'));
+    }
+    elseif($inputs['report_for'] == 'xray'){
+      $this->db->where('s.category', $this->config->item('xray_category'));
     }
 
     $this->db->group_by('sp.payment_date');

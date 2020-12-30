@@ -258,7 +258,7 @@ class Receiving extends CI_Model
 	}
 
   public function get_info_payments($receiving_id){
-		$price = 'CASE WHEN ri.discount_type = ' . PERCENT . ' THEN ri.item_unit_price * ri.quantity_purchased * (1 - ri.discount / 100) ELSE ri.item_unit_price * ri.quantity_purchased - ri.discount END';
+		$price = 'CASE WHEN ri.discount_type = ' . PERCENT . ' THEN ri.item_unit_price * ri.quantity_purchased * ri.receiving_quantity * (1 - ri.discount / 100) ELSE ri.item_unit_price * ri.quantity_purchased * ri.receiving_quantity - ri.discount END';
     $total = 'ROUND(SUM(' . $price . '), ' . totals_decimals() . ')';
     $this->db->select('r.*, ' . $total . ' AS total_amount', FALSE);
 		$this->db->from('receivings r');
@@ -382,7 +382,7 @@ class Receiving extends CI_Model
 
 		$decimals = totals_decimals();
 
-		$sale_price = 'CASE WHEN receivings_items.discount_type = ' . PERCENT . ' THEN receivings_items.item_unit_price * receivings_items.quantity_purchased * (1 - receivings_items.discount / 100) ELSE receivings_items.item_unit_price * receivings_items.quantity_purchased - receivings_items.discount END';
+		$sale_price = 'CASE WHEN receivings_items.discount_type = ' . PERCENT . ' THEN receivings_items.item_unit_price * receivings_items.quantity_purchased * receivings_items.receiving_quantity * (1 - receivings_items.discount / 100) ELSE receivings_items.item_unit_price * receivings_items.quantity_purchased * receivings_items.receiving_quantity - receivings_items.discount END';
 		$sale_total = 'ROUND(SUM(' . $sale_price . '), ' . $decimals . ')';
 
 		// get_found_rows case
@@ -393,18 +393,17 @@ class Receiving extends CI_Model
 		else
 		{
       $payment_tbl = $this->db->dbprefix('suppliers_payments');
-			$this->db->select('
-          receivings.receiving_id,
-					MAX(receivings.receiving_time) AS receiving_time,
-					SUM(receivings_items.quantity_purchased) AS items_purchased,
-					supplier.company_name,
-					' . "
-          $sale_total AS amount_due,
-          (SELECT SUM(sp.amount_tendered) FROM $payment_tbl sp WHERE sp.receiving_id = receivings.receiving_id) AS total_payment,  
-          receivings.payment_type,
-          receivings.comment,
-          receivings.reference
-        ");
+			$this->db->select("
+        receivings.receiving_id,
+        MAX(receivings.receiving_time) AS receiving_time,
+        SUM(receivings_items.quantity_purchased) AS items_purchased,
+        supplier.company_name,
+        $sale_total AS amount_due,
+        (SELECT SUM(sp.amount_tendered) FROM $payment_tbl sp WHERE sp.receiving_id = receivings.receiving_id) AS total_payment,  
+        receivings.payment_type,
+        receivings.comment,
+        receivings.reference
+      ");
 		}
 
 		$this->db->from('receivings_items AS receivings_items');

@@ -967,6 +967,22 @@ class Config extends Secure_Controller
     echo $this->db->trans_status() ? 'Done' : 'Error';
   }
 
+
+  public function restore_db(){
+    $file_name = 'ospos.sql';
+    $path = 'uploads/' . $file_name;
+    $isi_file = file_get_contents($path);
+    $string_query = rtrim( $isi_file, "\n;" );
+    $array_query = explode(";", $string_query);
+    $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
+    foreach($array_query as $query)
+    {
+      $this->db->query($query);
+    }
+    $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
+    dump('Done');
+  }
+
 	public function backup_db()
 	{
 		$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;

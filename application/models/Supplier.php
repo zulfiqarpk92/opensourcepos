@@ -281,6 +281,12 @@ class Supplier extends Person
 	*/
 	public function get_categories()
 	{
+    if($this->config->item('lab_category')){
+      $cats = ['Store' => 'Store'];
+      $cats[$this->config->item('lab_category')] = $this->config->item('lab_category');
+      $cats[$this->config->item('xray_category')] = $this->config->item('xray_category');
+      return $cats;
+    }
 		return array(
 			self::GOODS_SUPPLIER => $this->lang->line('suppliers_goods'),
 			self::COST_SUPPLIER => $this->lang->line('suppliers_cost')

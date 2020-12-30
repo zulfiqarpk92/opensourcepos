@@ -92,6 +92,11 @@ class Suppliers extends Persons
 		$data['person_info'] = $info;
 		$data['categories'] = $this->Supplier->get_categories();
 
+		if(empty($info->person_id))
+		{
+      $data['person_info']->gender = '1';
+		}
+
     $filters = array(
       'sale_type'         => 'all',
       'location_id'       => 'all',
@@ -121,13 +126,14 @@ class Suppliers extends Persons
     $data['purchase_headers'] = [];
     foreach(json_decode(get_receivings_manage_table_headers($this), TRUE) as $header)
     {
-      if(in_array($header['field'], ['receiving_time', 'quantity', 'amount_due']))
+      if(in_array($header['field'], ['receiving_time', 'quantity', 'total_amount', 'balance']))
       {
         $data['purchase_headers'][] = $header;
       }
     }
     $data['payment_headers'] = [
-      'payment_time'     => 'Payment Time', 
+      'payment_time'     => 'Payment Time',
+      'receiving_id'     => 'Recv #', 
       'amount_tendered'  => 'Amount', 
       'reference'        => 'Reference', 
       'comments'         => 'Comments'
@@ -137,7 +143,8 @@ class Suppliers extends Persons
     foreach($this->Supplier->get_payments($supplier_id) as $payment){
       $data['payments'][] = [
         'id'               => $payment->supplier_payment_id,
-        'payment_time'     => to_datetime(strtotime($payment->payment_date)), 
+        'payment_time'     => to_datetime(strtotime($payment->payment_date)),
+        'receiving_id'     => $payment->receiving_id,
         'amount_tendered'  => to_currency($payment->amount_tendered), 
         'reference'        => $payment->reference, 
         'comments'         => $payment->comments
@@ -146,7 +153,8 @@ class Suppliers extends Persons
     }
     $data['payments'][] = [
       'id'               => '',
-      'payment_time'     => '<b>Total</b>', 
+      'payment_time'     => '<b>Total</b>',
+      'receiving_id'     => '',
       'amount_tendered'  => to_currency($payments_total), 
       'reference'        => '', 
       'comments'         => ''

@@ -569,6 +569,17 @@ class Item extends CI_Model
 			$suggestions[] = array('value' => $row->item_id, 'label' => $this->get_search_suggestion_label($row));
 		}
 
+    $this->db->select($this->get_search_suggestion_format('item_id, name, pack_name'));
+		$this->db->from('items');
+		$this->db->where('deleted', $filters['is_deleted']);
+		$this->db->where('item_type', ITEM_TEMP); // temp items
+		$this->db->like('name', $search);
+		$this->db->order_by('name', 'asc');
+		foreach($this->db->get()->result() as $row)
+		{
+			$suggestions[] = array('value' => $row->item_id, 'label' => $this->get_search_suggestion_label($row));
+		}
+
 		$this->db->select($this->get_search_suggestion_format('item_id, item_number, pack_name'));
 		$this->db->from('items');
 		$this->db->where('deleted', $filters['is_deleted']);

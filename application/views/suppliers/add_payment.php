@@ -14,7 +14,7 @@
 					'name'  => 'payment_date',
 					'id'    => 'payment_date',
 					'class' => 'datetime form-control input-sm',
-          'value' => ''
+          'value' => to_datetime(time())
         )); ?>
 			</div>
     </div>
