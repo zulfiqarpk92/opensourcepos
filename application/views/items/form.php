@@ -568,15 +568,21 @@
 $(document).ready(function()
 {
   
+  <?php if($this->config->item('medical_pricing')){ ?>
   $('#unit_price,#percentage,#extra_percentage,#bonus,#bonus1').keyup(function(){
 		var unit_price   = parseFloat($('#unit_price').val()) || 0;
     var percentage   = parseFloat($('#percentage').val()) || 0;
     var e_percentage = parseFloat($('#extra_percentage').val()) || 0;
     var bonus        = ($('#bonus').val() || '1-0').split('-');
     var cost_price = 0;
-    var total_percentage = percentage + e_percentage;
-    if(total_percentage > 0){
-      cost_price = unit_price - (unit_price * total_percentage / 100); 
+    if(percentage > 0){
+      cost_price = unit_price - (unit_price * percentage / 100); 
+    }
+    else{
+      cost_price = unit_price;
+    }
+    if(e_percentage > 0){
+      cost_price = cost_price - (cost_price * e_percentage / 100); 
     }
     if(bonus[0] && bonus[1]){
       var qty = parseInt(bonus[0]) || 1;
@@ -586,8 +592,9 @@ $(document).ready(function()
       }
       cost_price = (cost_price * qty) / (qty + bonus_qty);
     }
-    $('#cost_price').val(Math.round(cost_price, 2));
+    $('#cost_price').val((cost_price).toFixed(2));
 	});
+  <?php } ?>
 
 	$('#new').click(function() {
 		stay_open = true;
