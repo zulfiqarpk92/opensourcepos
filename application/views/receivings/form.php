@@ -31,6 +31,13 @@
 			</div>
 		</div>
 		
+    <div class="form-group form-group-sm">
+			<?php echo form_label($this->lang->line('receivings_payment_type'), 'payment_type', array('class'=>'control-label col-xs-3')); ?>
+			<div class='col-xs-8'>
+				<?php echo form_dropdown('payment_type', ['Cash' => 'Cash', 'Due' => 'Due'], $receiving_info['payment_type'], 'id="payment_type" class="form-control"');?>
+			</div>
+		</div>
+		
 		<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('receivings_employee'), 'employee', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>

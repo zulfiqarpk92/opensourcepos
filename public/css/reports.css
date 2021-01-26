@@ -59,3 +59,25 @@
 	stroke-opacity: 0.2;
 	stroke-width: 20px;
 }
+.bootstrap-select.form-control{
+  height: unset;
+}
+.text-bold{
+  font-weight: bold;
+}
+.detailed-report tr th{
+  border-top: 1px solid #000000 !important;
+  border-color: #000000 !important;
+}
+.detailed-report tr td:first-child{
+  border-left-color: #000000 !important;
+}
+.detailed-report tr td:last-child{
+  border-right-color: #000000 !important;
+}
+tr.bill-total td{
+  border-bottom-color: #000000 !important;
+}
+tr.grand-total td{
+  border-color: #000000 !important;
+}

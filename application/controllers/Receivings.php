@@ -597,6 +597,7 @@ class Receivings extends Secure_Controller
 			'supplier_id' => $this->input->post('supplier_id') ? $this->input->post('supplier_id') : NULL,
 			'employee_id' => $this->input->post('employee_id'),
 			'comment' => $this->input->post('comment'),
+			'payment_type' => $this->input->post('payment_type'),
 			'reference' => $this->input->post('reference') != '' ? $this->input->post('reference') : NULL
 		);
 	

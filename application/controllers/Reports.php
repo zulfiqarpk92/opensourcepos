@@ -1109,6 +1109,83 @@ class Reports extends Secure_Controller
 		$this->load->view('reports/tabular_details', $data);
 	}
 
+  public function specific_customer_statement($start_date, $end_date, $customer_id, $sale_type, $payment_type)
+  {
+    $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'customer_id' => $customer_id, 'sale_type' => $sale_type, 'payment_type' => $payment_type);
+
+		$this->load->model('reports/Specific_customer');
+		$model = $this->Specific_customer;
+
+		$model->create($inputs);
+
+		$report_data = $model->getData($inputs);
+
+    $customer_info = $this->Customer->get_info($customer_id);
+
+    $previous_balance = 0;
+    
+    if($customer_info->init_balance){
+      $previous_balance += $customer_info->init_balance;
+    }
+    $previous_balance += $model->getOutstanding($inputs);
+
+    $sales_data = [];
+    $sales_total = ['previous_balance' => 0, 'quantity' => 0, 'sales_total' => 0, 'cash_payment' => 0, 'due_payment' => 0];
+    
+    foreach($report_data['summary'] as $key => $row)
+		{
+      $sale_items = [];
+			foreach($report_data['details'][$key] as $drow)
+			{
+				$sale_items[] = [
+					'name'         => $drow['name'],
+					'category'     => $drow['category'],
+					'item_number'  => $drow['item_number'],
+					'description'  => $drow['description'],
+					'price'        => to_currency($drow['item_unit_price']),
+					'quantity'     => to_quantity_decimals($drow['quantity_purchased']),
+					'total'        => to_currency($drow['total']),
+					'discount'     => ($drow['discount_type'] == PERCENT) ? $drow['discount'].'%' : to_currency($drow['discount'])
+        ];
+      }
+      $due = $row['sale_payment_amount'] - $row['sale_cash_amount'];
+      $sales_data[] = [
+				'id'            => $row['sale_id'],
+				'type_code'     => $row['type_code'],
+				'sale_date'     => to_date(strtotime($row['sale_date'])),
+				'quantity'      => to_quantity_decimals($row['items_purchased']),
+				'total'         => to_currency($row['total']),
+				'cash_payment'  => $row['sale_cash_amount'] > 0 ? to_currency($row['sale_cash_amount']) : '',
+				'due_payment'   => $due > 0 ? to_currency($due) : '',
+        'comment'       => $row['comment'],
+        'payment_type'  => $row['payment_type'],
+        'items'         => $sale_items
+      ];
+      $sales_total['quantity'] += $row['items_purchased'];
+      $sales_total['sales_total'] += $row['total'];
+      if($row['sale_cash_amount'] > 0){
+        $sales_total['cash_payment'] += $row['sale_cash_amount'];
+      }
+      if($due > 0){
+        $sales_total['due_payment'] += $due;
+      }
+    }
+    $sales_total['previous_balance'] = $previous_balance ? to_currency($previous_balance) : '';
+    $sales_total['quantity'] = to_quantity_decimals($sales_total['quantity']);
+    $sales_total['sales_total'] = to_currency($sales_total['sales_total']);
+    $sales_total['cash_payment'] = $sales_total['cash_payment'] ? to_currency($sales_total['cash_payment']) : '';
+    $sales_total['due_payment'] = $sales_total['due_payment'] ? to_currency(($previous_balance ?: 0) + $sales_total['due_payment']) : '';
+
+		$data = array(
+			'title'                 => $customer_info->first_name . ' ' . $customer_info->last_name . ' ' . $this->lang->line('reports_report'),
+			'subtitle'              => $this->_get_subtitle_report(array('start_date' => $start_date, 'end_date' => $end_date)),
+      'sales_data'            => $sales_data,
+      'sales_total'           => $sales_total,
+    );
+
+		$this->load->view('reports/customer_details', $data);
+  }
+
 	public function specific_employee_input()
 	{
 		$data = array();
@@ -1419,6 +1496,76 @@ class Reports extends Secure_Controller
 
 		$this->load->view('reports/tabular', $data);
 	}
+
+  public function specific_supplier_statement($start_date, $end_date, $supplier_id, $sale_type)
+  {
+    $inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'supplier_id' => $supplier_id, 'sale_type' => $sale_type);
+
+		$this->load->model('reports/Specific_supplier');
+		$model = $this->Specific_supplier;
+
+    $supplier_info = $this->Supplier->get_info($supplier_id);
+
+    $previous_balance = 0;
+    
+    if($supplier_info->init_balance){
+      $previous_balance += $supplier_info->init_balance;
+    }
+    $previous_balance += $model->getOutstanding($inputs);
+
+    $report_data = [];
+    $report_total = ['previous_balance' => 0, 'quantity' => 0, 'sales_total' => 0, 'cash_payment' => 0, 'due_payment' => 0];
+    
+    foreach($model->getReceivingData($inputs) as $row)
+		{
+      $row_items = [];
+			foreach($row->items as $item)
+			{
+				$row_items[] = [
+					'name'         => $item->name,
+					'category'     => $item->category,
+					'item_number'  => $item->item_number,
+					'description'  => $item->description,
+					'price'        => to_currency($item->item_unit_price),
+					'quantity'     => to_quantity_decimals($item->quantity_purchased),
+					'total'        => to_currency($item->line_total),
+					'discount'     => $item->discount_type == PERCENT ? ($item->discount.'%') : to_currency($item->discount)
+        ];
+      }
+      $due = $row->total_amount - $row->total_payment;
+      $report_data[] = [
+        'is_payment'    => intval($row->receiving_id) == FALSE,
+				'id'            => $row->receiving_id,
+				'sale_date'     => to_date(strtotime($row->receiving_time)),
+				'quantity'      => to_quantity_decimals($row->total_quantity),
+				'total'         => to_currency($row->total_amount),
+				'cash_payment'  => $row->total_payment > 0 ? to_currency($row->total_payment) : '',
+				'due_payment'   => $due > 0 ? to_currency($due) : '',
+        'comment'       => $row->comment,
+        'reference'     => $row->reference,
+        'payment_type'  => $row->payment_type,
+        'items'         => $row_items
+      ];
+      $report_total['quantity'] += $row->total_quantity;
+      $report_total['sales_total'] += $row->total_amount;
+      $report_total['cash_payment'] += $row->total_payment;
+      $report_total['due_payment'] += $due;
+    }
+    $report_total['previous_balance'] = $previous_balance ? to_currency($previous_balance) : '';
+    $report_total['quantity'] = to_quantity_decimals($report_total['quantity']);
+    $report_total['sales_total'] = to_currency($report_total['sales_total']);
+    $report_total['cash_payment'] = $report_total['cash_payment'] ? to_currency($report_total['cash_payment']) : '';
+    $report_total['due_payment'] = $report_total['due_payment'] ? to_currency(($previous_balance ?: 0) + $report_total['due_payment']) : '';
+
+		$data = array(
+			'title'                 => $supplier_info->first_name . ' ' . $supplier_info->last_name . ' ' . $this->lang->line('reports_report'),
+			'subtitle'              => $this->_get_subtitle_report(array('start_date' => $start_date, 'end_date' => $end_date)),
+      'report_data'           => $report_data,
+      'report_total'          => $report_total,
+    );
+
+		$this->load->view('reports/supplier_details', $data);
+  }
 
 	public function get_sale_type_options()
 	{

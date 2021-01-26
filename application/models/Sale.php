@@ -1162,7 +1162,8 @@ class Sale extends CI_Model
 		$this->db->query('CREATE TEMPORARY TABLE IF NOT EXISTS ' . $this->db->dbprefix('sales_payments_temp') .
 			' (PRIMARY KEY(sale_id), INDEX(sale_id))
 			(
-				SELECT payments.sale_id AS sale_id,
+        SELECT payments.sale_id AS sale_id,
+          IFNULL(SUM(IF(payments.payment_type = "Cash", payments.payment_amount, 0)), 0) AS sale_cash_amount,
 					IFNULL(SUM(payments.payment_amount), 0) AS sale_payment_amount,
 					GROUP_CONCAT(CONCAT(payments.payment_type, " ", (payments.payment_amount - payments.cash_refund)) SEPARATOR ", ") AS payment_type
 				FROM ' . $this->db->dbprefix('sales_payments') . ' AS payments
@@ -1210,6 +1211,7 @@ class Sale extends CI_Model
 					MAX(sales_items.description) AS description,
 					MAX(payments.payment_type) AS payment_type,
 					MAX(payments.sale_payment_amount) AS sale_payment_amount,
+					MAX(payments.sale_cash_amount) AS sale_cash_amount,
 					' . "
 					$sale_subtotal AS subtotal,
 					$tax AS tax,

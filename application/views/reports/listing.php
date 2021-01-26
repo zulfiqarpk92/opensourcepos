@@ -71,6 +71,8 @@ if(isset($error))
         if($this->config->item('xray_category')){
           show_report('summary', 'daily_xray', 'reports_summary_daily_xray');
         }
+				show_report('specific', 'customer_statement', 'reports_customers_statement');
+				show_report('specific', 'supplier_statement', 'reports_suppliers_statement');
 				?>
 			 </div>
 		</div>

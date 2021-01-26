@@ -139,6 +139,18 @@ class Customer extends Person
 		// drop the temporary table to contain memory consumption as it's no longer required
 		$this->db->query('DROP TEMPORARY TABLE IF EXISTS ' . $this->db->dbprefix('sales_items_temp'));
 
+    if(empty($stats))
+    {
+      //create object with empty properties.
+      $stats = new stdClass;
+      $stats->total = 0;
+      $stats->cash_payment = 0;
+      $stats->min = 0;
+      $stats->max = 0;
+      $stats->average = 0;
+      $stats->avg_discount = 0;
+      $stats->quantity = 0;
+    }
 		return $stat;
 	}
 

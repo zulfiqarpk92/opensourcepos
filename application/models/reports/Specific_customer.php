@@ -44,6 +44,79 @@ class Specific_customer extends Report
 		);
 	}
 
+  public function getOutstanding(array $inputs){
+    $this->db->select('
+      IFNULL(SUM(IF(payments.payment_type = "Due", payments.payment_amount, 0)), 0) AS total_due
+    ');
+    $this->db->from('sales_payments payments');
+    $this->db->join('sales sales', 'sales.sale_id = payments.sale_id');
+
+    $this->db->where('customer_id', $inputs['customer_id']);
+    
+    $where = '';
+    if(empty($this->config->item('date_or_time_format')))
+    {
+      $where = 'DATE(sales.sale_time) < ' . $this->db->escape($inputs['start_date']);
+    }
+    else
+    {
+      $where = 'sales.sale_time < ' . $this->db->escape(rawurldecode($inputs['start_date']));
+    }
+    $this->db->where($where);
+
+		if($inputs['payment_type'] == 'invoices')
+		{
+			$this->db->where('sale_type', SALE_TYPE_INVOICE);
+		}
+		elseif($inputs['payment_type'] != 'all')
+		{
+			$this->db->like('payment_type', $this->lang->line('sales_'.$inputs['payment_type']));
+		}
+
+		if($inputs['sale_type'] == 'complete')
+		{
+			$this->db->where('sale_status', COMPLETED);
+			$this->db->group_start();
+			$this->db->where('sale_type', SALE_TYPE_POS);
+			$this->db->or_where('sale_type', SALE_TYPE_INVOICE);
+			$this->db->or_where('sale_type', SALE_TYPE_RETURN);
+			$this->db->group_end();
+		}
+		elseif($inputs['sale_type'] == 'sales')
+		{
+			$this->db->where('sale_status', COMPLETED);
+			$this->db->group_start();
+			$this->db->where('sale_type', SALE_TYPE_POS);
+			$this->db->or_where('sale_type', SALE_TYPE_INVOICE);
+			$this->db->group_end();
+		}
+		elseif($inputs['sale_type'] == 'quotes')
+		{
+			$this->db->where('sale_status', SUSPENDED);
+			$this->db->where('sale_type', SALE_TYPE_QUOTE);
+		}
+		elseif($inputs['sale_type'] == 'work_orders')
+		{
+			$this->db->where('sale_status', SUSPENDED);
+			$this->db->where('sale_type', SALE_TYPE_WORK_ORDER);
+		}
+		elseif($inputs['sale_type'] == 'canceled')
+		{
+			$this->db->where('sale_status', CANCELED);
+		}
+		elseif($inputs['sale_type'] == 'returns')
+		{
+			$this->db->where('sale_status', COMPLETED);
+			$this->db->where('sale_type', SALE_TYPE_RETURN);
+		}
+
+		$this->db->group_by('customer_id');
+
+    $data = $this->db->get()->row();
+
+		return $data ? $data->total_due : 0;
+  }
+
 	public function getData(array $inputs)
 	{
 		$this->db->select('sale_id,
@@ -65,6 +138,8 @@ class Specific_customer extends Report
 			SUM(total) AS total,
 			SUM(cost) AS cost,
 			SUM(profit) AS profit,
+			MAX(sale_payment_amount) AS sale_payment_amount,
+			MAX(sale_cash_amount) AS sale_cash_amount,
 			MAX(payment_type) AS payment_type,
 			MAX(comment) AS comment');
 		$this->db->from('sales_items_temp');
@@ -127,7 +202,7 @@ class Specific_customer extends Report
 
 		foreach($data['summary'] as $key=>$value)
 		{
-			$this->db->select('name, category, item_number, description, quantity_purchased, subtotal, tax, total, cost, profit, discount, discount_type');
+			$this->db->select('name, category, item_number, description, item_unit_price, quantity_purchased, subtotal, tax, total, cost, profit, discount, discount_type');
 			$this->db->from('sales_items_temp');
 			$this->db->where('sale_id', $value['sale_id']);
 			$data['details'][$key] = $this->db->get()->result_array();
