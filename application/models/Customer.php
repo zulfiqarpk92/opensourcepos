@@ -134,7 +134,7 @@ class Customer extends Person
 		$this->db->where('sales.sale_status', COMPLETED);
 		$this->db->group_by('sales.customer_id');
 
-		$stat = $this->db->get()->row();
+		$stats = $this->db->get()->row();
 
 		// drop the temporary table to contain memory consumption as it's no longer required
 		$this->db->query('DROP TEMPORARY TABLE IF EXISTS ' . $this->db->dbprefix('sales_items_temp'));
@@ -151,7 +151,7 @@ class Customer extends Person
       $stats->avg_discount = 0;
       $stats->quantity = 0;
     }
-		return $stat;
+		return $stats;
 	}
 
 	/*
