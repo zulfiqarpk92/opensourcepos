@@ -141,7 +141,7 @@ class Specific_supplier extends Report
 
     $query2 = $this->db->get_compiled_select();
 
-    $receiving_data = $this->db->query("($query1 UNION $query2) ORDER BY receiving_time")->result();
+    $receiving_data = $this->db->query("($query1) UNION ($query2) ORDER BY receiving_time")->result();
     
     $receiving_records = [];
     
