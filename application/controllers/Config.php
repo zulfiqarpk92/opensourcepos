@@ -991,14 +991,15 @@ class Config extends Secure_Controller
 			$this->load->dbutil();
 
 			$prefs = array(
-				'format' => 'zip',
+				'format' => 'txt',
 				'filename' => 'ospos.sql'
 			);
 
 			$backup = $this->dbutil->backup($prefs);
 
-			$file_name = 'ospos-' . date("Y-m-d-H-i-s") .'.zip';
+			$file_name = 'ospos-' . date("Y-m-d-H-i-s") .'.sql';
 			$save = 'uploads/' . $file_name;
+      file_put_contents($save, $backup);
       if($this->input->get('save')){
         file_put_contents($save, $backup);
       }

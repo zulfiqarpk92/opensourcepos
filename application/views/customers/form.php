@@ -8,7 +8,7 @@
 			<a data-toggle="tab" href="#customer_basic_info"><?php echo $this->lang->line("customers_basic_information"); ?></a>
 		</li>
 		<?php
-		if(!empty($stats))
+		if(!empty($stats) && $person_info->person_id)
 		{
 		?>
 			<li role="presentation">

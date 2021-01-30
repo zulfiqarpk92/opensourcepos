@@ -58,7 +58,7 @@ class Person extends CI_Model
 	 *
 	 * @param integer $person_id identifier of the person
 	 *
-	 * @return array containing all the fields of the table row
+	 * @return object containing all the fields of the table row
 	 */
 	public function get_info($person_id)
 	{

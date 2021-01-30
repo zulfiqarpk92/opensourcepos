@@ -137,6 +137,7 @@ $autoload['model'] = array(
 	'Person',
 	'Customer',
 	'Employee',
+	'Labor',
 	'Module',
 	'Item',
 	'Item_taxes',

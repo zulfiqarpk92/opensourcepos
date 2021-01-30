@@ -276,7 +276,7 @@ function get_sales_manage_payments_summary($payments, $sales)
 /*
 Get the header for the people tabular view
 */
-function get_people_manage_table_headers()
+function get_people_manage_table_headers($simple = false)
 {
 	$CI =& get_instance();
 
@@ -288,6 +288,9 @@ function get_people_manage_table_headers()
 		array('phone_number' => $CI->lang->line('common_phone_number'))
 	);
 
+  if($simple){
+    return $headers;
+  }
 	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
 	{
 		$headers[] = array('messages' => '', 'sortable' => FALSE);
@@ -318,6 +321,55 @@ function get_person_data_row($person)
 	);
 }
 
+/*
+Get the header for the labor tabular view
+*/
+function get_labor_manage_table_headers()
+{
+	$CI =& get_instance();
+
+	$headers = array(
+		array('total' => $CI->lang->line('labors_total'), 'sortable' => FALSE),
+		array('payment' => $CI->lang->line('labors_paid'), 'sortable' => FALSE),
+		array('balance' => $CI->lang->line('labors_balance'), 'sortable' => FALSE),
+	);
+
+	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
+	{
+		$headers[] = array('messages' => '', 'sortable' => FALSE);
+	}
+	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
+
+	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
+}
+
+/*
+Get the html data row for the labor
+*/
+function get_labor_data_row($person)
+{
+	$CI =& get_instance();
+
+	$controller_name = strtolower(get_class($CI));
+
+	return array (
+		'people.person_id' => $person->person_id,
+		'first_name' => $person->first_name,
+		// 'last_name' => $person->last_name,
+		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
+		'phone_number' => $person->phone_number,
+		'total'   => to_currency($person->credit),
+		'payment' => to_currency($person->debit),
+		'balance' => to_currency($person->credit - $person->debit),
+		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',
+			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
+    'add_payment' => anchor($controller_name."/add_payment/$person->person_id", '<span class="glyphicon glyphicon-plus"></span>',
+      array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Transaction')),
+		'edit' => anchor($controller_name."/view/$person->person_id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
+	));
+}
+
 
 /*
 Get the header for the customer tabular view
@@ -327,11 +379,6 @@ function get_customer_manage_table_headers()
 	$CI =& get_instance();
 
 	$headers = array(
-		array('people.person_id' => $CI->lang->line('common_id')),
-		array('first_name' => $CI->lang->line('common_first_name')),
-		// array('last_name' => $CI->lang->line('common_last_name')),
-		array('email' => $CI->lang->line('common_email')),
-		array('phone_number' => $CI->lang->line('common_phone_number')),
 		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => FALSE),
 		array('payment' => $CI->lang->line('common_total_payment'), 'sortable' => FALSE),
 		array('balance' => $CI->lang->line('common_balance'), 'sortable' => FALSE),
@@ -342,7 +389,7 @@ function get_customer_manage_table_headers()
 		$headers[] = array('messages' => '', 'sortable' => FALSE);
 	}
 
-	return transform_headers($headers);
+	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
 }
 
 /*
@@ -379,14 +426,9 @@ function get_suppliers_manage_table_headers()
 	$CI =& get_instance();
 
 	$headers = array(
-		array('people.person_id' => $CI->lang->line('common_id')),
 		array('company_name' => $CI->lang->line('suppliers_company_name')),
 		// array('agency_name' => $CI->lang->line('suppliers_agency_name')),
 		// array('category' => $CI->lang->line('suppliers_category')),
-		array('first_name' => $CI->lang->line('common_first_name')),
-		// array('last_name' => $CI->lang->line('common_last_name')),
-		array('email' => $CI->lang->line('common_email')),
-		array('phone_number' => $CI->lang->line('common_phone_number')),
 		array('total_purchases' => $CI->lang->line('common_total_spent')),
     array('total_payments'  => $CI->lang->line('common_total_payment')),
     array('total_due'       => $CI->lang->line('common_balance')),    
@@ -398,7 +440,7 @@ function get_suppliers_manage_table_headers()
 	}
 	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
 
-	return transform_headers($headers);
+	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
 }
 
 /*

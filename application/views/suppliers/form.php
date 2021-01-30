@@ -175,7 +175,6 @@ $(document).ready(function()
 {
 	$('#supplier_form').validate($.extend({
 		submitHandler: function(form) {
-      console.log('hi');
 			$(form).ajaxSubmit({
 				success: function(response)
 				{

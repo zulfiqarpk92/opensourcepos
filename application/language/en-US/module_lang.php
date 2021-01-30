@@ -39,3 +39,5 @@ $lang["module_suppliers"] = "Suppliers";
 $lang["module_suppliers_desc"] = "Add, Update, Delete, and Search Suppliers.";
 $lang["module_taxes"] = "Taxes";
 $lang["module_taxes_desc"] = "Configure Sales Taxes.";
+$lang["module_labors"] = 'Labors';
+$lang["module_labors_desc"] = 'Add, Update, Delete, and Search Labors.';
