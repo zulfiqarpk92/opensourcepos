@@ -1,4 +1,4 @@
-INSERT INTO `ospos_modules` (`name_lang_key`, `desc_lang_key`, `module_id`) VALUES ('module_labors', 'module_labors_desc', 'labors');
+INSERT INTO `ospos_modules` (`name_lang_key`, `desc_lang_key`, `sort`, `module_id`) VALUES ('module_labors', 'module_labors_desc', 41, 'labors');
 INSERT INTO `ospos_permissions` (`permission_id`, `module_id`) VALUES ('labors', 'labors');
 CREATE TABLE IF NOT EXISTS `ospos_labors` (
 	`person_id` INT(10) NOT NULL,
