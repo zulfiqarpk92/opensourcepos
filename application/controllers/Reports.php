@@ -1158,7 +1158,7 @@ class Reports extends Secure_Controller
 				'cash_payment'  => $row['sale_cash_amount'] > 0 ? to_currency($row['sale_cash_amount']) : '',
 				'due_payment'   => $due > 0 ? to_currency($due) : '',
         'comment'       => $row['comment'],
-        'payment_type'  => $row['payment_type'],
+        'payment_detail'  => $row['payment_detail'],
         'items'         => $sale_items
       ];
       $sales_total['quantity'] += $row['items_purchased'];

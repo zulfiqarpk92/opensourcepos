@@ -54,7 +54,7 @@
         <td></td>
         <td class="text-bold"><?php echo $sale_data['cash_payment']; ?></td>
         <td class="text-bold"><?php echo $sale_data['due_payment']; ?></td>
-        <td><?php echo $sale_data['comment']; ?></td>
+        <td><?php echo ($sale_data['comment'] ? $sale_data['comment'] . '<br>' : '') . nl2br($sale_data['payment_detail']); ?></td>
       </tr>
 
     <?php } ?>

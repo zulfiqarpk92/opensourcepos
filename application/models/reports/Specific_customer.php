@@ -141,6 +141,7 @@ class Specific_customer extends Report
 			MAX(sale_payment_amount) AS sale_payment_amount,
 			MAX(sale_cash_amount) AS sale_cash_amount,
 			MAX(payment_type) AS payment_type,
+			MAX(payment_detail) AS payment_detail,
 			MAX(comment) AS comment');
 		$this->db->from('sales_items_temp');
 

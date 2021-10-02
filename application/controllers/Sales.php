@@ -897,7 +897,10 @@ class Sales extends Secure_Controller
 			if($stats)
 			{
 				$cust_stats = $this->Customer->get_stats($customer_id);
+				$data['customer_starting_balance'] = $customer_info->init_balance;
 				$data['customer_total'] = empty($cust_stats) ? 0 : $cust_stats->total;
+				$data['customer_total_payments'] = $cust_stats->cash_payment;
+				$data['customer_ending_balance'] = $customer_info->init_balance + $cust_stats->total - $cust_stats->cash_payment;
 			}
 
 			$data['customer_info'] = implode("\n", array(

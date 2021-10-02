@@ -246,6 +246,14 @@ class Supplier extends Person
 		{
 			$this->db->select('COUNT(suppliers.person_id) as count');
 		}
+    else{
+      $total_purchases = '(SELECT ROUND(IFNULL(SUM(ri.quantity_purchased * ri.receiving_quantity * ri.item_unit_price), 0), 2)
+      FROM ospos_receivings r
+      LEFT JOIN ospos_receivings_items ri ON ri.receiving_id = r.receiving_id
+      WHERE r.supplier_id = suppliers.person_id)';
+      $total_payments = '(SELECT ROUND(IFNULL(SUM(sp.amount_tendered), 0), 2) FROM ospos_suppliers_payments sp WHERE sp.supplier_id = suppliers.person_id)';
+      $this->db->select("suppliers.*, people.*, (suppliers.init_balance + $total_purchases) AS total_purchases, $total_payments AS total_payments, (suppliers.init_balance + $total_purchases - $total_payments) AS total_due", FALSE);
+    }
 
 		$this->db->from('suppliers AS suppliers');
 		$this->db->join('people', 'suppliers.person_id = people.person_id');
@@ -274,6 +282,7 @@ class Supplier extends Person
 			$this->db->limit($rows, $limit_from);
 		}
 		return $this->db->get();
+    dump($this->db->last_query());
 	}
 
 	/*

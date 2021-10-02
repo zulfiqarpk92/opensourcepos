@@ -93,7 +93,7 @@ function get_sale_data_row($sale)
 
 	$row = array (
 		'sale_id' => $sale->sale_id,
-		'sale_time' => to_datetime(strtotime($sale->sale_time)),
+		'sale_time' => to_date(strtotime($sale->sale_time)),
 		'customer_name' => $sale->customer_name,
 		'amount_due' => to_currency($sale->amount_due),
 		'amount_tendered' => to_currency($sale->amount_tendered),
@@ -379,15 +379,16 @@ function get_customer_manage_table_headers()
 	$CI =& get_instance();
 
 	$headers = array(
-		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => FALSE),
-		array('payment' => $CI->lang->line('common_total_payment'), 'sortable' => FALSE),
-		array('balance' => $CI->lang->line('common_balance'), 'sortable' => FALSE),
+		array('total' => $CI->lang->line('common_total_spent'), 'sortable' => TRUE),
+		array('payment' => $CI->lang->line('common_total_payment'), 'sortable' => TRUE),
+		array('balance' => $CI->lang->line('common_balance'), 'sortable' => TRUE),
 	);
 
 	if($CI->Employee->has_grant('messages', $CI->session->userdata('person_id')))
 	{
 		$headers[] = array('messages' => '', 'sortable' => FALSE);
 	}
+	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
 }
@@ -395,7 +396,7 @@ function get_customer_manage_table_headers()
 /*
 Get the html data row for the customer
 */
-function get_customer_data_row($person, $stats)
+function get_customer_data_row($person)
 {
 	$CI =& get_instance();
 
@@ -407,11 +408,13 @@ function get_customer_data_row($person, $stats)
 		// 'last_name' => $person->last_name,
 		'email' => empty($person->email) ? '' : mailto($person->email, $person->email),
 		'phone_number' => $person->phone_number,
-		'total'   => to_currency($person->init_balance + $stats->total),
-		'payment' => to_currency($stats->cash_payment),
-		'balance' => to_currency($person->init_balance + $stats->total - $stats->cash_payment),
+		'total'   => to_currency($person->total),
+		'payment' => to_currency($person->payment),
+		'balance' => to_currency($person->balance),
 		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
+    'add_payment' => anchor($controller_name."/add_payment/$person->person_id", '<span class="glyphicon glyphicon-plus"></span>',
+      array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
 		'edit' => anchor($controller_name."/view/$person->person_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 	));

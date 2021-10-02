@@ -31,10 +31,7 @@ class Customers extends Persons
 	{
 		$person = $this->Customer->get_info($row_id);
 
-		// retrieve the total amount the customer spent so far together with min, max and average values
-		$stats = $this->Customer->get_stats($person->person_id);
-
-		$data_row = $this->xss_clean(get_customer_data_row($person, $stats));
+		$data_row = $this->xss_clean(get_customer_data_row($person));
 
 		echo json_encode($data_row);
 	}
@@ -201,6 +198,55 @@ class Customers extends Persons
 		}
 
 		$this->load->view("customers/form", $data);
+	}
+
+  public function add_payment($customer_id = -1)
+	{
+		$info = $this->Customer->get_info($customer_id);
+    $this->load->model('Sale');
+    $sales = $this->Sale->get_customer_sales($customer_id, TRUE);
+		$data['person_info'] = $info;
+		$data['sales'] = $sales;
+    if($this->input->post('add_payment')){
+      $amount_tendered = $this->input->post('amount_tendered');
+      $reference = $this->input->post('reference');
+      $payment_date = $this->input->post('payment_date');
+      $sales_payments = '';
+      if($amount_tendered && $reference){
+        $remaining_cash = $amount_tendered;
+        foreach($sales as $sale){
+          $cash_amount = 0;
+          if($sale->balance <= $remaining_cash){
+            $cash_amount = $sale->balance;
+          }
+          elseif($remaining_cash > 0){
+            $cash_amount = $remaining_cash;
+          }
+          $payment_id = $this->Sale->add_cash_payment($sale->sale_id, $sale->sale_total, $cash_amount, $reference, $payment_date);
+          if($payment_id){
+            $remaining_cash -= $cash_amount;
+            $sales_payments .= to_currency($cash_amount) . ' added to Sale # ' . $sale->sale_id . '<br>';
+          }
+        }
+      }
+      if($sales_payments){
+        echo json_encode(array(
+          'success' => TRUE,
+          'message' => 'Payment record added for ' . $info->first_name . '<br>' . $sales_payments,
+          'id'      => $customer_id
+        ));
+      }
+      else{
+        echo json_encode(array(
+          'success' => FALSE,
+          'message' => 'Payment record failed for ' . $info->first_name,
+          'id'      => $customer_id
+        ));
+      }
+      return;
+    }
+
+		$this->load->view("customers/add_payment", $data);
 	}
 
 	/*

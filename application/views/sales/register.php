@@ -371,8 +371,20 @@ if(isset($success))
 					?>
 					<?php endif; ?>
 					<tr>
-						<th style='width: 55%;'><?php echo $this->lang->line("sales_customer_total"); ?></th>
-						<th style="width: 45%; text-align: right;"><?php echo to_currency($customer_total); ?></th>
+						<th style='width: 55%;'>Starting Balance</th>
+						<th style="width: 45%; text-align: right;">+<?php echo to_currency($customer_starting_balance); ?></th>
+					</tr>
+					<tr>
+						<th style='width: 55%;'>Sales Total</th>
+						<th style="width: 45%; text-align: right;">+<?php echo to_currency($customer_total); ?></th>
+					</tr>
+					<tr>
+						<th style='width: 55%;'>Cash Payments</th>
+						<th style="width: 45%; text-align: right;">-<?php echo to_currency($customer_total_payments); ?></th>
+					</tr>
+					<tr>
+						<th style='width: 55%;'>Ending Balance</th>
+						<th style="width: 45%; text-align: right;"><?php echo to_currency($customer_ending_balance); ?></th>
 					</tr>
 					<?php
 					if(!empty($mailchimp_info))

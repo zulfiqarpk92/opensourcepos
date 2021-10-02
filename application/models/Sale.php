@@ -530,6 +530,48 @@ class Sale extends CI_Model
     return 0;
   }
 
+  public function add_cash_payment($sale_id, $sale_total, $cash_amount, $reference, $payment_date){
+    if($cash_amount <= 0){
+      return FALSE;
+    }
+    $payments = $this->get_sale_payments($sale_id)->result();
+    $cash_total = 0;
+    foreach($payments as $p){
+      if($p->payment_type == 'Cash'){
+        $cash_total += $p->payment_amount;
+      }
+    }
+    $balance = $sale_total - $cash_total;
+    if($cash_amount > $balance){
+      return FALSE;
+    }
+    $sale_payment = [];
+    $sale_payment['payment_amount'] = $cash_amount;
+    $sale_payment['reference_code'] = $reference;
+    $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $payment_date);
+    $sale_payment['payment_time'] = $date_formatter->format('Y-m-d H:i:s');
+    $payment_id = $this->add_payment($sale_id, $sale_payment);
+    if($payment_id){      
+      $due = NULL;
+      foreach($payments as $p){
+        if($p->payment_type == 'Due'){
+          $due = $p;
+          break;
+        }
+      }
+      if($due){
+        $remaining = $due->payment_amount - $cash_amount;
+        if($remaining > 0){
+          $this->update_payment($due->payment_id, $remaining);
+        }
+        else{
+          $this->remove_payment($due->payment_id);
+        }
+      }
+    }
+    return $payment_id;    
+  }
+
   public function update_payment($payment_id, $amount){
     return $this->db->where('payment_id', $payment_id)->update('sales_payments', ['payment_amount' => $amount]);
   }
@@ -1165,7 +1207,8 @@ class Sale extends CI_Model
         SELECT payments.sale_id AS sale_id,
           IFNULL(SUM(IF(payments.payment_type = "Cash", payments.payment_amount, 0)), 0) AS sale_cash_amount,
 					IFNULL(SUM(payments.payment_amount), 0) AS sale_payment_amount,
-					GROUP_CONCAT(CONCAT(payments.payment_type, " ", (payments.payment_amount - payments.cash_refund)) SEPARATOR ", ") AS payment_type
+					GROUP_CONCAT(CONCAT(payments.payment_type, " ", (payments.payment_amount - payments.cash_refund)) SEPARATOR ", ") AS payment_type,
+					GROUP_CONCAT(IF(payments.payment_type = "Cash", CONCAT((payments.payment_amount - payments.cash_refund), " (ref: ", IF(payments.reference_code <> "", payments.reference_code, "---"), " )"), "") SEPARATOR "\n") AS payment_detail
 				FROM ' . $this->db->dbprefix('sales_payments') . ' AS payments
 				INNER JOIN ' . $this->db->dbprefix('sales') . ' AS sales
 					ON sales.sale_id = payments.sale_id
@@ -1210,6 +1253,7 @@ class Sale extends CI_Model
 					MAX(sales_items.item_location) AS item_location,
 					MAX(sales_items.description) AS description,
 					MAX(payments.payment_type) AS payment_type,
+					MAX(payments.payment_detail) AS payment_detail,
 					MAX(payments.sale_payment_amount) AS sale_payment_amount,
 					MAX(payments.sale_cash_amount) AS sale_cash_amount,
 					' . "
@@ -1501,6 +1545,41 @@ class Sale extends CI_Model
 			}
 		}
 	}
+
+  public function get_customer_sales($customer_id, $due_only =  FALSE){
+
+		$decimals = totals_decimals();
+    $sale_total = '
+    CASE 
+      WHEN si.discount_type = ' . PERCENT . ' THEN si.item_unit_price * si.quantity_purchased * (1 - si.discount / 100) 
+      ELSE si.item_unit_price * si.quantity_purchased - si.discount 
+    END';
+
+    $si = $this->db->dbprefix('sales_items') . ' si';
+    $sp = $this->db->dbprefix('sales_payments') . ' sp';
+
+    $this->db->select('s.sale_id, s.sale_time');
+    $this->db->select("(SELECT ROUND(SUM($sale_total), $decimals) FROM $si WHERE si.sale_id = s.sale_id) AS sale_total");
+    $this->db->select("(SELECT ROUND(IFNULL(SUM(sp.payment_amount), 0), $decimals) FROM $sp WHERE sp.sale_id = s.sale_id AND sp.payment_type = 'Cash') AS payment_total");
+    $this->db->select("(SELECT ROUND(IFNULL(SUM(sp.payment_amount), 0), $decimals) FROM $sp WHERE sp.sale_id = s.sale_id AND sp.payment_type = 'Due') AS balance");
+    $this->db->from('sales s');
+    $this->db->where('s.customer_id', $customer_id);
+    $this->db->where('s.sale_type <>', SALE_TYPE_RETURN);
+    $this->db->where('s.sale_status', COMPLETED);
+
+    $sales = $this->db->get()->result();
+
+    if($due_only){
+      $due_sales = [];
+      foreach($sales as $sale){
+        if($sale->balance > 0){
+          $due_sales[] = $sale;
+        }
+      }
+      return $due_sales;
+    }
+    return $sales;
+  }
 
 }
 ?>

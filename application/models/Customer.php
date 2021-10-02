@@ -120,6 +120,7 @@ class Customer extends Person
 		$this->db->select('
 						SUM(sales_payments.payment_amount - sales_payments.cash_refund) AS total,
 						SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS cash_payment,
+						SUM(IF(sales_payments.payment_type = "Due", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS due_payment,
 						MIN(sales_payments.payment_amount - sales_payments.cash_refund) AS min,
 						MAX(sales_payments.payment_amount - sales_payments.cash_refund) AS max,
 						AVG(sales_payments.payment_amount - sales_payments.cash_refund) AS average,
@@ -145,6 +146,7 @@ class Customer extends Person
       $stats = new stdClass;
       $stats->total = 0;
       $stats->cash_payment = 0;
+      $stats->due_payment = 0;
       $stats->min = 0;
       $stats->max = 0;
       $stats->average = 0;
@@ -390,9 +392,16 @@ class Customer extends Person
 		{
 			$this->db->select('COUNT(customers.person_id) as count');
 		}
+    else{
+      $this->db->select('customers.*, people.*, (customers.init_balance + SUM(sales_payments.payment_amount - sales_payments.cash_refund)) AS total,
+SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS payment,
+(customers.init_balance + SUM(sales_payments.payment_amount - sales_payments.cash_refund) - SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0))) AS balance', FALSE);
+    }
 
 		$this->db->from('customers AS customers');
 		$this->db->join('people', 'customers.person_id = people.person_id');
+		$this->db->join('sales AS sales', 'customers.person_id = sales.customer_id AND sales.sale_status = ' . COMPLETED, 'LEFT');
+    $this->db->join('sales_payments AS sales_payments', 'sales.sale_id = sales_payments.sale_id', 'LEFT');
 		$this->db->group_start();
 			$this->db->like('first_name', $search);
 			$this->db->or_like('last_name', $search);
@@ -403,6 +412,7 @@ class Customer extends Person
 			$this->db->or_like('CONCAT(first_name, " ", last_name)', $search);
 		$this->db->group_end();
 		$this->db->where('deleted', 0);
+		$this->db->group_by('customers.person_id');
 
 		// get_found_rows case
 		if($count_only == TRUE)
@@ -417,7 +427,7 @@ class Customer extends Person
 			$this->db->limit($rows, $limit_from);
 		}
 
-		return $this->db->get();
+    return $this->db->get();
 	}
 }
 ?>
