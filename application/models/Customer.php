@@ -429,5 +429,18 @@ SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sal
 
     return $this->db->get();
 	}
+
+  public function get_payments($customer_id)
+  {
+    $this->db->from('sales_payments AS sp');
+    $this->db->select('sp.payment_id, sp.payment_time, sp.reference_code, SUM(sp.payment_amount - sp.cash_refund) AS total_paid');
+    $this->db->select('GROUP_CONCAT(CONCAT(sp.sale_id, " (", (sp.payment_amount - sp.cash_refund), ")") SEPARATOR "<br>") AS sale_id');
+    $this->db->join('sales', 'sales.sale_id = sp.sale_id');
+		$this->db->where('sales.customer_id', $customer_id);
+    $this->db->where('sp.payment_type = "Cash"');
+    $this->db->group_by('payment_time');
+    $this->db->order_by('payment_time');
+		return $this->db->get()->result();
+	}
 }
 ?>

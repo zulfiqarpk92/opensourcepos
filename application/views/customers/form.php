@@ -3,10 +3,14 @@
 <ul id="error_message_box" class="error_message_box"></ul>
 
 <?php echo form_open($controller_name . '/save/' . $person_info->person_id, array('id'=>'customer_form', 'class'=>'form-horizontal')); ?>
+	
 	<ul class="nav nav-tabs nav-justified" data-tabs="tabs">
 		<li class="active" role="presentation">
 			<a data-toggle="tab" href="#customer_basic_info"><?php echo $this->lang->line("customers_basic_information"); ?></a>
 		</li>
+    <li role="presentation">
+      <a data-toggle="tab" href="#customer_payments">Cash Payments</a>
+    </li>
 		<?php
 		if(!empty($stats) && $person_info->person_id)
 		{
@@ -212,6 +216,48 @@
 				<?php echo form_hidden('employee_id', $person_info->employee_id); ?>
 			</fieldset>
 		</div>
+
+    <div class="tab-pane" id="customer_sales">
+      <table class="table table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <?php foreach($payment_headers as $header){ ?>
+            <th><?php echo $header; ?></th>
+            <?php } ?>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach($payments as $payment){ ?>
+          <tr>
+            <?php foreach(array_keys($payment_headers) as $prop){ ?>
+            <td><?php echo $payment[$prop]; ?></td>
+            <?php } ?>
+          </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tab-pane" id="customer_payments">
+      <table class="table table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <?php foreach($payment_headers as $header){ ?>
+            <th><?php echo $header; ?></th>
+            <?php } ?>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach($payments as $payment){ ?>
+          <tr>
+            <?php foreach(array_keys($payment_headers) as $prop){ ?>
+            <td><?php echo $payment[$prop]; ?></td>
+            <?php } ?>
+          </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+    </div>
 
 		<?php
 		if(!empty($stats))

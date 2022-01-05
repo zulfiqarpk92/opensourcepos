@@ -85,7 +85,6 @@ class Customers extends Persons
 	public function view($customer_id = -1)
 	{
 		$info = $this->Customer->get_info($customer_id);
-    // dump($info);
 		foreach(get_object_vars($info) as $property => $value)
 		{
 			$info->$property = $this->xss_clean($value);
@@ -101,6 +100,32 @@ class Customers extends Persons
 
 		$employee_info = $this->Employee->get_info($info->employee_id);
 		$data['employee'] = $this->xss_clean($employee_info->first_name . ' ' . $employee_info->last_name);
+   
+    $data['payment_headers'] = [
+      'payment_time'     => 'Payment Time',
+      'sale_id'          => 'Sale #', 
+      'amount_tendered'  => 'Amount', 
+      'reference'        => 'Reference',
+    ];
+    $data['payments'] = [];
+    $payments_total = 0;
+    foreach($this->Customer->get_payments($customer_id) as $payment){
+      $data['payments'][] = [
+        'id'               => $payment->payment_id,
+        'payment_time'     => to_datetime(strtotime($payment->payment_time)),
+        'sale_id'          => $payment->sale_id,
+        'amount_tendered'  => to_currency($payment->total_paid), 
+        'reference'        => $payment->reference_code,
+      ];
+      $payments_total += $payment->total_paid;
+    }
+    $data['payments'][] = [
+      'id'               => '',
+      'payment_time'     => '<b>Total</b>',
+      'sale_id'          => '',
+      'amount_tendered'  => to_currency($payments_total), 
+      'reference'        => '',
+    ];
 
 		$tax_code_info = $this->Tax_code->get_info($info->sales_tax_code_id);
 		$tax_code_id = $tax_code_info->tax_code_id;

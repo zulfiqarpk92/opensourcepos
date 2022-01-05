@@ -414,9 +414,9 @@ function get_customer_data_row($person)
 		'messages' => empty($person->phone_number) ? '' : anchor("Messages/view/$person->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
     'add_payment' => anchor($controller_name."/add_payment/$person->person_id", '<span class="glyphicon glyphicon-plus"></span>',
-      array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
+      array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
 		'edit' => anchor($controller_name."/view/$person->person_id", '<span class="glyphicon glyphicon-edit"></span>',
-			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
+			array('class'=>'modal-dlg modal-dlg-wide', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 	));
 }
 
@@ -469,9 +469,9 @@ function get_supplier_data_row($supplier)
 		'messages' => empty($supplier->phone_number) ? '' : anchor("Messages/view/$supplier->person_id", '<span class="glyphicon glyphicon-phone"></span>',
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
     'add_payment' => anchor($controller_name."/add_payment/$supplier->person_id", '<span class="glyphicon glyphicon-plus"></span>',
-      array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
+      array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
 		'edit' => anchor($controller_name."/view/$supplier->person_id", '<span class="glyphicon glyphicon-edit"></span>',
-			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update')))
+			array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update')))
 	);
 }
 

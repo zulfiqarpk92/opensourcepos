@@ -348,11 +348,11 @@ class Supplier extends Person
   
   public function get_payments($supplier_id)
   {
-		$this->db->where('supplier_id', $supplier_id);
-		$this->db->from('suppliers_payments');
+    $this->db->where('supplier_id', $supplier_id);
+    $this->db->from('suppliers_payments');
     $this->db->order_by('payment_date');
-		return $this->db->get()->result();
-	}
+    return $this->db->get()->result();
+  }
   
   public function remove_payment($payment_id)
   {
