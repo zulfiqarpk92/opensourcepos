@@ -487,7 +487,7 @@ function get_items_manage_table_headers()
 
 	$headers = array(
 		array('items.item_id' => $CI->lang->line('common_id')),
-		array('item_number' => $CI->lang->line('items_item_number')),
+		// array('item_number' => $CI->lang->line('items_item_number')),
 		array('name' => $CI->lang->line('items_name')),
 		array('category' => $CI->lang->line('items_category')),
 		array('company_name' => $CI->lang->line('suppliers_company_name')),
@@ -497,17 +497,16 @@ function get_items_manage_table_headers()
 		array('quantity' => $CI->lang->line('items_quantity'))
 	);
 
-	if($CI->config->item('use_destination_based_tax') == '1')
-	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_category'), 'sortable' => FALSE);
-	}
-	else
-	{
-		$headers[] = array('tax_percents' => $CI->lang->line('items_tax_percents'), 'sortable' => FALSE);
+	// if($CI->config->item('use_destination_based_tax') == '1')
+	// {
+	// 	$headers[] = array('tax_percents' => $CI->lang->line('items_tax_category'), 'sortable' => FALSE);
+	// }
+	// else
+	// {
+	// 	$headers[] = array('tax_percents' => $CI->lang->line('items_tax_percents'), 'sortable' => FALSE);
+	// }
 
-	}
-
-	$headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE);
+	// $headers[] = array('item_pic' => $CI->lang->line('items_image'), 'sortable' => FALSE);
 
 	foreach($definition_names as $definition_id => $definition_name)
 	{
