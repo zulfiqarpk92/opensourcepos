@@ -1,8 +1,10 @@
 <?php
-// calculating ending balance by the total sale minus the total payment of customer
-$ending_balance = $customer_total - $customer_total_payments ;
-// if there is any due amount then we will later add that to ending balance too
-$balance_after_payments = $ending_balance;
+if(isset($customer)){
+    // calculating ending balance by the total sale minus the total payment of customer
+    $ending_balance = $customer_total - $customer_total_payments ;
+    // if there is any due amount then we will later add that to ending balance too
+    $balance_after_payments = $ending_balance;
+}
 ?>
 <div id="receipt_wrapper" style="font-size:<?php echo $this->config->item('receipt_font_size'); ?>px">
     <div id="receipt_header">
@@ -188,7 +190,7 @@ $balance_after_payments = $ending_balance;
             $splitpayment = explode(':', $payment['payment_type']);
             $show_giftcard_remainder |= $splitpayment[0] == $this->lang->line('sales_giftcard');
 
-            if ($payment['payment_type'] == $this->lang->line('sales_due')) {
+            if ($payment['payment_type'] == $this->lang->line('sales_due') && isset($customer)) {
                 // if it's old receipt then remove the due payment, else add it ot closing balance
                 if (!empty($is_old_receipt)) {
                     $ending_balance -= $payment['payment_amount'];
@@ -204,10 +206,12 @@ $balance_after_payments = $ending_balance;
             <?php
         }
         ?>
+        <?php if(isset($customer)){ ?>
         <tr>
             <td colspan="3" style="text-align:right;">Ending Balance</td>
             <td style="text-align:right;">+<?php echo to_currency($ending_balance); ?></td>
         </tr>
+        <?php } ?>
         <tr>
             <td colspan="3" style="text-align:right;">Cash Adjustments</td>
             <td style="text-align:right;"><?php echo to_currency($cash_refunds * -1); ?></td>
@@ -233,10 +237,12 @@ $balance_after_payments = $ending_balance;
                 style="text-align:right;"> <?php echo $this->lang->line($amount_change >= 0 ? ($only_sale_check ? 'sales_check_balance' : 'sales_change_due') : 'sales_amount_due'); ?> </td>
             <td class="total-value"><?php echo to_currency($amount_change); ?></td>
         </tr>
+        <?php if(isset($customer)){ ?>
         <tr>
             <td colspan="3" style="text-align: right">Closing Balance</td>
             <td  style="text-align: right"><?= to_currency($balance_after_payments) ?></td>
         </tr>
+        <?php } ?>
     </table>
 
     <div id="sale_return_policy">
