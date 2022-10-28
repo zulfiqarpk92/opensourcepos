@@ -126,9 +126,11 @@ class Sales extends Secure_Controller
     $item_suggestions = [];
     foreach($suggestions as $s){
       $item_suggestions[] = $s;
-      $s['label'] = $s['label'] . ' Wholesale';
-      $s['value'] = $s['value'] . 'w';
-      $item_suggestions[] = $s;
+      if(isset($s['label'])){
+        $s['label'] = $s['label'] . ' Wholesale';
+        $s['value'] = $s['value'] . 'w';
+        $item_suggestions[] = $s;
+      }
     }
 
 		echo json_encode($item_suggestions);
@@ -418,7 +420,7 @@ class Sales extends Secure_Controller
 		$quantity = ($mode == 'return') ? -$quantity : $quantity;
 		$item_location = $this->sale_lib->get_sale_location();
 
-		if($mode == 'return' && $this->Sale->is_valid_receipt($item_id_or_number_or_item_kit_or_receipt))
+		if($mode == 'return' && $this->Sale->is_valid_receipt($item_id_or_number_or_item_kit_or_receipt, FALSE))
 		{
 			$this->sale_lib->return_entire_sale($item_id_or_number_or_item_kit_or_receipt);
 		}
