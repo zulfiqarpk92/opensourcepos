@@ -482,7 +482,7 @@ class Sale extends CI_Model
 	/**
 	 * Checks if valid receipt
 	 */
-	public function is_valid_receipt(&$receipt_sale_id)
+	public function is_valid_receipt(&$receipt_sale_id, $search_by_invoice_number = TRUE)
 	{
 		if(!empty($receipt_sale_id))
 		{
@@ -493,7 +493,7 @@ class Sale extends CI_Model
 			{
 				return $this->exists($pieces[1]);
 			}
-			elseif($this->config->item('invoice_enable') == TRUE)
+			elseif($this->config->item('invoice_enable') == TRUE && $search_by_invoice_number)
 			{
 				$sale_info = $this->get_sale_by_invoice_number($receipt_sale_id);
 				if($sale_info->num_rows() > 0)
