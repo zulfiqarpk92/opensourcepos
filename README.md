@@ -10,7 +10,7 @@
 <p align="center">
 <a href="https://travis-ci.org/opensourcepos/opensourcepos" target="_blank"><img src="https://travis-ci.com/opensourcepos/opensourcepos.svg?branch=master" alt="Build Status"></a>
 <a href="https://gitter.im/opensourcepos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge" target="_blank"><img src="https://badges.gitter.im/jekkos/opensourcepos.svg" alt="Join the chat at https://gitter.im/opensourcepos"></a>
-<a href="https://badge.fury.io/gh/jekkos%2Fopensourcepos" target="_blank"><img src="https://badge.fury.io/gh/jekkos%2Fopensourcepos.svg" alt="Project Version"></a>
+<a href="https://badge.fury.io/gh/opensourcepos%2Fopensourcepos" target="_blank"><img src="https://badge.fury.io/gh/opensourcepos%2Fopensourcepos.svg" alt="Project Version"></a>
 <a href="http://translate.opensourcepos.org/engage/opensourcepos/?utm_source=widget" target="_blank"><img src="http://translate.opensourcepos.org/widgets/opensourcepos/-/svg-badge.svg" alt="Translation Status"></a>
 </p>
 
@@ -97,6 +97,8 @@ NOTE: If you're running non-release code, please make sure you always run the la
 - If the avatar pictures are not shown in items or at item save you get an error, please make sure your `public` and subdirs are assigned to the correct owner and the access permission is set to `750`.
 
 - If you install OSPOS in Docker behind a proxy that performs `ssloffloading`, you can enable the URL generated to be HTTPS instead of HTTP, by activating the environment variable `FORCE_HTTPS = 1`.
+
+- If you install OSPOS behind a proxy and OSPOS constantly drops your session, consider whitelisting the proxy IP address by setting `$config['proxy_ips'] = '<proxy ip>';` in the [main php config file](https://github.com/opensourcepos/opensourcepos/blob/master/application/config/config.php). In extreme instances, changing `$config['sess_match_ip'] = TRUE;` to `FALSE` may also help.
 
 - If you have suhosin installed and face an issue with CSRF, please make sure you read [issue #1492](https://github.com/opensourcepos/opensourcepos/issues/1492).
 

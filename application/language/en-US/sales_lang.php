@@ -1,5 +1,5 @@
 <?php
-$lang["customers_available_points"] = "Available Points";
+$lang["customers_available_points"] = "Points Available";
 $lang["rewards_package"] = "Rewards";
 $lang["rewards_remaining_balance"] = "Reward Points remaining value is ";
 $lang["sales_account_number"] = "Account #";
@@ -39,7 +39,7 @@ $lang["sales_customer_address"] = "Address";
 $lang["sales_customer_discount"] = "Discount";
 $lang["sales_customer_email"] = "Email";
 $lang["sales_customer_location"] = "Location";
-$lang["sales_customer_mailchimp_status"] = "MailChimp status";
+$lang["sales_customer_mailchimp_status"] = "MailChimp Status";
 $lang["sales_customer_optional"] = "(Required for Due Payments)";
 $lang["sales_customer_required"] = "(Required)";
 $lang["sales_customer_total"] = "Total";
