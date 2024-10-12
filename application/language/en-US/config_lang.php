@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $lang["config_address"] = "Company Address";
 $lang["config_address_required"] = "Company address is a required field.";
@@ -249,6 +249,7 @@ $lang["config_receipt_show_taxes"] = "Show Taxes";
 $lang["config_receipt_show_total_discount"] = "Show Total Discount";
 $lang["config_receipt_template"] = "Receipt Template";
 $lang["config_receiving_calculate_average_price"] = "Calc avg. Price (Receiving)";
+$lang["config_receiving_calculate_new_price"] = "Calc New Price (Receiving)";
 $lang["config_recv_invoice_format"] = "Receivings Invoice Format";
 $lang["config_register_mode_default"] = "Default Register Mode";
 $lang["config_report_an_issue"] = "Report an issue";
