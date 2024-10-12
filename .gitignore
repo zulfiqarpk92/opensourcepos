@@ -34,3 +34,5 @@ package-lock.json
 /docker/data/database/db/*
 /docker/data/certbot/conf/*
 /docker/data/ospos/app/*
+
+htdocs
