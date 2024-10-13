@@ -9,7 +9,7 @@
 				<div class='col-xs-2'>
 					<?php echo form_input('lab_category', $this->config->item('lab_category'), array('class' => 'form-control input-sm')); ?>
 				</div>
-			</div>			
+			</div>
       <div class="form-group form-group-sm">
 				<?php echo form_label($this->lang->line('config_xray_category'), 'xray_category', array('class' => 'control-label col-xs-2')); ?>
 				<div class='col-xs-2'>
@@ -118,6 +118,16 @@
 						'id' => 'receiving_calculate_average_price',
 						'value' => 'receiving_calculate_average_price',
 						'checked' => $this->config->item('receiving_calculate_average_price'))); ?>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<?php echo form_label($this->lang->line('config_receiving_calculate_new_price'), 'receiving_calculate_new_price', array('class' => 'control-label col-xs-2')); ?>
+				<div class='col-xs-1'>
+					<?php echo form_checkbox(array(
+						'name' => 'receiving_calculate_new_price',
+						'id' => 'receiving_calculate_new_price',
+						'value' => 'receiving_calculate_new_price',
+						'checked' => $this->config->item('receiving_calculate_new_price'))); ?>
 				</div>
 			</div>
 

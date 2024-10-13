@@ -274,10 +274,12 @@ class Sales extends Secure_Controller
         $item_suggestions = [];
         foreach ($suggestions as $s) {
             $item_suggestions[] = $s;
+      if(isset($s['label'])){
             $s['label'] = $s['label'] . ' Wholesale';
             $s['value'] = $s['value'] . 'w';
             $item_suggestions[] = $s;
         }
+    }
 
         echo json_encode($item_suggestions);
     }

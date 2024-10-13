@@ -61,43 +61,38 @@ class Receiving extends CI_Model
 
 	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE, $amount_tendered = 0)
 	{
-		if(count($items) == 0)
-		{
+		if (count($items) == 0) {
 			return -1;
 		}
-    if($receiving_id != -1){      
-      $this->delete($receiving_id, $employee_id, TRUE, FALSE);
-      sleep(2);
-    }
+		if ($receiving_id != -1) {
+			$this->delete($receiving_id, $employee_id, TRUE, FALSE);
+			sleep(2);
+		}
 
-    if($this->Supplier->exists($supplier_id) == FALSE){
-      $supplier_id = 0;
-    }
+		if ($this->Supplier->exists($supplier_id) == FALSE) {
+			$supplier_id = 0;
+		}
 		$receivings_data = array(
-			'receiving_time'  => date('Y-m-d H:i:s'),
-			'supplier_id'     => $supplier_id,
-			'employee_id'     => $employee_id,
-			'payment_type'    => $payment_type,
-			'comment'         => $comment,
-			'reference'       => $reference
+			'receiving_time' => date('Y-m-d H:i:s'),
+			'supplier_id' => $supplier_id,
+			'employee_id' => $employee_id,
+			'payment_type' => $payment_type,
+			'comment' => $comment,
+			'reference' => $reference
 		);
 
 		//Run these queries as a transaction, we want to make sure we do all or nothing
 		$this->db->trans_start();
 
-		if($receiving_id == -1)
-		{
-      $this->db->insert('receivings', $receivings_data);
-      $receiving_id = $this->db->insert_id();
-		}
-		else
-		{
+		if ($receiving_id == -1) {
+			$this->db->insert('receivings', $receivings_data);
+			$receiving_id = $this->db->insert_id();
+		} else {
 			$this->db->where('receiving_id', $receiving_id);
-      $this->db->update('receivings', $receivings_data);
+			$this->db->update('receivings', $receivings_data);
 		}
 
-		foreach($items as $line=>$item)
-		{
+		foreach ($items as $line => $item) {
 			$cur_item_info = $this->Item->get_info($item['item_id']);
 
 			$receivings_items_data = array(
@@ -119,56 +114,59 @@ class Receiving extends CI_Model
 
 			$items_received = $item['receiving_quantity'] != 0 ? $item['quantity'] * $item['receiving_quantity'] : $item['quantity'];
 
-      if($cur_item_info->stock_type == HAS_STOCK){
-        // update cost price, if changed AND is set in config as wanted
-        if($cur_item_info->cost_price != $item['price'] && $this->config->item('receiving_calculate_average_price') != FALSE)
-        {
-          $this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
-        }
-        elseif($item['price'] > $cur_item_info->cost_price){
-          $price_update = array(
-            'cost_price' => $item['price'],
-            'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
-          );
-          $this->Item->save($price_update, $item['item_id']);
-        }
+			if ($cur_item_info->stock_type == HAS_STOCK) {
+				// update cost price, if changed AND is set in config as wanted
+				if ($cur_item_info->cost_price != $item['price'] && $this->config->item('receiving_calculate_average_price') != FALSE) {
+					$this->Item->change_cost_price($item['item_id'], $items_received, $item['price'], $cur_item_info->cost_price);
+				} elseif ($item['price'] > $cur_item_info->cost_price) {
+					$price_update = array(
+						'cost_price' => $item['price'],
+						'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
+					);
+					$this->Item->save($price_update, $item['item_id']);
+				}elseif ($item['price'] < $cur_item_info->cost_price && $this->config->item('receiving_calculate_new_price') !== FALSE) {
+                    $price_update = array(
+                        'cost_price' => $item['price'],
+                        'unit_price' => $cur_item_info->unit_price + ($item['price'] - $cur_item_info->cost_price)
+                    );
+                    $this->Item->save($price_update, $item['item_id']);
+                }
 
-        //Update stock quantity
-        $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
-        $this->Item_quantity->save(array('quantity' => $item_quantity->quantity + $items_received, 'item_id' => $item['item_id'],
-                          'location_id' => $item['item_location']), $item['item_id'], $item['item_location']);
-  
-        $recv_remarks = 'RECV ' . $receiving_id;
-        $inv_data = array(
-          'trans_date' => date('Y-m-d H:i:s'),
-          'trans_items' => $item['item_id'],
-          'trans_user' => $employee_id,
-          'trans_location' => $item['item_location'],
-          'trans_comment' => $recv_remarks,
-          'trans_inventory' => $items_received
-        );
-  
-        $this->Inventory->insert($inv_data);
-      }
+				//Update stock quantity
+				$item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
+				$this->Item_quantity->save(array('quantity' => $item_quantity->quantity + $items_received, 'item_id' => $item['item_id'],
+					'location_id' => $item['item_location']), $item['item_id'], $item['item_location']);
+
+				$recv_remarks = 'RECV ' . $receiving_id;
+				$inv_data = array(
+					'trans_date' => date('Y-m-d H:i:s'),
+					'trans_items' => $item['item_id'],
+					'trans_user' => $employee_id,
+					'trans_location' => $item['item_location'],
+					'trans_comment' => $recv_remarks,
+					'trans_inventory' => $items_received
+				);
+
+				$this->Inventory->insert($inv_data);
+			}
 
 			$this->Attribute->copy_attribute_links($item['item_id'], 'receiving_id', $receiving_id);
 
 			// $supplier = $this->Supplier->get_info($supplier_id);
 		}
-		if($amount_tendered != null && $payment_type == 'Cash'){
-      $supplier_payment = array(
-        'supplier_id'     => $supplier_id,
-        'receiving_id'    => $receiving_id,
-        'amount_tendered' => $amount_tendered,
-        'payment_date'    => date('Y-m-d H:i:s')
-      );
-      $this->db->insert('suppliers_payments', $supplier_payment);
+		if ($amount_tendered != null && $payment_type == 'Cash') {
+			$supplier_payment = array(
+				'supplier_id' => $supplier_id,
+				'receiving_id' => $receiving_id,
+				'amount_tendered' => $amount_tendered,
+				'payment_date' => date('Y-m-d H:i:s')
+			);
+			$this->db->insert('suppliers_payments', $supplier_payment);
 		}
 
 		$this->db->trans_complete();
 
-		if($this->db->trans_status() === FALSE)
-		{
+		if ($this->db->trans_status() === FALSE) {
 			return -1;
 		}
 
@@ -219,7 +217,7 @@ class Receiving extends CI_Model
           );
           // update inventory
           $this->Inventory->insert($inv_data);
-  
+
           // update quantities
           $this->Item_quantity->change_quantity($item['item_id'], $item['item_location'], $item['quantity_purchased'] * -1);
         }
@@ -235,7 +233,7 @@ class Receiving extends CI_Model
 
 		// execute transaction
 		$this->db->trans_complete();
-	
+
 		return $this->db->trans_status();
 	}
 
@@ -248,7 +246,7 @@ class Receiving extends CI_Model
 
 		return $this->db->get();
 	}
-	
+
 	public function get_supplier($receiving_id)
 	{
 		$this->db->from('receivings');
@@ -315,7 +313,7 @@ class Receiving extends CI_Model
 		$this->db->query('CREATE TEMPORARY TABLE IF NOT EXISTS ' . $this->db->dbprefix('receivings_items_temp') .
 			' (INDEX(receiving_date), INDEX(receiving_time), INDEX(receiving_id))
 			(
-				SELECT 
+				SELECT
 					MAX(DATE(receiving_time)) AS receiving_date,
 					MAX(receiving_time) AS receiving_time,
 					receivings_items.receiving_id,
@@ -323,7 +321,7 @@ class Receiving extends CI_Model
 					MAX(item_location) AS item_location,
 					MAX(reference) AS reference,
 					MAX(payment_type) AS payment_type,
-					MAX(employee_id) AS employee_id, 
+					MAX(employee_id) AS employee_id,
 					items.item_id,
 					MAX(receivings.supplier_id) AS supplier_id,
 					MAX(quantity_purchased) AS quantity_purchased,
@@ -351,7 +349,7 @@ class Receiving extends CI_Model
 			)'
 		);
 	}
-  
+
   /**
 	 * Get number of rows for the takings (sales/manage) view
 	 */
@@ -359,7 +357,7 @@ class Receiving extends CI_Model
 	{
 		return $this->search($search, $filters, 0, 0, 'receivings.receiving_time', 'desc', TRUE);
   }
-  
+
   /**
 	 * Get the sales data for the takings (sales/manage) view
 	 */
@@ -399,7 +397,7 @@ class Receiving extends CI_Model
         SUM(receivings_items.quantity_purchased) AS items_purchased,
         supplier.company_name,
         $sale_total AS amount_due,
-        (SELECT SUM(sp.amount_tendered) FROM $payment_tbl sp WHERE sp.receiving_id = receivings.receiving_id) AS total_payment,  
+        (SELECT SUM(sp.amount_tendered) FROM $payment_tbl sp WHERE sp.receiving_id = receivings.receiving_id) AS total_payment,
         receivings.payment_type,
         receivings.comment,
         receivings.reference
@@ -439,7 +437,7 @@ class Receiving extends CI_Model
 		{
 			$this->db->where('receivings.receiving_id', $filters['receiving_id']);
     }
-    
+
 		if($filters['location_id'] != 'all')
 		{
 			// $this->db->where('sales_items.item_location', $filters['location_id']);
@@ -464,7 +462,7 @@ class Receiving extends CI_Model
 		{
 			$this->db->where('receivings.supplier_id', $filters['supplier_id']);
     }
-    
+
 		// get_found_rows case
 		if($count_only == TRUE)
 		{
