@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => "127.0.0.1",
-	'username' => "root",
-	'password' => "",
-	'database' => "ospos",
+	'hostname' => getenv('MYSQL_HOST_NAME'),
+	'username' => getenv('MYSQL_USERNAME'),
+	'password' => getenv('MYSQL_PASSWORD'),
+	'database' => getenv('MYSQL_DB_NAME'),
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'ospos_',
 	'pconnect' => FALSE,
