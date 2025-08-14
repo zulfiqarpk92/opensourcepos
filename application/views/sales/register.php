@@ -16,7 +16,15 @@ if(isset($success))
 	echo "<div class='alert alert-dismissible alert-success'>".$success."</div>";
 }
 ?>
-
+<style>
+    #cart_contents{
+        width: 100%;
+        overflow: auto;
+    }
+    .w-120{
+        min-width: 120px;
+    }
+</style>
 <div id="register_wrapper">
 
 <!-- Top register controls -->
@@ -145,8 +153,8 @@ if(isset($success))
                 if($item['item_type'] == ITEM_TEMP)
                 {
                 ?>
-                  <td><?php echo form_input(array('name'=>'item_number', 'id'=>'item_number','class'=>'form-control input-sm', 'value'=>$item['item_number'], 'tabindex'=>++$tabindex));?></td>
-                  <td style="align: center;">
+                  <td class="w-120"><?php echo form_input(array('name'=>'item_number', 'id'=>'item_number','class'=>'form-control input-sm', 'value'=>$item['item_number'], 'tabindex'=>++$tabindex));?></td>
+                  <td class="w-120" style="align: center;">
                     <?php echo form_input(array('name'=>'name','id'=>'name', 'class'=>'form-control input-sm', 'value'=>$item['name'], 'tabindex'=>++$tabindex));?>
                   </td>
                 <?php
@@ -167,13 +175,13 @@ if(isset($success))
                 if($items_module_allowed && $change_price)
                 {
                 ?>
-                  <td><?php echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
+                  <td class="w-120"><?php echo form_input(array('name'=>'price', 'class'=>'form-control input-sm', 'value'=>to_currency_no_money($item['price']), 'tabindex'=>++$tabindex, 'onClick'=>'this.select();'));?></td>
                 <?php
                 }
                 else
                 {
                 ?>
-                  <td>
+                  <td class="w-120">
                     <?php echo to_currency($item['price']); ?>
                     <?php echo form_hidden('price', to_currency_no_money($item['price'])); ?>
                   </td>
@@ -181,7 +189,7 @@ if(isset($success))
                 }
                 ?>
 
-                <td>
+                <td class="w-120">
                   <?php
                   if($item['is_serialized']==1)
                   {
@@ -195,13 +203,13 @@ if(isset($success))
                   ?>
                 </td>
 
-                <td>
+                <td class="w-120">
                   <div class="input-group">
                     <?php echo form_input(array('name'=>'discount', 'class'=>'form-control input-sm', 'value'=>$item['discount'], 'tabindex'=>++$tabindex, 'onClick'=>'this.select();')); ?>
                     <span class="input-group-btn">
                       <?php echo form_checkbox(array('id'=>'discount_toggle', 'name'=>'discount_toggle', 'value'=>1, 'data-toggle'=>"toggle",'data-size'=>'small', 'data-onstyle'=>'success', 'data-on'=>'<b>'.$this->config->item('currency_symbol').'</b>', 'data-off'=>'<b>%</b>', 'data-line'=>$line, 'checked'=>$item['discount_type'])); ?>
                     </span>
-                  </div> 
+                  </div>
                 </td>
 
                 <td>
@@ -216,7 +224,7 @@ if(isset($success))
                   }
                   ?>
                 </td>
-                
+
                 <td><a href="javascript:document.getElementById('<?php echo 'cart_'.$line ?>').submit();" title=<?php echo $this->lang->line('sales_update')?> ><span class="glyphicon glyphicon-refresh"></span></a></td>
                 </tr>
                 <tr>
@@ -488,7 +496,7 @@ if(isset($success))
 						</table>
 					<?php echo form_close(); ?>
 						<?php
-						$payment_type = $this->input->post('payment_type');							
+						$payment_type = $this->input->post('payment_type');
 						// Only show this part if the payment cover the total and in sale or return mode
 
 						if($pos_mode == '1' && $payment_type != $this->lang->line('sales_due') && !isset($customer))
@@ -498,7 +506,7 @@ if(isset($success))
 						<?php
 						}
 						?>
-						<?php							
+						<?php
 						if($pos_mode == '1' && $payment_type = $this->lang->line('sales_due') && isset($customer))
 						{
 						?>

@@ -236,12 +236,12 @@ if(isset($customer)){
         ?>
         <?php if(isset($customer)){ ?>
         <tr>
-            <td colspan="3" style="text-align:right;">Ending Balance</td>
+            <td colspan="5" style="text-align:right;">Ending Balance</td>
             <td style="text-align:right;">+<?php echo to_currency($ending_balance); ?></td>
         </tr>
         <?php } ?>
         <tr>
-      <td colspan="5" style="text-align:right;">Cash Adjustments</td>
+            <td colspan="5" style="text-align:right;">Cash Adjustments</td>
             <td style="text-align:right;"><?php echo to_currency($cash_refunds * -1); ?></td>
         </tr>
 
@@ -267,7 +267,7 @@ if(isset($customer)){
         </tr>
         <?php if(isset($customer)){ ?>
         <tr>
-            <td colspan="3" style="text-align: right">Closing Balance</td>
+            <td colspan="5" style="text-align: right">Closing Balance</td>
             <td  style="text-align: right"><?= to_currency($balance_after_payments) ?></td>
         </tr>
         <?php } ?>
