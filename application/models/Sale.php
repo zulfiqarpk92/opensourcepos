@@ -48,7 +48,7 @@ class Sale extends CI_Model
 				SELECT sales_items_taxes.sale_id AS sale_id,
 					sales_items_taxes.item_id AS item_id,
 					sales_items_taxes.line AS line,
-					SUM(CASE WHEN sales_items_taxes.tax_type = 0 THEN sales_items_taxes.item_tax_amount ELSE 0 END) AS internal_tax, 
+					SUM(CASE WHEN sales_items_taxes.tax_type = 0 THEN sales_items_taxes.item_tax_amount ELSE 0 END) AS internal_tax,
 					SUM(CASE WHEN sales_items_taxes.tax_type = 1 THEN sales_items_taxes.item_tax_amount ELSE 0 END) AS sales_tax
 				FROM ' . $this->db->dbprefix('sales_items_taxes') . ' AS sales_items_taxes
 				INNER JOIN ' . $this->db->dbprefix('sales') . ' AS sales
@@ -521,7 +521,7 @@ class Sale extends CI_Model
 
   public function add_payment($sale_id, $payment){
     $payment['sale_id'] = $sale_id;
-    $payment['payment_type'] = 'Cash';
+    $payment['payment_type'] = isset($payment['payment_type']) ? $payment['payment_type'] : 'Cash';
     $payment['cash_refund'] = 0;
     $payment['employee_id'] = $this->session->userdata('person_id') ?: 0;
     if($this->db->insert('sales_payments', $payment)){
@@ -551,7 +551,7 @@ class Sale extends CI_Model
     $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $payment_date);
     $sale_payment['payment_time'] = $date_formatter->format('Y-m-d H:i:s');
     $payment_id = $this->add_payment($sale_id, $sale_payment);
-    if($payment_id){      
+    if($payment_id){
       $due = NULL;
       foreach($payments as $p){
         if($p->payment_type == 'Due'){
@@ -569,7 +569,7 @@ class Sale extends CI_Model
         }
       }
     }
-    return $payment_id;    
+    return $payment_id;
   }
 
   public function update_payment($payment_id, $amount){
@@ -757,7 +757,7 @@ class Sale extends CI_Model
         $sale_inventory = $this->Inventory->get_sale_inventory($item['item_id'], $sale_remarks);
         $qty_diff = $item['quantity'] - $sale_inventory;
         if($qty_diff != 0){
-        
+
           // Update stock quantity if item type is a standard stock item and the sale is a standard sale
           $item_quantity = $this->Item_quantity->get_item_quantity($item['item_id'], $item['item_location']);
           $this->Item_quantity->save(array('quantity'	=> $item_quantity->quantity - $qty_diff,
@@ -781,7 +781,7 @@ class Sale extends CI_Model
             'trans_inventory'	=> -$qty_diff
           );
           $this->Inventory->insert($inv_data);
-        
+
         }
 			}
 
@@ -1476,7 +1476,7 @@ class Sale extends CI_Model
 
 		$this->db->delete('sales_payments', array('sale_id' => $sale_id));
 		$this->db->delete('sales_items_taxes', array('sale_id' => $sale_id));
-    
+
     $sale_items = $this->db->get_where('sales_items', array('sale_id' => $sale_id))->result_array();
 
     $sale_remarks = 'POS ' . $sale_id;
@@ -1489,8 +1489,8 @@ class Sale extends CI_Model
             'quantity'	  => $item_quantity->quantity + $item['quantity_purchased'],
             'item_id'		  => $item['item_id'],
             'location_id'	=> $item['item_location']
-          ), 
-          $item['item_id'], 
+          ),
+          $item['item_id'],
           $item['item_location']
         );
         $this->Inventory->delete_sale_inventory($item['item_id'], $sale_remarks);
@@ -1550,9 +1550,9 @@ class Sale extends CI_Model
 
 		$decimals = totals_decimals();
     $sale_total = '
-    CASE 
-      WHEN si.discount_type = ' . PERCENT . ' THEN si.item_unit_price * si.quantity_purchased * (1 - si.discount / 100) 
-      ELSE si.item_unit_price * si.quantity_purchased - si.discount 
+    CASE
+      WHEN si.discount_type = ' . PERCENT . ' THEN si.item_unit_price * si.quantity_purchased * (1 - si.discount / 100)
+      ELSE si.item_unit_price * si.quantity_purchased - si.discount
     END';
 
     $si = $this->db->dbprefix('sales_items') . ' si';
@@ -1560,7 +1560,7 @@ class Sale extends CI_Model
 
     $this->db->select('s.sale_id, s.sale_time');
     $this->db->select("(SELECT ROUND(SUM($sale_total), $decimals) FROM $si WHERE si.sale_id = s.sale_id) AS sale_total");
-    $this->db->select("(SELECT ROUND(IFNULL(SUM(sp.payment_amount), 0), $decimals) FROM $sp WHERE sp.sale_id = s.sale_id AND sp.payment_type = 'Cash') AS payment_total");
+    $this->db->select("(SELECT ROUND(IFNULL(SUM(sp.payment_amount), 0), $decimals) FROM $sp WHERE sp.sale_id = s.sale_id AND sp.payment_type in ('Cash','Discount')) AS payment_total");
     $this->db->select("(SELECT ROUND(IFNULL(SUM(sp.payment_amount), 0), $decimals) FROM $sp WHERE sp.sale_id = s.sale_id AND sp.payment_type = 'Due') AS balance");
     $this->db->from('sales s');
     $this->db->where('s.customer_id', $customer_id);

@@ -1,7 +1,7 @@
 <?php
 if(isset($customer)){
     // calculating ending balance by the total sale minus the total payment of customer
-    $ending_balance = $customer_total - $customer_total_payments ;
+    $ending_balance = $customer_total - $customer_total_payments - $customer_discount_payments ;
     // if there is any due amount then we will later add that to ending balance too
     $balance_after_payments = $ending_balance;
 }
@@ -163,7 +163,7 @@ if(isset($customer)){
                 <td style='text-align:right;border-top:2px solid #000000;'><?php echo to_currency($prediscount_subtotal); ?></td>
             </tr>
             <tr>
-				<td colspan="5" class="total-value"><?php echo $this->lang->line('sales_customer_discount'); ?>:</td>
+				<td colspan="5" class="total-value">Product <?php echo $this->lang->line('sales_customer_discount'); ?>:</td>
                 <td class="total-value"><?php echo to_currency($discount * -1); ?></td>
             </tr>
             <?php
@@ -225,6 +225,9 @@ if(isset($customer)){
                 }else{
                     $balance_after_payments = $ending_balance + $payment['payment_amount'];
                 }
+            }
+            if ($splitpayment['0'] === 'Discount'){
+                $splitpayment[0] = 'Bill Discount';
             }
             ?>
             <tr>

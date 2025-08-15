@@ -120,6 +120,7 @@ class Customer extends Person
 		$this->db->select('
 						SUM(sales_payments.payment_amount - sales_payments.cash_refund) AS total,
 						SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS cash_payment,
+						SUM(IF(sales_payments.payment_type = "Discount", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS discount_payment,
 						SUM(IF(sales_payments.payment_type = "Due", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS due_payment,
 						MIN(sales_payments.payment_amount - sales_payments.cash_refund) AS min,
 						MAX(sales_payments.payment_amount - sales_payments.cash_refund) AS max,
@@ -146,6 +147,7 @@ class Customer extends Person
       $stats = new stdClass;
       $stats->total = 0;
       $stats->cash_payment = 0;
+      $stats->discount_payment = 0;
       $stats->due_payment = 0;
       $stats->min = 0;
       $stats->max = 0;
@@ -394,8 +396,8 @@ class Customer extends Person
 		}
     else{
       $this->db->select('customers.*, people.*, (customers.init_balance + SUM(sales_payments.payment_amount - sales_payments.cash_refund)) AS total,
-SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS payment,
-(customers.init_balance + SUM(sales_payments.payment_amount - sales_payments.cash_refund) - SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0))) AS balance', FALSE);
+SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) + SUM(IF(sales_payments.payment_type = "Discount", sales_payments.payment_amount - sales_payments.cash_refund, 0)) AS payment,
+(customers.init_balance + SUM(sales_payments.payment_amount - sales_payments.cash_refund) - SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sales_payments.cash_refund, 0)) - SUM(IF(sales_payments.payment_type = "Discount", sales_payments.payment_amount - sales_payments.cash_refund, 0))) AS balance', FALSE);
     }
 
 		$this->db->from('customers AS customers');
@@ -430,17 +432,20 @@ SUM(IF(sales_payments.payment_type = "Cash", sales_payments.payment_amount - sal
     return $this->db->get();
 	}
 
-  public function get_payments($customer_id)
-  {
-    $this->db->from('sales_payments AS sp');
-    $this->db->select('sp.payment_id, sp.payment_time, sp.reference_code, SUM(sp.payment_amount - sp.cash_refund) AS total_paid');
-    $this->db->select('GROUP_CONCAT(CONCAT(sp.sale_id, " (", (sp.payment_amount - sp.cash_refund), ")") SEPARATOR "<br>") AS sale_id');
-    $this->db->join('sales', 'sales.sale_id = sp.sale_id');
-		$this->db->where('sales.customer_id', $customer_id);
-    $this->db->where('sp.payment_type = "Cash"');
-    $this->db->group_by('payment_time');
-    $this->db->order_by('payment_time');
-		return $this->db->get()->result();
-	}
+    public function get_payments($customer_id)
+    {
+        $this->db->from('sales_payments AS sp');
+        $this->db->select('sp.payment_id, sp.payment_time, sp.reference_code, SUM(sp.payment_amount - sp.cash_refund) AS total_paid');
+        $this->db->select('GROUP_CONCAT(CONCAT(sp.sale_id, " (", (sp.payment_amount - sp.cash_refund), ")") SEPARATOR "<br>") AS sale_id');
+        $this->db->join('sales', 'sales.sale_id = sp.sale_id');
+        $this->db->where('sales.customer_id', $customer_id);
+        $this->db->group_start();
+            $this->db->where('sp.payment_type = "Cash"');
+            $this->db->or_where('sp.payment_type = "Discount"');
+        $this->db->group_end();
+        $this->db->group_by('payment_time');
+        $this->db->order_by('payment_time');
+        return $this->db->get()->result();
+    }
 }
 ?>

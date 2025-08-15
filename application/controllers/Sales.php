@@ -164,6 +164,7 @@ class Sales extends Secure_Controller
                 $data['customer_starting_balance'] = $customer_info->init_balance;
                 $data['customer_total'] = empty($cust_stats) ? 0 : $cust_stats->total;
                 $data['customer_total_payments'] = $cust_stats->cash_payment;
+                $data['customer_discount_payments'] = $cust_stats->discount_payment;
                 $data['customer_ending_balance'] = $customer_info->init_balance + $cust_stats->total - $cust_stats->cash_payment;
             }
 
@@ -1001,6 +1002,7 @@ class Sales extends Secure_Controller
 
         // don't allow gift card to be a payment option in a sale transaction edit because it's a complex change
         $new_payment_options = $this->xss_clean($this->Sale->get_payment_options(FALSE));
+        $new_payment_options['Discount'] = 'Discount';
         $data['payment_options'] = $new_payment_options;
 
         // Set up a slightly modified list of payment types for new payment entry
@@ -1257,7 +1259,7 @@ class Sales extends Secure_Controller
         $payments = $this->Sale->get_sale_payments($sale_id)->result();
         $cash_total = 0;
         foreach ($payments as $p) {
-            if ($p->payment_type == 'Cash') {
+            if ($p->payment_type == 'Cash' || $p->payment_type == 'Discount') {
                 $cash_total += $p->payment_amount;
             }
         }
@@ -1278,8 +1280,11 @@ class Sales extends Secure_Controller
                 $sale_payment = [];
                 $sale_payment['payment_amount'] = $payment_amount;
                 $sale_payment['reference_code'] = $this->input->post('reference');
+                $sale_payment['payment_type'] = $this->input->post('payment_type');
                 $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $this->input->post('payment_date'));
                 $sale_payment['payment_time'] = $date_formatter->format('Y-m-d H:i:s');
+//                var_dump($sale_id,$sale_payment);
+//                exit();
                 $payment_id = $this->Sale->add_payment($sale_id, $sale_payment);
             }
             if ($payment_id) {
