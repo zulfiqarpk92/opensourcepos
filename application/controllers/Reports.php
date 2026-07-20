@@ -1186,6 +1186,294 @@ class Reports extends Secure_Controller
 		$this->load->view('reports/customer_details', $data);
   }
 
+	public function customer_ledger($start_date, $end_date, $customer_id)
+	{
+		$inputs = array('start_date' => $start_date, 'end_date' => $end_date, 'customer_id' => $customer_id, 'sale_type' => 'complete', 'payment_type' => 'all');
+
+		// widen to full days when datetime-range mode is configured
+		if(!empty($this->config->item('date_or_time_format')))
+		{
+			$inputs['start_date'] = $start_date . ' 00:00:00';
+			$inputs['end_date'] = $end_date . ' 23:59:59';
+		}
+
+		$this->load->model('reports/Ledger_customer');
+		$model = $this->Ledger_customer;
+
+		$model->create($inputs);
+
+		$customer_info = $this->Customer->get_info($customer_id);
+		$init_balance = $customer_info->init_balance ? floatval($customer_info->init_balance) : 0.0;
+		$opening_balance = $init_balance + $model->getOpeningBalance($customer_id, $start_date);
+
+		$sale_rows = $model->getSaleRows($inputs);
+		$payment_rows = $model->getPaymentRows($customer_id, $start_date, $end_date);
+
+		$entries = array();
+
+		foreach($sale_rows['summary'] as $row)
+		{
+			$total = floatval($row['total']);
+			$items = array();
+			foreach($sale_rows['details'][$row['sale_id']] as $drow)
+			{
+				$items[] = array(
+					'name' => $drow['name'],
+					'price' => $drow['item_unit_price'],
+					'quantity' => $drow['quantity_purchased'],
+					'total' => $drow['total']
+				);
+			}
+			$entries[] = array(
+				'timestamp' => strtotime($row['sale_time']),
+				'seq' => 'S' . $row['sale_id'],
+				'date' => to_date(strtotime($row['sale_time'])),
+				'voucher' => !empty($row['invoice_number']) ? $row['invoice_number'] : 'POS ' . $row['sale_id'],
+				'kind' => $total < 0 ? 'return' : 'invoice',
+				'description' => $row['comment'],
+				'items' => $items,
+				'debit' => $total >= 0 ? $total : 0,
+				'credit' => $total < 0 ? -$total : 0
+			);
+		}
+
+		foreach($payment_rows as $row)
+		{
+			$amount = floatval($row['payment_amount']) - floatval($row['cash_refund']);
+			$against = !empty($row['invoice_number']) ? $row['invoice_number'] : 'POS ' . $row['sale_id'];
+			$description = 'Payment: ' . $row['payment_type'] . (!empty($row['reference_code']) ? ' ' . $row['reference_code'] : '') . ' (against ' . $against . ')';
+			$entries[] = array(
+				'timestamp' => strtotime($row['payment_time']),
+				'seq' => 'P' . $row['payment_id'],
+				'date' => to_date(strtotime($row['payment_time'])),
+				'voucher' => 'PAY-' . $row['payment_id'],
+				'kind' => $amount >= 0 ? 'payment' : 'charge',
+				'description' => $description,
+				'items' => array(),
+				'debit' => $amount < 0 ? -$amount : 0,
+				'credit' => $amount >= 0 ? $amount : 0
+			);
+		}
+
+		usort($entries, function($a, $b)
+		{
+			if($a['timestamp'] == $b['timestamp'])
+			{
+				return strcmp($a['seq'], $b['seq']);
+			}
+			return ($a['timestamp'] < $b['timestamp']) ? -1 : 1;
+		});
+
+		$balance = $opening_balance;
+		foreach($entries as $key => $entry)
+		{
+			$balance += $entry['debit'] - $entry['credit'];
+			$entries[$key]['balance'] = $balance;
+		}
+
+		$aging = $this->compute_aging($model->getDebitsForAging($customer_id, $end_date), $model->getCreditsTotal($customer_id, $end_date), $end_date, $init_balance);
+
+		$data = array(
+			'ledger_type' => 'customer',
+			'title' => 'Customer Statement',
+			'start_date' => $start_date,
+			'end_date' => $end_date,
+			'person_id' => $customer_id,
+			'person_name' => trim($customer_info->first_name . ' ' . $customer_info->last_name),
+			'person_company' => $customer_info->company_name,
+			'person_phone' => $customer_info->phone_number,
+			'person_email' => $customer_info->email,
+			'person_address' => trim(implode(' , ', array_filter(array($customer_info->address_1, $customer_info->address_2, $customer_info->city, $customer_info->state, $customer_info->zip, $customer_info->country)))),
+			'opening_balance' => $opening_balance,
+			'entries' => $entries,
+			'closing_balance' => $balance,
+			'aging' => $aging
+		);
+
+		$this->load->view('reports/ledger', $data);
+	}
+
+	public function supplier_ledger($start_date, $end_date, $supplier_id)
+	{
+		$this->load->model('reports/Ledger_supplier');
+		$model = $this->Ledger_supplier;
+
+		$supplier_info = $this->Supplier->get_info($supplier_id);
+		$init_balance = $supplier_info->init_balance ? floatval($supplier_info->init_balance) : 0.0;
+		$opening_balance = $init_balance + $model->getOpeningBalance($supplier_id, $start_date);
+
+		$receiving_rows = $model->getReceivingRows($supplier_id, $start_date, $end_date);
+		$payment_rows = $model->getPaymentRows($supplier_id, $start_date, $end_date);
+
+		$entries = array();
+
+		foreach($receiving_rows['summary'] as $row)
+		{
+			$total = floatval($row['total']);
+			$items = array();
+			foreach($receiving_rows['details'][$row['receiving_id']] as $drow)
+			{
+				$items[] = array(
+					'name' => $drow['name'],
+					'price' => $drow['item_unit_price'],
+					'quantity' => $drow['quantity'],
+					'total' => $drow['total']
+				);
+			}
+			$entries[] = array(
+				'timestamp' => strtotime($row['receiving_time']),
+				'seq' => 'R' . $row['receiving_id'],
+				'date' => to_date(strtotime($row['receiving_time'])),
+				'voucher' => 'RECV ' . $row['receiving_id'] . (!empty($row['reference']) ? ' / ' . $row['reference'] : ''),
+				'kind' => $total < 0 ? 'return' : 'invoice',
+				'description' => $row['comment'],
+				'items' => $items,
+				'debit' => $total >= 0 ? $total : 0,
+				'credit' => $total < 0 ? -$total : 0
+			);
+		}
+
+		foreach($payment_rows as $row)
+		{
+			$amount = floatval($row['amount_tendered']);
+			$description = 'Payment' . (!empty($row['reference']) ? ': ' . $row['reference'] : '') . (!empty($row['comments']) ? ' - ' . $row['comments'] : '');
+			if($row['receiving_id'] > 0)
+			{
+				$description .= ' (against RECV ' . $row['receiving_id'] . ')';
+			}
+			$entries[] = array(
+				'timestamp' => strtotime($row['payment_date']),
+				'seq' => 'P' . $row['supplier_payment_id'],
+				'date' => to_date(strtotime($row['payment_date'])),
+				'voucher' => 'SPAY-' . $row['supplier_payment_id'],
+				'kind' => $amount >= 0 ? 'payment' : 'charge',
+				'description' => $description,
+				'items' => array(),
+				'debit' => $amount < 0 ? -$amount : 0,
+				'credit' => $amount >= 0 ? $amount : 0
+			);
+		}
+
+		usort($entries, function($a, $b)
+		{
+			if($a['timestamp'] == $b['timestamp'])
+			{
+				return strcmp($a['seq'], $b['seq']);
+			}
+			return ($a['timestamp'] < $b['timestamp']) ? -1 : 1;
+		});
+
+		$balance = $opening_balance;
+		foreach($entries as $key => $entry)
+		{
+			$balance += $entry['debit'] - $entry['credit'];
+			$entries[$key]['balance'] = $balance;
+		}
+
+		$aging = $this->compute_aging($model->getDebitsForAging($supplier_id, $end_date), $model->getCreditsTotal($supplier_id, $end_date), $end_date, $init_balance);
+
+		$data = array(
+			'ledger_type' => 'supplier',
+			'title' => 'Supplier Statement',
+			'start_date' => $start_date,
+			'end_date' => $end_date,
+			'person_id' => $supplier_id,
+			'person_name' => trim($supplier_info->first_name . ' ' . $supplier_info->last_name),
+			'person_company' => $supplier_info->company_name,
+			'person_phone' => $supplier_info->phone_number,
+			'person_email' => $supplier_info->email,
+			'person_address' => trim(implode(' , ', array_filter(array($supplier_info->address_1, $supplier_info->address_2, $supplier_info->city, $supplier_info->state, $supplier_info->zip, $supplier_info->country)))),
+			'opening_balance' => $opening_balance,
+			'entries' => $entries,
+			'closing_balance' => $balance,
+			'aging' => $aging
+		);
+
+		$this->load->view('reports/ledger', $data);
+	}
+
+	/**
+	 * FIFO aging: all credits (payments + returns), oldest debits first;
+	 * unpaid remainders bucketed by transaction age relative to $end_date.
+	 * Bucket sums always equal the closing balance.
+	 */
+	private function compute_aging($debits, $credits_total, $end_date, $init_balance)
+	{
+		$buckets = array('current' => 0, 'b1_30' => 0, 'b31_60' => 0, 'b60_90' => 0, 'over_90' => 0);
+		$pool = $credits_total;
+		$rows = array();
+
+		if($init_balance > 0)
+		{
+			// the starting balance is the oldest receivable
+			$rows[] = array('tdate' => '1970-01-01', 'amount' => $init_balance);
+		}
+		elseif($init_balance < 0)
+		{
+			$pool += -$init_balance;
+		}
+
+		foreach($debits as $debit)
+		{
+			if($debit['amount'] < 0)
+			{
+				// returns act as additional credit
+				$pool += -$debit['amount'];
+			}
+			else
+			{
+				$rows[] = $debit;
+			}
+		}
+
+		$end_ts = strtotime($end_date);
+		foreach($rows as $row)
+		{
+			$remaining = floatval($row['amount']);
+			if($pool > 0)
+			{
+				$applied = min($pool, $remaining);
+				$pool -= $applied;
+				$remaining -= $applied;
+			}
+			if($remaining <= 0)
+			{
+				continue;
+			}
+			$days = floor(($end_ts - strtotime($row['tdate'])) / 86400);
+			if($days <= 30)
+			{
+				$buckets['current'] += $remaining;
+			}
+			elseif($days <= 60)
+			{
+				$buckets['b1_30'] += $remaining;
+			}
+			elseif($days <= 90)
+			{
+				$buckets['b31_60'] += $remaining;
+			}
+			elseif($days <= 120)
+			{
+				$buckets['b60_90'] += $remaining;
+			}
+			else
+			{
+				$buckets['over_90'] += $remaining;
+			}
+		}
+
+		if($pool > 0)
+		{
+			// overpayment shows as negative in the current bucket
+			$buckets['current'] -= $pool;
+		}
+
+		$buckets['amount_due'] = $buckets['current'] + $buckets['b1_30'] + $buckets['b31_60'] + $buckets['b60_90'] + $buckets['over_90'];
+
+		return $buckets;
+	}
+
 	public function specific_employee_input()
 	{
 		$data = array();

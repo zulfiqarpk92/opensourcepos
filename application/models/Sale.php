@@ -651,9 +651,13 @@ class Sale extends CI_Model
 	public function save($sale_id, &$sale_status, &$items, $customer_id, $employee_id, $comment, $invoice_number,
 							$work_order_number, $quote_number, $sale_type, $payments, $dinner_table, &$sales_taxes)
 	{
+		$preserve_history = FALSE;
+
 		if($sale_id != -1)
 		{
-			$this->clear_suspended_sale_detail($sale_id);
+			// A completed sale being edited keeps its payment rows and original date
+			$preserve_history = ($this->get_sale_status($sale_id) == COMPLETED);
+			$this->clear_suspended_sale_detail($sale_id, !$preserve_history);
 		}
 
 		$tax_decimals = tax_decimals();
@@ -687,6 +691,11 @@ class Sale extends CI_Model
 		}
 		else
 		{
+			if($preserve_history)
+			{
+				// Editing must not change the original sale date
+				unset($sales_data['sale_time']);
+			}
 			$this->db->where('sale_id', $sale_id);
 			$this->db->update('sales', $sales_data);
 		}
@@ -694,6 +703,15 @@ class Sale extends CI_Model
 		$total_amount_used = 0;
 		foreach($payments as $payment_id=>$payment)
 		{
+			if($preserve_history && !empty($payment['db_payment_id']))
+			{
+				// Row already exists in sales_payments (loaded on reopen): keep it as-is,
+				// count it toward the total, and skip gift card / rewards side effects
+				// so they are not applied twice.
+				$total_amount = floatval($total_amount) + floatval($payment['payment_amount']);
+				continue;
+			}
+
 			if(!empty(strstr($payment['payment_type'], $this->lang->line('sales_giftcard'))))
 			{
 				// We have a gift card and we have to deduct the used value from the total value of the card.
@@ -1463,7 +1481,7 @@ class Sale extends CI_Model
 	 * This clears the sales detail for a given sale_id before the detail is resaved.
 	 * This allows us to reuse the same sale_id
 	 */
-	public function clear_suspended_sale_detail($sale_id)
+	public function clear_suspended_sale_detail($sale_id, $clear_payments = TRUE)
 	{
 		$this->db->trans_start();
 
@@ -1474,7 +1492,10 @@ class Sale extends CI_Model
 			$this->Dinner_table->release($dinner_table);
 		}
 
-		$this->db->delete('sales_payments', array('sale_id' => $sale_id));
+		if($clear_payments)
+		{
+			$this->db->delete('sales_payments', array('sale_id' => $sale_id));
+		}
 		$this->db->delete('sales_items_taxes', array('sale_id' => $sale_id));
 
     $sale_items = $this->db->get_where('sales_items', array('sale_id' => $sale_id))->result_array();

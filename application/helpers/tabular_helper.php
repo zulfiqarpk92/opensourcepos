@@ -389,6 +389,7 @@ function get_customer_manage_table_headers()
 		$headers[] = array('messages' => '', 'sortable' => FALSE);
 	}
 	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('ledger' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
 }
@@ -415,6 +416,8 @@ function get_customer_data_row($person)
 			array('class'=>'modal-dlg', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
     'add_payment' => anchor($controller_name."/add_payment/$person->person_id", '<span class="glyphicon glyphicon-plus"></span>',
       array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
+    'ledger' => anchor('reports/customer_ledger/' . date('Y-m-d', strtotime('-3 months')) . '/' . date('Y-m-d') . "/$person->person_id", '<span class="glyphicon glyphicon-book"></span>',
+      array('target' => '_blank', 'title' => 'Ledger')),
 		'edit' => anchor($controller_name."/view/$person->person_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>'modal-dlg modal-dlg-wide', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update'))
 	));
@@ -442,6 +445,7 @@ function get_suppliers_manage_table_headers()
 		$headers[] = array('messages' => '');
 	}
 	$headers[] = array('add_payment' => '&nbsp', 'sortable' => FALSE);
+	$headers[] = array('ledger' => '&nbsp', 'sortable' => FALSE);
 
 	return transform_headers(array_merge(get_people_manage_table_headers(true), $headers));
 }
@@ -470,6 +474,8 @@ function get_supplier_data_row($supplier)
 			array('class'=>"modal-dlg", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line('messages_sms_send'))),
     'add_payment' => anchor($controller_name."/add_payment/$supplier->person_id", '<span class="glyphicon glyphicon-plus"></span>',
       array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=> 'Add Payment')),
+    'ledger' => anchor('reports/supplier_ledger/' . date('Y-m-d', strtotime('-3 months')) . '/' . date('Y-m-d') . "/$supplier->person_id", '<span class="glyphicon glyphicon-book"></span>',
+      array('target' => '_blank', 'title' => 'Ledger')),
 		'edit' => anchor($controller_name."/view/$supplier->person_id", '<span class="glyphicon glyphicon-edit"></span>',
 			array('class'=>"modal-dlg modal-dlg-wide", 'data-btn-submit' => $CI->lang->line('common_submit'), 'title'=>$CI->lang->line($controller_name.'_update')))
 	);

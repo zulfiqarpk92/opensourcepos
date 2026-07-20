@@ -367,19 +367,24 @@ class Sale_lib
 	}
 
 	// Multiple Payments
-	public function add_payment($payment_id, $payment_amount, $cash_refund = 0)
+	public function add_payment($payment_id, $payment_amount, $cash_refund = 0, $db_payment_id = NULL)
 	{
 		$payments = $this->get_payments();
-		if(isset($payments[$payment_id]))
+
+		// Payments already stored in the DB keep their own identity so two payments
+		// of the same type are never merged and are never re-inserted on save
+		$key = ($db_payment_id !== NULL) ? $payment_id . '~' . $db_payment_id : $payment_id;
+
+		if(isset($payments[$key]))
 		{
 			//payment_method already exists, add to payment_amount
-			$payments[$payment_id]['payment_amount'] = bcadd($payments[$payment_id]['payment_amount'], $payment_amount);
-			$payments[$payment_id]['cash_refund'] = bcadd($payments[$payment_id]['cash_refund'], $cash_refund);
+			$payments[$key]['payment_amount'] = bcadd($payments[$key]['payment_amount'], $payment_amount);
+			$payments[$key]['cash_refund'] = bcadd($payments[$key]['cash_refund'], $cash_refund);
 		}
 		else
 		{
 			//add to existing array
-			$payment = array($payment_id => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => $cash_refund));
+			$payment = array($key => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => $cash_refund, 'db_payment_id' => $db_payment_id));
 
 			$payments += $payment;
 		}
@@ -393,7 +398,6 @@ class Sale_lib
 		$payments = $this->get_payments();
 		if(isset($payments[$payment_id]))
 		{
-			$payments[$payment_id]['payment_type'] = $payment_id;
 			$payments[$payment_id]['payment_amount'] = $payment_amount;
 			$this->set_payments($payments);
 
@@ -1032,7 +1036,7 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_payments($sale_id)->result() as $row)
 		{
-			$this->add_payment($row->payment_type, $row->payment_amount, $row->cash_refund);
+			$this->add_payment($row->payment_type, $row->payment_amount, $row->cash_refund, $row->payment_id);
 		}
 
 		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);

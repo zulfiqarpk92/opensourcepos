@@ -745,15 +745,27 @@ class Sales extends Secure_Controller
         $newdate = $this->input->post('date');
         $employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
 
-        $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $newdate);
+        $sale_info = $this->Sale->get_info($sale_id)->row();
+
+        // '!' resets unspecified fields (e.g. seconds) to zero instead of "now"
+        $date_formatter = date_create_from_format('!' . $this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $newdate);
 
         $sale_data = array(
-            'sale_time' => $date_formatter->format('Y-m-d H:i:s'),
             'customer_id' => $this->input->post('customer_id') != '' ? $this->input->post('customer_id') : NULL,
             'employee_id' => $this->input->post('employee_id') != '' ? $this->input->post('employee_id') : NULL,
             'comment' => $this->input->post('comment'),
             'invoice_number' => $this->input->post('invoice_number') != '' ? $this->input->post('invoice_number') : NULL
         );
+
+        // Only write sale_time when the user actually changed the date in the dialog.
+        // A failed parse or an unchanged value leaves the original timestamp untouched.
+        if ($date_formatter !== FALSE && $sale_info) {
+            $unchanged = ($newdate === to_datetime(strtotime($sale_info->sale_time)))
+                || ($date_formatter->format('Y-m-d H:i') === date('Y-m-d H:i', strtotime($sale_info->sale_time)));
+            if (!$unchanged) {
+                $sale_data['sale_time'] = $date_formatter->format('Y-m-d H:i:s');
+            }
+        }
 
         // In order to maintain tradition the only element that can change on prior payments is the payment type
         $payments = array();
