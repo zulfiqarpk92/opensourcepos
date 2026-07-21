@@ -126,7 +126,7 @@ class Sales extends Secure_Controller
         $this->load->view("sales/register", $data);
     }
 
-    private function _load_customer_data($customer_id, &$data, $stats = FALSE)
+    private function _load_customer_data($customer_id, &$data, $stats = FALSE, $exclude_sale_id = -1)
     {
         $customer_info = '';
 
@@ -160,7 +160,7 @@ class Sales extends Secure_Controller
             }
 
             if ($stats) {
-                $cust_stats = $this->Customer->get_stats($customer_id);
+                $cust_stats = $this->Customer->get_stats($customer_id, $exclude_sale_id);
                 $data['customer_starting_balance'] = $customer_info->init_balance;
                 $data['customer_total'] = empty($cust_stats) ? 0 : $cust_stats->total;
                 $data['customer_total_payments'] = $cust_stats->cash_payment;
@@ -527,6 +527,10 @@ class Sales extends Secure_Controller
 
         $data['include_hsn'] = ($this->config->item('include_hsn') == '1');
         $__time = time();
+        // Re-completing an already-completed sale keeps its original date on the receipt
+        if ($sale_id > 0 && $this->Sale->get_sale_status($sale_id) == COMPLETED) {
+            $__time = strtotime($this->Sale->get_info($sale_id)->row()->sale_time);
+        }
         $data['transaction_time'] = to_datetime($__time);
         $data['transaction_date'] = to_date($__time);
         $data['show_stock_locations'] = $this->Stock_location->show_locations('sales');
@@ -559,7 +563,9 @@ class Sales extends Secure_Controller
         $data["work_order_number"] = $work_order_number;
         $quote_number = $this->sale_lib->get_quote_number();
         $data["quote_number"] = $quote_number;
-        $customer_info = $this->_load_customer_data($customer_id, $data,TRUE);
+        // Exclude the sale being (re-)completed: on an edit it is already in the
+        // DB, and counting it here would double its due in the closing balance.
+        $customer_info = $this->_load_customer_data($customer_id, $data, TRUE, $sale_id);
         if ($customer_info != NULL) {
             $data["customer_comments"] = $customer_info->comments;
             $data['tax_id'] = $customer_info->tax_id;

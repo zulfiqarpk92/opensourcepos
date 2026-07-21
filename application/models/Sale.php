@@ -699,6 +699,28 @@ class Sale extends CI_Model
 			$this->db->where('sale_id', $sale_id);
 			$this->db->update('sales', $sales_data);
 		}
+		if($preserve_history)
+		{
+			// Reconcile: rows the user deleted in the register (typically the stale
+			// Due placeholder) must also be deleted here, or they would survive
+			// alongside the freshly computed ones. Runs before the inserts below
+			// so it cannot touch the new rows.
+			$kept_payment_ids = array();
+			foreach($payments as $payment)
+			{
+				if(!empty($payment['db_payment_id']))
+				{
+					$kept_payment_ids[] = (int) $payment['db_payment_id'];
+				}
+			}
+			$this->db->where('sale_id', $sale_id);
+			if(!empty($kept_payment_ids))
+			{
+				$this->db->where_not_in('payment_id', $kept_payment_ids);
+			}
+			$this->db->delete('sales_payments');
+		}
+
 		$total_amount = 0;
 		$total_amount_used = 0;
 		foreach($payments as $payment_id=>$payment)

@@ -19,14 +19,19 @@
 @media print {
 	.filter-bar, #print_button { display: none; }
 	#ledger-report table.ledger th, #ledger-report table.ledger td { font-size: 10px; }
+	/* the theme's print reset forces color:#000/background:transparent on * —
+	   re-assert our colors and force background printing */
+	#ledger-report, #ledger-report * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	#ledger-report table.ledger th { background: #eee !important; }
+	#ledger-report tr.credit-row td { background: #5cd65c !important; }
+	#ledger-report .closing-balance { color: #c00 !important; }
 }
 </style>
 
 <div id="ledger-report">
 
 	<div class="filter-bar form-inline print_hide">
-		From <input type="date" id="ledger_start" class="form-control input-sm" value="<?php echo $start_date; ?>">
-		To <input type="date" id="ledger_end" class="form-control input-sm" value="<?php echo $end_date; ?>">
+		<input type="text" id="daterangepicker" class="form-control input-sm" style="display:inline-block; width:auto;">
 		<button class="btn btn-primary btn-sm" id="ledger_refresh">Refresh</button>
 		<button class="btn btn-default btn-sm" id="print_button" onclick="window.print();"><span class="glyphicon glyphicon-print"></span> Print</button>
 	</div>
@@ -151,15 +156,25 @@
 </div>
 
 <script type="text/javascript">
-document.getElementById('ledger_refresh').onclick = function()
+$(document).ready(function()
 {
-	var start = document.getElementById('ledger_start').value;
-	var end = document.getElementById('ledger_end').value;
-	if(start && end)
+	// browsers use the page title as the default save-to-PDF filename
+	document.title = <?php echo json_encode(trim($person_name) . ' - ' . $start_date . ' to ' . $end_date); ?>;
+
+	<?php $this->load->view('partial/daterangepicker'); ?>
+
+	// show the range this statement was rendered with, not the picker's default
+	start_date = "<?php echo $start_date; ?>";
+	end_date = "<?php echo $end_date; ?>";
+	var picker = $('#daterangepicker').data('daterangepicker');
+	picker.setStartDate(moment(start_date));
+	picker.setEndDate(moment(end_date));
+
+	$('#ledger_refresh').click(function()
 	{
-		window.location = "<?php echo site_url('reports/' . $ledger_type . '_ledger'); ?>/" + start + "/" + end + "/<?php echo $person_id; ?>";
-	}
-};
+		window.location = "<?php echo site_url('reports/' . $ledger_type . '_ledger'); ?>/" + start_date.substr(0, 10) + "/" + end_date.substr(0, 10) + "/<?php echo $person_id; ?>";
+	});
+});
 </script>
 
 <?php $this->load->view("partial/footer"); ?>

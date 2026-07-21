@@ -223,7 +223,8 @@ if(isset($customer)){
                 if (!empty($is_old_receipt)) {
                     $ending_balance -= $payment['payment_amount'];
                 }else{
-                    $balance_after_payments = $ending_balance + $payment['payment_amount'];
+                    // accumulate: a re-completed sale can carry more than one Due row
+                    $balance_after_payments += $payment['payment_amount'];
                 }
             }
             if ($splitpayment['0'] === 'Discount'){
