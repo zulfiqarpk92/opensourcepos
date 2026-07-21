@@ -36,3 +36,6 @@ package-lock.json
 /docker/data/ospos/app/*
 
 htdocs
+*.DS_STORE
+
+docs

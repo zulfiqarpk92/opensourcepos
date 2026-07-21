@@ -126,7 +126,7 @@ class Sales extends Secure_Controller
         $this->load->view("sales/register", $data);
     }
 
-    private function _load_customer_data($customer_id, &$data, $stats = FALSE)
+    private function _load_customer_data($customer_id, &$data, $stats = FALSE, $exclude_sale_id = -1)
     {
         $customer_info = '';
 
@@ -160,7 +160,7 @@ class Sales extends Secure_Controller
             }
 
             if ($stats) {
-                $cust_stats = $this->Customer->get_stats($customer_id);
+                $cust_stats = $this->Customer->get_stats($customer_id, $exclude_sale_id);
                 $data['customer_starting_balance'] = $customer_info->init_balance;
                 $data['customer_total'] = empty($cust_stats) ? 0 : $cust_stats->total;
                 $data['customer_total_payments'] = $cust_stats->cash_payment;
@@ -527,6 +527,10 @@ class Sales extends Secure_Controller
 
         $data['include_hsn'] = ($this->config->item('include_hsn') == '1');
         $__time = time();
+        // Re-completing an already-completed sale keeps its original date on the receipt
+        if ($sale_id > 0 && $this->Sale->get_sale_status($sale_id) == COMPLETED) {
+            $__time = strtotime($this->Sale->get_info($sale_id)->row()->sale_time);
+        }
         $data['transaction_time'] = to_datetime($__time);
         $data['transaction_date'] = to_date($__time);
         $data['show_stock_locations'] = $this->Stock_location->show_locations('sales');
@@ -559,7 +563,9 @@ class Sales extends Secure_Controller
         $data["work_order_number"] = $work_order_number;
         $quote_number = $this->sale_lib->get_quote_number();
         $data["quote_number"] = $quote_number;
-        $customer_info = $this->_load_customer_data($customer_id, $data,TRUE);
+        // Exclude the sale being (re-)completed: on an edit it is already in the
+        // DB, and counting it here would double its due in the closing balance.
+        $customer_info = $this->_load_customer_data($customer_id, $data, TRUE, $sale_id);
         if ($customer_info != NULL) {
             $data["customer_comments"] = $customer_info->comments;
             $data['tax_id'] = $customer_info->tax_id;
@@ -745,15 +751,27 @@ class Sales extends Secure_Controller
         $newdate = $this->input->post('date');
         $employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
 
-        $date_formatter = date_create_from_format($this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $newdate);
+        $sale_info = $this->Sale->get_info($sale_id)->row();
+
+        // '!' resets unspecified fields (e.g. seconds) to zero instead of "now"
+        $date_formatter = date_create_from_format('!' . $this->config->item('dateformat') . ' ' . $this->config->item('timeformat'), $newdate);
 
         $sale_data = array(
-            'sale_time' => $date_formatter->format('Y-m-d H:i:s'),
             'customer_id' => $this->input->post('customer_id') != '' ? $this->input->post('customer_id') : NULL,
             'employee_id' => $this->input->post('employee_id') != '' ? $this->input->post('employee_id') : NULL,
             'comment' => $this->input->post('comment'),
             'invoice_number' => $this->input->post('invoice_number') != '' ? $this->input->post('invoice_number') : NULL
         );
+
+        // Only write sale_time when the user actually changed the date in the dialog.
+        // A failed parse or an unchanged value leaves the original timestamp untouched.
+        if ($date_formatter !== FALSE && $sale_info) {
+            $unchanged = ($newdate === to_datetime(strtotime($sale_info->sale_time)))
+                || ($date_formatter->format('Y-m-d H:i') === date('Y-m-d H:i', strtotime($sale_info->sale_time)));
+            if (!$unchanged) {
+                $sale_data['sale_time'] = $date_formatter->format('Y-m-d H:i:s');
+            }
+        }
 
         // In order to maintain tradition the only element that can change on prior payments is the payment type
         $payments = array();
