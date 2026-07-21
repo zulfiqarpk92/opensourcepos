@@ -37,3 +37,5 @@ package-lock.json
 
 htdocs
 *.DS_STORE
+
+docs
