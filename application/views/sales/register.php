@@ -602,6 +602,14 @@ if(isset($success))
 					<div class="no-gutter row">
 						<div class="form-group form-group-sm">
 							<div class="col-xs-12">
+								<?php echo form_label($this->lang->line('sales_date'), 'sale_date', array('class'=>'control-label', 'id'=>'sale_date_label', 'for'=>'sale_date')); ?>
+								<input type="date" name="sale_date" id="sale_date" class="form-control input-sm" value="<?php echo $sale_date; ?>">
+							</div>
+						</div>
+					</div>
+					<div class="no-gutter row">
+						<div class="form-group form-group-sm">
+							<div class="col-xs-12">
 								<?php echo form_label($this->lang->line('common_comments'), 'comments', array('class'=>'control-label', 'id'=>'comment_label', 'for'=>'comment')); ?>
 								<?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'2')); ?>
 							</div>
@@ -800,6 +808,11 @@ $(document).ready(function()
 	$('#comment').keyup(function()
 	{
 		$.post("<?php echo site_url($controller_name."/set_comment");?>", {comment: $('#comment').val()});
+	});
+
+	$('#sale_date').change(function()
+	{
+		$.post("<?php echo site_url($controller_name."/set_sale_date");?>", {sale_date: $('#sale_date').val()});
 	});
 
 	<?php
