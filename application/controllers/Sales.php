@@ -77,6 +77,8 @@ class Sales extends Secure_Controller
         $data['amount_change'] = $data['amount_due'] * -1;
 
         $data['comment'] = $this->sale_lib->get_comment();
+        $sale_date = $this->sale_lib->get_sale_date();
+        $data['sale_date'] = $sale_date != '' ? $sale_date : date('Y-m-d');
         $data['email_receipt'] = $this->sale_lib->is_email_receipt();
         $data['selected_payment_type'] = $this->sale_lib->get_payment_type();
         if ($customer_info && $this->config->item('customer_reward_enable') == TRUE) {
@@ -356,6 +358,11 @@ class Sales extends Secure_Controller
         $this->sale_lib->set_comment($this->input->post('comment'));
     }
 
+    public function set_sale_date()
+    {
+        $this->sale_lib->set_sale_date($this->input->post('sale_date'));
+    }
+
     public function set_invoice_number()
     {
         $this->sale_lib->set_invoice_number($this->input->post('sales_invoice_number'));
@@ -531,6 +538,12 @@ class Sales extends Secure_Controller
         if ($sale_id > 0 && $this->Sale->get_sale_status($sale_id) == COMPLETED) {
             $__time = strtotime($this->Sale->get_info($sale_id)->row()->sale_time);
         }
+        // A date picked in the register overrides the date part; the time of day is kept
+        $__picked_date = $this->sale_lib->get_sale_date();
+        if ($__picked_date != '' && strtotime($__picked_date) !== FALSE) {
+            $__time = strtotime(date('Y-m-d', strtotime($__picked_date)) . ' ' . date('H:i:s', $__time));
+        }
+        $sale_time_override = date('Y-m-d H:i:s', $__time);
         $data['transaction_time'] = to_datetime($__time);
         $data['transaction_date'] = to_date($__time);
         $data['show_stock_locations'] = $this->Stock_location->show_locations('sales');
@@ -632,7 +645,7 @@ class Sales extends Secure_Controller
                 $invoice_view = $this->config->item('invoice_type');
 
                 // Save the data to the sales table
-                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details);
+                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details, $sale_time_override);
                 $data['sale_id'] = 'POS ' . $data['sale_id_num'];
 
                 // Resort and filter cart lines for printing
@@ -671,7 +684,7 @@ class Sales extends Secure_Controller
                 $data['sale_status'] = SUSPENDED;
                 $sale_type = SALE_TYPE_WORK_ORDER;
 
-                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details);
+                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details, $sale_time_override);
                 $this->sale_lib->set_suspended_id($data['sale_id_num']);
 
                 $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
@@ -702,7 +715,7 @@ class Sales extends Secure_Controller
                 $data['sale_status'] = SUSPENDED;
                 $sale_type = SALE_TYPE_QUOTE;
 
-                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details);
+                $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details, $sale_time_override);
                 $this->sale_lib->set_suspended_id($data['sale_id_num']);
 
                 $data['cart'] = $this->sale_lib->sort_and_filter_cart($data['cart']);
@@ -724,7 +737,7 @@ class Sales extends Secure_Controller
                 $sale_type = SALE_TYPE_POS;
             }
 
-            $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details);
+            $data['sale_id_num'] = $this->Sale->save($sale_id, $data['sale_status'], $data['cart'], $customer_id, $employee_id, $data['comments'], $invoice_number, $work_order_number, $quote_number, $sale_type, $data['payments'], $data['dinner_table'], $tax_details, $sale_time_override);
 
             $data['sale_id'] = 'POS ' . $data['sale_id_num'];
 

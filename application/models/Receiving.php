@@ -59,7 +59,7 @@ class Receiving extends CI_Model
 		return $this->db->update('receivings', $receiving_data);
 	}
 
-	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE, $amount_tendered = 0)
+	public function save($items, $supplier_id, $employee_id, $comment, $reference, $payment_type, $receiving_id = FALSE, $amount_tendered = 0, $receiving_time_override = NULL)
 	{
 		if (count($items) == 0) {
 			return -1;
@@ -73,7 +73,7 @@ class Receiving extends CI_Model
 			$supplier_id = 0;
 		}
 		$receivings_data = array(
-			'receiving_time' => date('Y-m-d H:i:s'),
+			'receiving_time' => $receiving_time_override != NULL ? $receiving_time_override : date('Y-m-d H:i:s'),
 			'supplier_id' => $supplier_id,
 			'employee_id' => $employee_id,
 			'payment_type' => $payment_type,
@@ -88,6 +88,10 @@ class Receiving extends CI_Model
 			$this->db->insert('receivings', $receivings_data);
 			$receiving_id = $this->db->insert_id();
 		} else {
+			if ($receiving_time_override == NULL) {
+				// re-saving an edited receiving must keep its original date
+				unset($receivings_data['receiving_time']);
+			}
 			$this->db->where('receiving_id', $receiving_id);
 			$this->db->update('receivings', $receivings_data);
 		}

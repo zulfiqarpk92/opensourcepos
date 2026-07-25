@@ -649,7 +649,7 @@ class Sale extends CI_Model
 	 * The sales_taxes variable needs to be initialized to an empty array before calling
 	 */
 	public function save($sale_id, &$sale_status, &$items, $customer_id, $employee_id, $comment, $invoice_number,
-							$work_order_number, $quote_number, $sale_type, $payments, $dinner_table, &$sales_taxes)
+							$work_order_number, $quote_number, $sale_type, $payments, $dinner_table, &$sales_taxes, $sale_time_override = NULL)
 	{
 		$preserve_history = FALSE;
 
@@ -668,7 +668,7 @@ class Sale extends CI_Model
 		}
 
 		$sales_data = array(
-			'sale_time'			=> date('Y-m-d H:i:s'),
+			'sale_time'			=> $sale_time_override != NULL ? $sale_time_override : date('Y-m-d H:i:s'),
 			'customer_id'		=> $this->Customer->exists($customer_id) ? $customer_id : NULL,
 			'employee_id'		=> $employee_id,
 			'comment'			=> $comment,
@@ -691,7 +691,7 @@ class Sale extends CI_Model
 		}
 		else
 		{
-			if($preserve_history)
+			if($preserve_history && $sale_time_override == NULL)
 			{
 				// Editing must not change the original sale date
 				unset($sales_data['sale_time']);

@@ -122,6 +122,24 @@ class Receiving_lib
 	{
 		$this->CI->session->unset_userdata('recv_comment');
 	}
+
+	// Operator-picked transaction date (Y-m-d); empty means "use the default"
+	public function get_receiving_date()
+	{
+		$date = $this->CI->session->userdata('recv_date');
+
+		return empty($date) ? '' : $date;
+	}
+
+	public function set_receiving_date($date)
+	{
+		$this->CI->session->set_userdata('recv_date', $date);
+	}
+
+	public function clear_receiving_date()
+	{
+		$this->CI->session->unset_userdata('recv_date');
+	}
    
 	public function get_reference()
 	{
@@ -375,6 +393,7 @@ class Receiving_lib
 		$this->set_supplier($this->CI->Receiving->get_supplier($receiving_id)->person_id);
 		$this->set_reference($this->CI->Receiving->get_info($receiving_id)->row()->reference);
 		$this->set_comment($this->CI->Receiving->get_info($receiving_id)->row()->comment);
+		$this->set_receiving_date(date('Y-m-d', strtotime($this->CI->Receiving->get_info($receiving_id)->row()->receiving_time)));
 	}
 
 	public function clear_all()
@@ -384,6 +403,7 @@ class Receiving_lib
 		$this->empty_cart();
 		$this->remove_supplier();
 		$this->clear_comment();
+		$this->clear_receiving_date();
 		$this->clear_reference();
 	}
 

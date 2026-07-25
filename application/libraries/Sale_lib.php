@@ -177,6 +177,24 @@ class Sale_lib
 		$this->CI->session->unset_userdata('sales_comment');
 	}
 
+	// Operator-picked transaction date (Y-m-d); empty means "use the default"
+	public function get_sale_date()
+	{
+		$date = $this->CI->session->userdata('sales_date');
+
+		return empty($date) ? '' : $date;
+	}
+
+	public function set_sale_date($date)
+	{
+		$this->CI->session->set_userdata('sales_date', $date);
+	}
+
+	public function clear_sale_date()
+	{
+		$this->CI->session->unset_userdata('sales_date');
+	}
+
 	public function get_invoice_number()
 	{
 		return $this->CI->session->userdata('sales_invoice_number');
@@ -1060,6 +1078,7 @@ class Sale_lib
     }
 		$this->set_invoice_number($this->CI->Sale->get_invoice_number($sale_id));
 		$this->set_comment($this->CI->Sale->get_comment($sale_id));
+		$this->set_sale_date(date('Y-m-d', strtotime($this->CI->Sale->get_info($sale_id)->row()->sale_time)));
 		$this->set_dinner_table($this->CI->Sale->get_dinner_table($sale_id));
 		$this->CI->session->set_userdata('sale_id', $sale_id);
 	}
@@ -1075,6 +1094,7 @@ class Sale_lib
 		$this->clear_table();
 		$this->empty_cart();
 		$this->clear_comment();
+		$this->clear_sale_date();
 		$this->clear_email_receipt();
 		$this->clear_invoice_number();
 		$this->clear_quote_number();

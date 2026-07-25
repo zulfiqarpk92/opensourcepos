@@ -361,6 +361,8 @@ if (isset($success))
 				?>
 					<?php echo form_open($controller_name."/complete", array('id'=>'finish_receiving_form', 'class'=>'form-horizontal')); ?>
 						<div class="form-group form-group-sm">
+							<label id="receiving_date_label" for="receiving_date"><?php echo $this->lang->line('receivings_date'); ?></label>
+							<input type="date" name="receiving_date" id="receiving_date" class="form-control input-sm" value="<?php echo $receiving_date; ?>">
 							<label id="comment_label" for="comment"><?php echo $this->lang->line('common_comments'); ?></label>
 							<?php echo form_textarea(array('name'=>'comment', 'id'=>'comment', 'class'=>'form-control input-sm', 'value'=>$comment, 'rows'=>'4'));?>
 							<div id="payment_details" >
@@ -444,9 +446,14 @@ $(document).ready(function()
 		$(this).attr('value',"<?php echo $this->lang->line('sales_start_typing_item_name'); ?>");
 	});
 
-	$('#comment').keyup(function() 
+	$('#comment').keyup(function()
 	{
 		$.post('<?php echo site_url($controller_name."/set_comment");?>', {comment: $('#comment').val()});
+	});
+
+	$('#receiving_date').change(function()
+	{
+		$.post('<?php echo site_url($controller_name."/set_receiving_date");?>', {receiving_date: $('#receiving_date').val()});
 	});
 
 	$('#recv_reference').keyup(function() 
