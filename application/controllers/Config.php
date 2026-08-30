@@ -291,7 +291,8 @@ class Config extends Secure_Controller
 			'default_receivings_discount_type' => $this->input->post('default_receivings_discount_type') != NULL,
 			'default_receivings_discount' => $this->input->post('default_receivings_discount'),
 			'enforce_privacy' => $this->input->post('enforce_privacy'),
-			'receiving_calculate_average_price' => $this->input->post('receiving_calculate_average_price') != NULL,
+			'receiving_calculate_average_price' => !is_null($this->input->post('receiving_calculate_average_price')),
+			'receiving_calculate_new_price' => !is_null($this->input->post('receiving_calculate_new_price')),
 			'lines_per_page' => $this->input->post('lines_per_page'),
 			'notify_horizontal_position' => $this->input->post('notify_horizontal_position'),
 			'notify_vertical_position' => $this->input->post('notify_vertical_position'),
@@ -1009,7 +1010,7 @@ class Config extends Secure_Controller
         {
           ob_end_clean();
         }
-  
+
         force_download($file_name, $backup);
       }
 		}

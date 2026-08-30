@@ -177,6 +177,24 @@ class Sale_lib
 		$this->CI->session->unset_userdata('sales_comment');
 	}
 
+	// Operator-picked transaction date (Y-m-d); empty means "use the default"
+	public function get_sale_date()
+	{
+		$date = $this->CI->session->userdata('sales_date');
+
+		return empty($date) ? '' : $date;
+	}
+
+	public function set_sale_date($date)
+	{
+		$this->CI->session->set_userdata('sales_date', $date);
+	}
+
+	public function clear_sale_date()
+	{
+		$this->CI->session->unset_userdata('sales_date');
+	}
+
 	public function get_invoice_number()
 	{
 		return $this->CI->session->userdata('sales_invoice_number');
@@ -367,19 +385,24 @@ class Sale_lib
 	}
 
 	// Multiple Payments
-	public function add_payment($payment_id, $payment_amount, $cash_refund = 0)
+	public function add_payment($payment_id, $payment_amount, $cash_refund = 0, $db_payment_id = NULL)
 	{
 		$payments = $this->get_payments();
-		if(isset($payments[$payment_id]))
+
+		// Payments already stored in the DB keep their own identity so two payments
+		// of the same type are never merged and are never re-inserted on save
+		$key = ($db_payment_id !== NULL) ? $payment_id . '~' . $db_payment_id : $payment_id;
+
+		if(isset($payments[$key]))
 		{
 			//payment_method already exists, add to payment_amount
-			$payments[$payment_id]['payment_amount'] = bcadd($payments[$payment_id]['payment_amount'], $payment_amount);
-			$payments[$payment_id]['cash_refund'] = bcadd($payments[$payment_id]['cash_refund'], $cash_refund);
+			$payments[$key]['payment_amount'] = bcadd($payments[$key]['payment_amount'], $payment_amount);
+			$payments[$key]['cash_refund'] = bcadd($payments[$key]['cash_refund'], $cash_refund);
 		}
 		else
 		{
 			//add to existing array
-			$payment = array($payment_id => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => $cash_refund));
+			$payment = array($key => array('payment_type' => $payment_id, 'payment_amount' => $payment_amount, 'cash_refund' => $cash_refund, 'db_payment_id' => $db_payment_id));
 
 			$payments += $payment;
 		}
@@ -393,7 +416,6 @@ class Sale_lib
 		$payments = $this->get_payments();
 		if(isset($payments[$payment_id]))
 		{
-			$payments[$payment_id]['payment_type'] = $payment_id;
 			$payments[$payment_id]['payment_amount'] = $payment_amount;
 			$this->set_payments($payments);
 
@@ -1032,7 +1054,7 @@ class Sale_lib
 
 		foreach($this->CI->Sale->get_sale_payments($sale_id)->result() as $row)
 		{
-			$this->add_payment($row->payment_type, $row->payment_amount, $row->cash_refund);
+			$this->add_payment($row->payment_type, $row->payment_amount, $row->cash_refund, $row->payment_id);
 		}
 
 		$this->set_customer($this->CI->Sale->get_customer($sale_id)->person_id);
@@ -1056,6 +1078,7 @@ class Sale_lib
     }
 		$this->set_invoice_number($this->CI->Sale->get_invoice_number($sale_id));
 		$this->set_comment($this->CI->Sale->get_comment($sale_id));
+		$this->set_sale_date(date('Y-m-d', strtotime($this->CI->Sale->get_info($sale_id)->row()->sale_time)));
 		$this->set_dinner_table($this->CI->Sale->get_dinner_table($sale_id));
 		$this->CI->session->set_userdata('sale_id', $sale_id);
 	}
@@ -1071,6 +1094,7 @@ class Sale_lib
 		$this->clear_table();
 		$this->empty_cart();
 		$this->clear_comment();
+		$this->clear_sale_date();
 		$this->clear_email_receipt();
 		$this->clear_invoice_number();
 		$this->clear_quote_number();

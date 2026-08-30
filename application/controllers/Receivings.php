@@ -165,6 +165,11 @@ class Receivings extends Secure_Controller
 		$this->receiving_lib->set_comment($this->input->post('comment'));
 	}
 
+	public function set_receiving_date()
+	{
+		$this->receiving_lib->set_receiving_date($this->input->post('receiving_date'));
+	}
+
 	public function set_print_after_sale()
 	{
 		$this->receiving_lib->set_print_after_sale($this->input->post('recv_print_after_sale'));
@@ -298,7 +303,20 @@ class Receivings extends Secure_Controller
     $receiving_id = $this->receiving_lib->get_receiving_id();
 		$data['cart'] = $this->receiving_lib->get_cart();
 		$data['total'] = $this->receiving_lib->get_total();
-		$data['transaction_time'] = to_datetime(time());
+		$__time = time();
+		// Re-completing an existing receiving keeps its original date on the receipt
+		if($receiving_id > 0 && $this->Receiving->exists($receiving_id))
+		{
+			$__time = strtotime($this->Receiving->get_info($receiving_id)->row()->receiving_time);
+		}
+		// A date picked in the register overrides the date part; the time of day is kept
+		$__picked_date = $this->receiving_lib->get_receiving_date();
+		if($__picked_date != '' && strtotime($__picked_date) !== FALSE)
+		{
+			$__time = strtotime(date('Y-m-d', strtotime($__picked_date)) . ' ' . date('H:i:s', $__time));
+		}
+		$receiving_time_override = date('Y-m-d H:i:s', $__time);
+		$data['transaction_time'] = to_datetime($__time);
 		$data['mode'] = $this->receiving_lib->get_mode();
 		$data['comment'] = $this->receiving_lib->get_comment();
 		$data['reference'] = $this->receiving_lib->get_reference();
@@ -337,7 +355,7 @@ class Receivings extends Secure_Controller
 		}
 		
 		//SAVE receiving to database
-		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $receiving_id, $data['amount_tendered']);
+		$data['receiving_id'] = 'RECV ' . $this->Receiving->save($data['cart'], $supplier_id, $employee_id, $data['comment'], $data['reference'], $data['payment_type'], $receiving_id, $data['amount_tendered'], $receiving_time_override);
 
 		$data = $this->xss_clean($data);
 
@@ -447,6 +465,8 @@ class Receivings extends Secure_Controller
 		$data['total'] = $this->receiving_lib->get_total();
 		$data['items_module_allowed'] = $this->Employee->has_grant('items', $this->Employee->get_logged_in_employee_info()->person_id);
 		$data['comment'] = $this->receiving_lib->get_comment();
+		$receiving_date = $this->receiving_lib->get_receiving_date();
+		$data['receiving_date'] = $receiving_date != '' ? $receiving_date : date('Y-m-d');
 		$data['reference'] = $this->receiving_lib->get_reference();
 		$data['payment_options'] = $this->Receiving->get_payment_options();
 
@@ -462,14 +482,14 @@ class Receivings extends Secure_Controller
 			$data['supplier_address'] = $supplier_info->address_1;
 			if(!empty($supplier_info->zip) or !empty($supplier_info->city))
 			{
-				$data['supplier_location'] = $supplier_info->zip . ' ' . $supplier_info->city;				
+				$data['supplier_location'] = $supplier_info->zip . ' ' . $supplier_info->city;
 			}
 			else
 			{
 				$data['supplier_location'] = '';
 			}
 		}
-		
+
 		$data['print_after_sale'] = $this->receiving_lib->is_print_after_sale();
 
 		$data = $this->xss_clean($data);
