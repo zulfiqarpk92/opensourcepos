@@ -41,3 +41,5 @@ $lang["module_taxes"] = "Taxes";
 $lang["module_taxes_desc"] = "Configure Sales Taxes.";
 $lang["module_labors"] = 'Labors';
 $lang["module_labors_desc"] = 'Add, Update, Delete, and Search Labors.';
+$lang["module_warranties"] = "Warranties";
+$lang["module_warranties_desc"] = "Track items sent to vendors for warranty repair and their return status.";

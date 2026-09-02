@@ -966,4 +966,85 @@ function get_cash_up_data_row($cash_up)
 		)
 	);
 }
+
+/*
+Get the header for the warranties tabular view
+*/
+function get_warranties_manage_table_headers()
+{
+	$CI =& get_instance();
+
+	$headers = array(
+		array('warranty_id' => $CI->lang->line('warranties_warranty_id')),
+		array('serial_number' => $CI->lang->line('warranties_serial_number')),
+		array('item_name' => $CI->lang->line('warranties_item')),
+		array('customer_name' => $CI->lang->line('warranties_customer')),
+		array('supplier_name' => $CI->lang->line('warranties_supplier')),
+		array('sent_date' => $CI->lang->line('warranties_sent_date')),
+		array('received_date' => $CI->lang->line('warranties_received_date')),
+		array('status' => $CI->lang->line('warranties_status')),
+		array('additional_cost' => $CI->lang->line('warranties_additional_cost')),
+		array('issue_description' => $CI->lang->line('warranties_issue_description')),
+		array('created_by' => $CI->lang->line('warranties_employee')),
+		array('receive' => '&nbsp', 'sortable' => FALSE)
+	);
+
+	return transform_headers($headers);
+}
+
+/*
+Gets the html data row for a warranty claim
+*/
+function get_warranty_data_row($warranty)
+{
+	$CI =& get_instance();
+
+	$controller_name = strtolower(get_class($CI));
+
+	$status_classes = array(
+		'sent' => 'label-info',
+		'fulfilled' => 'label-success',
+		'rejected' => 'label-danger',
+		'partial' => 'label-warning'
+	);
+
+	$status_class = isset($status_classes[$warranty->status]) ? $status_classes[$warranty->status] : 'label-default';
+	$status_label = $CI->lang->line('warranties_status_' . $warranty->status);
+	if(empty($status_label))
+	{
+		$status_label = ucfirst($warranty->status);
+	}
+
+	$received_date = '';
+	if(!empty($warranty->received_date) && $warranty->received_date != '0000-00-00 00:00:00')
+	{
+		$received_date = to_datetime(strtotime($warranty->received_date));
+	}
+
+	$receive = '';
+	if($warranty->status == 'sent')
+	{
+		$receive = anchor($controller_name . "/view/$warranty->warranty_id", '<span class="glyphicon glyphicon-log-in"></span>',
+			array('class' => 'modal-dlg modal-dlg-wide', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line('warranties_receive'))
+		);
+	}
+
+	return array(
+		'warranty_id' => $warranty->warranty_id,
+		'serial_number' => $CI->security->xss_clean($warranty->serial_number),
+		'item_name' => $CI->security->xss_clean($warranty->item_name),
+		'customer_name' => $CI->security->xss_clean(trim((string)$warranty->customer_name)),
+		'supplier_name' => $CI->security->xss_clean($warranty->supplier_name),
+		'sent_date' => !empty($warranty->sent_date) ? to_datetime(strtotime($warranty->sent_date)) : '',
+		'received_date' => $received_date,
+		'status' => '<span class="label ' . $status_class . '">' . $status_label . '</span>',
+		'additional_cost' => to_currency($warranty->additional_cost),
+		'issue_description' => $CI->security->xss_clean($warranty->issue_description),
+		'created_by' => $CI->security->xss_clean($warranty->created_by),
+		'receive' => $receive,
+		'edit' => anchor($controller_name . "/view/$warranty->warranty_id", '<span class="glyphicon glyphicon-edit"></span>',
+			array('class' => 'modal-dlg modal-dlg-wide', 'data-btn-submit' => $CI->lang->line('common_submit'), 'title' => $CI->lang->line($controller_name . '_update'))
+		)
+	);
+}
 ?>

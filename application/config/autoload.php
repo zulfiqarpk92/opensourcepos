@@ -155,6 +155,7 @@ $autoload['model'] = array(
 	'Rewards',
 	'Expense_category',
 	'Expense',
+	'Warranty',
 	'Cashup',
 	'Attribute',
 	'Tax',
