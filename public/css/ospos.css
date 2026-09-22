@@ -1,191 +1,182 @@
-html, body
-{
-	height: 100%;
+* {
+    margin: 0;
+    padding: 0;
 }
 
-a.none
-{
-	text-decoration: none;
+html,
+body {
+    height: 100%;
 }
 
-.topbar
-{
-	color: #eee;
-	font-size: 12px;
-	background: #182735;
-	padding: 0.2em;
+a.none {
+    text-decoration: none;
 }
 
-.navbar
-{
-	border-radius: 0;
+.topbar {
+    color: #eee;
+    font-size: 12px;
+    background: #182735;
+    padding: 0.2em;
 }
 
-.navbar-default .navbar-nav > .active > a, 
-.navbar-default .navbar-nav > .active > a:hover, 
-.navbar-default .navbar-nav > .active > a:focus
-{
-	color: #2C3E50;
-	background-color: #FFFFFF;
+/* Add container-xxl width from Bootstrap 5 */
+@media (min-width: 1400px) {
+    .container {
+        width: 1320px;
+    }
 }
 
-.jumbotron.push-spaces
-{
-	margin:0; /*add this*/
+.navbar {
+    border-radius: 0;
 }
 
-.navbar .menu-icon
-{
-	text-align: center;
-	font-size: 12px;
+.tab-pane {
+    padding-top: 10px;
 }
 
-.navbar .menu-icon img
-{
-	width: 24px;
+.navbar-default .navbar-nav>.active>a,
+.navbar-default .navbar-nav>.active>a:hover,
+.navbar-default .navbar-nav>.active>a:focus {
+    color: #2C3E50;
+    background-color: #FFFFFF;
 }
 
-.wrapper
-{
-	font-size: 13px;
+.jumbotron.push-spaces {
+    margin: 0; /* Add this */
 }
 
-#title_bar
-{
-	position: relative;
-	width: 100%;
-	height: 3em;
+.navbar .menu-icon {
+    text-align: center;
+    font-size: 12px;
 }
 
-#page_title
-{
-	font-size: 22px;
-	font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: 400;
+.navbar .menu-icon img {
+    width: 24px;
 }
 
-#page_subtitle
-{
-	margin-bottom: 0.5em;
-	font-size: 16px;
-	font-weight: bold;
-	text-align: center;
+.wrapper {
+    font-size: 13px;
 }
 
-#home_module_list, #office_module_list
-{
-	position: relative;
-	padding: 2em 0;
-	text-align: center;
+#title_bar {
+    position: relative;
+    width: 100%;
+    height: 3em;
 }
 
-.module_item
-{
-	min-width: 7em;
-	display: inline-block;
-	text-align: center;
+#page_title {
+    font-size: 22px;
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400;
 }
 
-.module_item a
-{
-	display: block;
+#page_subtitle {
+    margin-bottom: 0.5em;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
 }
 
-#config_wrapper
-{
-	text-align: center;
+#home_module_list,
+#office_module_list {
+    position: relative;
+    padding: 2em 0;
+    text-align: center;
 }
 
-#config_info
-{
-	text-align: left;
+.module_item {
+    min-width: 7em;
+    display: inline-block;
+    text-align: center;
 }
 
-#config_info .wide
-{
-	width: 30%;
+.module_item a {
+    display: block;
 }
 
-#integrations_header
-{
-	margin:10px 0;
-	text-align:center;
-	font-size:1.4em;
-	font-weight:normal;
-	padding:10px 0	
+#config_wrapper {
+    text-align: center;
 }
 
-#footer
-{
-	margin-top: 5em;
-	position: relative;
-	text-align: center;
-	font-size: 11px;
-	color: #777777;
-	clear: both;
+#config_info {
+    text-align: left;
 }
 
-a.rollover img
-{
-	padding: 3px;	
+#config_info .wide {
+    width: 30%;
 }
 
-#filters.btn-group
-{
-	vertical-align: none;
+#integrations_header {
+    margin: 10px 0;
+    text-align: center;
+    font-size: 1.4em;
+    font-weight: normal;
+    padding: 10px 0
 }
 
-button.btn.dropdown-toggle.btn-sm
-{
-	background-color: white;
-	color: black;
-	border: 2px solid #dce4ec;
+#footer {
+    margin-top: 5em;
+    position: relative;
+    text-align: center;
+    font-size: 11px;
+    color: #777777;
+    clear: both;
 }
 
-.dropdown-menu
-{
-	font-size: 13px;
+a.rollover img {
+    padding: 3px;
 }
 
-.bootstrap-tagsinput
-{
-	background-color: white;
-	color: black;
-	border: 2px solid #dce4ec;
-	box-shadow: none;
+#filters.btn-group {
+    vertical-align: none;
 }
 
-label.required
-{
-	color:red;
+button.btn.dropdown-toggle.btn-sm {
+    background-color: white;
+    color: black;
+    border: 2px solid #dce4ec;
 }
 
-@media (min-width: 768px)
-{	
-	.navbar-nav > li > a
-	{
-		padding: 10px 10px 9px;
-	}
-
-	.modal-dlg .modal-dialog
-	{
-		width: 500px;
-	}
-
-	.modal-dlg-wide .modal-dialog
-	{
-		width: 750px;
-	}
+.dropdown-menu {
+    font-size: 13px;
 }
 
-.modal-body
-{
-	max-height: calc(100vh - 212px);
-	overflow-y: auto;
+.bootstrap-tagsinput {
+    background-color: white;
+    color: black;
+    border: 2px solid #dce4ec;
+    box-shadow: none;
 }
 
-.no-gutter [class*="-1"]
-{
-	padding-right:0;
-	padding-left: 0;
+label.required {
+    color: red;
+}
+
+@media (min-width: 768px) {
+    .navbar-nav>li>a {
+        padding: 10px 10px 9px;
+    }
+
+    .modal-dlg .modal-dialog {
+        width: 500px;
+    }
+
+    .modal-dlg-wide .modal-dialog {
+        width: 750px;
+    }
+}
+
+.modal-body {
+    max-height: calc(100vh - 212px);
+    overflow-y: auto;
+}
+
+.no-gutter [class*="-1"] {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+/* Recreate font-monospace class from Bootstrap 5 */
+.font-monospace {
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }

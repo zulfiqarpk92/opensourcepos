@@ -1,6 +1,10 @@
-[unreleased]: https://github.com/opensourcepos/opensourcepos/compare/3.3.8...HEAD
-[3.3.7]: https://github.com/opensourcepos/opensourcepos/compare/3.3.7...3.3.8
-[3.3.6]: https://github.com/opensourcepos/opensourcepos/compare/3.3.6...3.3.7
+[unreleased]: https://github.com/opensourcepos/opensourcepos/compare/3.4.1...HEAD
+[3.4.1]: https://github.com/opensourcepos/opensourcepos/compare/3.4.0...3.4.1
+[3.4.0]: https://github.com/opensourcepos/opensourcepos/compare/3.3.9...3.4.0
+[3.3.9]: https://github.com/opensourcepos/opensourcepos/compare/3.3.8...3.3.9
+[3.3.8]: https://github.com/opensourcepos/opensourcepos/compare/3.3.7...3.3.8
+[3.3.7]: https://github.com/opensourcepos/opensourcepos/compare/3.3.6...3.3.7
+[3.3.6]: https://github.com/opensourcepos/opensourcepos/compare/3.3.5...3.3.6
 [3.3.5]: https://github.com/opensourcepos/opensourcepos/compare/3.3.4...3.3.5
 [3.3.4]: https://github.com/opensourcepos/opensourcepos/compare/3.3.3...3.3.4
 [3.3.3]: https://github.com/opensourcepos/opensourcepos/compare/3.3.2...3.3.3
@@ -20,35 +24,77 @@
 [2.3.4]: https://github.com/opensourcepos/opensourcepos/compare/2.3.3...2.3.4
 [2.3.3]: https://github.com/opensourcepos/opensourcepos/compare/2.3.2...2.3.3
 [2.3.2]: https://github.com/opensourcepos/opensourcepos/compare/2.3.1...2.3.2
-[2.3.1]: https://github.com/opensourcepos/opensourcepos/compare/2.3.0...2.3.1
-[2.3.0]: https://github.com/opensourcepos/opensourcepos/compare/2.2.2...2.3.0
+[2.3.1]: https://github.com/opensourcepos/opensourcepos/compare/2.3...2.3.1
+[2.3.0]: https://github.com/opensourcepos/opensourcepos/compare/2.2.2...2.3
 
 # Changelog
 
-All notable changes to this project will be documented here.
+All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-List of changes in the `master` branch.
+## [3.4.1] - 2025-06-05
+- Feature: PSR-12 Compliant Indentation by @objecttothis in ([#4196](https://github.com/opensourcepos/opensourcepos/pull/4196))
+- Add .env to dist zip by @jekkos in ([#4199](https://github.com/opensourcepos/opensourcepos/pull/4199))
+- Add CI4 coding standards linter ([#3708](https://github.com/opensourcepos/opensourcepos/issues/3708)) by @jekkos in ([#4198](https://github.com/opensourcepos/opensourcepos/pull/4198))
+- Bump canvg from 3.0.10 to 3.0.11 by @dependabot in ([#4189](https://github.com/opensourcepos/opensourcepos/pull/4189))
+- Bump jspdf and jspdf-autotable by @dependabot in ([#4190](https://github.com/opensourcepos/opensourcepos/pull/4190))
+- Feature bump ci to 4.6.0 by @objecttothis in ([#4197](https://github.com/opensourcepos/opensourcepos/pull/4197))
+- Add Kurdish language option to UI by @BudsieBuds in ([#4210](https://github.com/opensourcepos/opensourcepos/pull/4210))
+- Convert language ku to ckb by @BudsieBuds in ([#4211](https://github.com/opensourcepos/opensourcepos/pull/4211))
+- Fix PHP 8.4 errors by @BudsieBuds in ([#4215](https://github.com/opensourcepos/opensourcepos/pull/4215))
+- Add default bootstrap to themes by @BudsieBuds in ([#4219](https://github.com/opensourcepos/opensourcepos/pull/4219))
+- Update language names by @BudsieBuds in ([#4218](https://github.com/opensourcepos/opensourcepos/pull/4218))
+- Update install docs by @BudsieBuds in ([#4217](https://github.com/opensourcepos/opensourcepos/pull/4217))
+- Convert menu icons to SVG by @BudsieBuds in ([#4220](https://github.com/opensourcepos/opensourcepos/pull/4220))
+- Enhance license handling by @BudsieBuds in ([#4223](https://github.com/opensourcepos/opensourcepos/pull/4223))
+- Fix datetime rendering ([#4226](https://github.com/opensourcepos/opensourcepos/issues/4226)) by @jekkos in ([#4227](https://github.com/opensourcepos/opensourcepos/pull/4227))
+- Fix datetime rendering by @jekkos in ([#4228](https://github.com/opensourcepos/opensourcepos/pull/4228))
+- Fix null error when sending by email a receipt of a sale that has no invoice by @diego-ramos in ([#4229](https://github.com/opensourcepos/opensourcepos/pull/4229))
+- Update Receivings.php to save form. by @odiea in ([#4231](https://github.com/opensourcepos/opensourcepos/pull/4231))
+- Update Cashups.php for ajax cashup total to work. by @odiea in ([#4238](https://github.com/opensourcepos/opensourcepos/pull/4238))
+- Coding style updates for PSR-12 compliance & improved readability by @BudsieBuds in ([#4204](https://github.com/opensourcepos/opensourcepos/pull/4204))
+- Fix Codeigniter disallowed characters error with payment types that have accents by @diego-ramos in ([#4232](https://github.com/opensourcepos/opensourcepos/pull/4232))
+- Fixed broken escape string for success & warning messages by @Franchovy in ([#4253](https://github.com/opensourcepos/opensourcepos/pull/4253))
+- Bugfix constraint migration fix by @objecttothis in ([#4230](https://github.com/opensourcepos/opensourcepos/pull/4230))
+- Fix item number lookup in sales/receivings ([#4212](https://github.com/opensourcepos/opensourcepos/issues/4212)) by @jekkos in ([#4250](https://github.com/opensourcepos/opensourcepos/pull/4250))
 
-- N/A
+## [3.4.0] - 2025-03-23
 
-## [3.3.8] - 2022-04-26
+- Translation updates (Spanish, Indonesian, Swedish, Urdu, Chinese, Thai, French, Dutch)
+- PHP `8.x` support
+- Security fixes (XSS, SQLi)
+- Migration to Gulp as buildsystem
+- Decimal validation fix
+- Sticky header fix
+- Receipt sent as attachment
+- Barcode generation library upgrade
+- Bump framework to CodeIgniter `4.x.x`
+- Improve security performance against bots
 
-- Translation updates (Flemish, Vietnamese, Thai, Azerbaijani, Spanish, French)
-- Fix logo removal issue (CSRF regression)
-- Substract refunds from total rewards as payment method
+## [3.3.9] - 2023-11-06
 
-## [3.3.7] - 2022-04-26
+- Translation updates (Arabic, Central Khmer, Croatian, Czech, Danish, English, French, Indonesian, Lao, Russian, Spanish, Thai)
+- Fix logout race condition issue ([#3578](https://github.com/opensourcepos/opensourcepos/issues/3578))
+- Fix docker compose file ([#3754](https://github.com/opensourcepos/opensourcepos/issues/3754))
+- Minor report fixes
 
-- Translation updates (Thai, Indonesian, Swedish, Italian)
+## [3.3.8] - 2022-08-03
+
+- Translation updates (Azerbaijani, Flemish, French, Spanish, Thai, Vietnamese)
+- Fix logo removal issue (CSRF regression) ([#3533](https://github.com/opensourcepos/opensourcepos/issues/3533))
+- Substract refunds from total rewards as payment method ([#3536](https://github.com/opensourcepos/opensourcepos/issues/3536))
+
+## [3.3.7] - 2022-03-29
+
+- Translation updates (Chinese, French, Indonesian, Italian, Polish, Swedish, Thai)
 - XSS fixes in bootstrap datatables
 - Invoice numbering fixes
 - Docker compose database scripts are now mounted from a container volume
 
-## [3.3.6] - 2022-01-08
+## [3.3.6] - 2021-10-31
 
-- Translation updates (Hungarian, Indonesian, Bosnian, Ukranian, Vietnamese, Spanish)
+- Translation updates (Bosnian, Dutch, Indonesian, Polish, Russian, Spanish)
 - Make footer revision clickable (ref to github)
 - Minor reporting adjustments
 - Introduced new global keyboard shortcuts (see overview below)
@@ -64,9 +110,9 @@ List of changes in the `master` branch.
 - Type juggling password fix for old logins
 
 
-## [3.3.5] - 2021-08-26
+## [3.3.5] - 2021-08-26 [YANKED]
 
-- Translation updates (Romanian, Ukrainian, Vietnamese, Thai, Polish, Swedish, Portuguese, Arabic, French, Chinese, Dutch, Tamil, Turkish, Spanish)
+- Translation updates (Arabic, Azerbaijani, Bulgarian, Chinese, Dutch, French, Indonesian, Polish, Portuguese, Romanian, Spanish, Swedish, Tamil, Thai, Turkish, Ukrainian, Vietnamese)
 - New responsive login page based on Bootstrap `5`
 - Translation fallback to English when a string is untranslated for the selected language
 - Database and performance optimizations
@@ -82,7 +128,7 @@ List of changes in the `master` branch.
 - Fixes for Docker to make it run on Windows
 - Blind SQL injection fix
 
-## [3.3.4] - 2021-04-18
+## [3.3.4] - 2021-04-20
 
 - Translation updates (Hungarian, Indonesian, Bosnian, Ukrainian, Vietnamese, Spanish)
 - Prevent data wipeout when calling GET directly on the save endpoint
@@ -97,7 +143,7 @@ List of changes in the `master` branch.
 - Add barcode field to item kits
 - Fix discount register parsing in some specific locales
 
-## [3.3.3] - 2020-12-31
+## [3.3.3] - 2021-01-01
 
 - PHP `7.4` support
 - Set PHP `7.2` to be the minimum level due to older version deprecations
@@ -107,13 +153,13 @@ List of changes in the `master` branch.
 - Improved security (CSRF protection)
 - Various small improvements and bug fixes
 
-## [3.3.2] - 2020-09-02
+## [3.3.2] - 2020-09-03
 
 - Fixed `only_full_group_by` issue with MySQL/MariaDB
 - Fixed POS transaction return failure if items were deleted
 - Various bug fixes
 
-## [3.3.1] - 2019-12-04
+## [3.3.1] - 2019-12-14
 
 - Various bug fixes (please disable `only_full_group_by` option from MySQL/MariaDB to avoid issues)
 
@@ -242,7 +288,7 @@ List of changes in the `master` branch.
 - Fixed `phppos to ospos` database migration script
 - Minor bug fixes and some general code clean up
 
-## [3.0.0] 2016-10-21
+## [3.0.0] 2016-10-22
 
 - Upgrade CodeIgniter to version `3.1.0`
 - Major UI overhaul based on Bootstrap `3.0` and Bootswatch Themes
@@ -261,7 +307,7 @@ List of changes in the `master` branch.
 - About 280 closed issues under `3.0.0` release label, too many to produce a meaningful list
 - Various code cleanup, refactoring, optimization and etc.
 
-## [2.4.0] - 2016-04-02
+## [2.4.0] - 2016-10-03
 
 - Upgrade CodeIgniter to version `3.0.5`
 - Fix for spurious logouts
@@ -290,7 +336,7 @@ List of changes in the `master` branch.
 - Minor code cleanup
 - Removal of annoying backup prompt on logout
 
-## [2.3.3] - 2016-01-05
+## [2.3.3] - 2016-01-06
 
 - Item kit fixes (search, list, ...)
 - Add date picker widgets in sale/receiving edit forms
@@ -312,7 +358,7 @@ List of changes in the `master` branch.
 - Add SQL script to clean zeroes in sales/receivings comments
 - Numerous other bug fixes
 
-## [2.3.2] - 2015-07-15
+## [2.3.2] - 2016-01-25
 
 - Nominatim (OpenStreetMap) customer address autocompletion
 - Sale invoice templating
@@ -343,7 +389,7 @@ List of changes in the `master` branch.
 - Fix item import through CSV
 - Bug fixes for reports
 
-## [2.3.0] - 2014-08-19
+## [2.3.0] - 2014-08-20
 
 - Support for multiple stock locations
 

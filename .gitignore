@@ -1,33 +1,20 @@
 # Dependency directories
-/node_modules
-/vendor
-/public/bower_components
-
-# Logs
-/application/logs/*
-*.log
+node_modules
+vendor
+public/resources
+public/images/menubar/*
+!public/images/menubar/.gitkeep
+public/license/*
+!public/license/.gitkeep
+app/Config/email.php
 npm-debug.log*
-
-# Build generated
-/tmp
-/public/license/.licenses
-/public/license/bower.LICENSES
-/public/dist
+.vscode
 
 # Docker
-!/docker/.env
-/docker/data/database/db/*
-/docker/data/certbot/conf/*
-/docker/data/ospos/app/*
-
-# Database
-/database/database.sql
-/database/migrate_phppos_dist.sql
-
-# Use files
-/application/config/email.php
-/application/sessions/*
-/application/uploads/*
+!docker/.env
+docker/data/database/db/*
+docker/data/certbot/conf/*
+docker/data/ospos/app/*
 
 # Editors
 ## SublimeText
@@ -69,11 +56,12 @@ $RECYCLE.BIN/
 .com.apple.timemachine.donotpresent
 
 # Other
-/generate_langauges.php
-/dist
-/docs
+build/
+generate_languages.php
+dist
+docs
 /patches
-/translations
+translations
 /.buildpath
 /.project
 /.settings/*
@@ -81,10 +69,24 @@ $RECYCLE.BIN/
 git-svn-diff.py
 *.bash
 .swp
+system/
 *.swp
 *.rej
 *.orig
 *~
 *.~
 .env
+.env.lock
+.env.tmp.*
 auth.json
+
+*.png
+*.jpg
+*.jpeg
+*.webp
+*copy*
+/writable/logs/*.log
+/writable/debugbar/*.json
+/app/Database/database.sql
+/writable/cache/*
+/.env.bak
